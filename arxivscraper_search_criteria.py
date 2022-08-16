@@ -3,10 +3,12 @@
 ## arXiv scraper: search with criteria through categories
 ## Author: Neco Kriel 2022
 
-import os, sys
+import os, sys, time
 import arxiv
 import numpy as np
 import datetime as dt
+
+os.system("clear")
 
 ''' arXiv result properties:
   - entry_id:         A url http://arxiv.org/abs/{id}.
@@ -31,8 +33,8 @@ import datetime as dt
 def createFolder(filepath):
   if not(os.path.exists(filepath)):
     os.makedirs(filepath)
-    print("SUCCESS: Folder created. \n\t" + filepath + "\n")
-  else: print("WARNING: Folder already exists (folder not created). \n\t" + filepath + "\n")
+    print("Successfully created folder:")
+    print(f"\t{filepath}\n")
 
 def getDateToday():
   date      = dt.datetime.now()
@@ -57,11 +59,36 @@ def getArticleDate(article):
   str_day   = str(date.day  ).zfill(2)
   return f"{str_year}-{str_month}-{str_day}"
 
-def printArticleInfo(article):
+def allKeywordsInPhrase(phrase, list_search_terms):
+  list_bools = []
+  for term in list_search_terms:
+    if type(term) is str:
+      term_bool = (term in phrase)
+      list_bools.append(term_bool)
+    elif type(term) is list:
+      list_bools.append(
+        anyKeywordsInPhrase(phrase, term)
+      )
+  return all(list_bools)
+
+def anyKeywordsInPhrase(phrase, list_search_terms):
+  list_bools = []
+  for term in list_search_terms:
+    if type(term) is str:
+      term_bool = (term in phrase)
+      list_bools.append(term_bool)
+      if term_bool: break
+    elif type(term) is list:
+      list_bools.append(
+        allKeywordsInPhrase(phrase, term)
+      )
+  return any(list_bools)
+
+def printArticleInfo(article, bool_verbose=False):
   ## helper print function
   def printLine(name, content):
-    print("{}{}".format( name.ljust(20), content ))
-  ## extract lists
+    print(f"{name.ljust(20)} {content}\n")
+  ## remove primary category from list of other categories
   list_other_categories = [
     elem for elem in article.categories
     if (elem != article.primary_category)
@@ -70,17 +97,17 @@ def printArticleInfo(article):
   ## print article information
   printLine("arXiv URL:",        article.entry_id)
   printLine("Title:",            article.title)
-  printLine("Date published:",   article.published)
-  printLine("Primary category:", article.primary_category)
-  printLine("Other categories:", ", ".join( list_other_categories ))
+  if bool_verbose: printLine("Date published:",   article.published)
+  if bool_verbose: printLine("Primary category:", article.primary_category)
+  if bool_verbose: printLine("Other categories:", ", ".join( list_other_categories ))
   printLine("Author(s)",         ", ".join( list_authors ))
   print(" ")
 
 def saveArticleInfo(file, article):
   ## helper write function
   def writeLine(file, name, content):
-    file.write("{}{}\n".format( name.ljust(20), content ))
-  ## extract lists
+    file.write(f"{name.ljust(20)} {content}\n")
+  ## remove primary category from list of other categories
   list_other_categories = [
     elem for elem in article.categories
     if (elem != article.primary_category)
@@ -93,7 +120,7 @@ def saveArticleInfo(file, article):
   writeLine(file, "Date published:",   article.published)
   writeLine(file, "Date updated:",     article.updated)
   writeLine(file, "Primary category:", article.primary_category)
-  writeLine(file, "Other categories:", ", ".join( list_other_categories))
+  writeLine(file, "Other categories:", ", ".join( list_other_categories ))
   writeLine(file, "Author(s)",         ", ".join( list_authors ))
   file.write("Abstract:\n")
   file.write(article.summary)
@@ -103,33 +130,37 @@ def saveArticleInfo(file, article):
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
-BOOL_PRINT           = 1
-BOOL_SAVE            = 1
-DATE_END             = getDateToday()
-DATE_START           = getDateNDaysAgo(30)
+DATE_START           = getDateNDaysAgo(31 * 6) # approx 6 months ago
+DATE_FINAL           = getDateToday()
 NUM_ARTICLES         = float(np.inf)
-FILEPATH_BASE        = os.getcwd()
-SUBFOLDER_OUTPUT     = "output"
-FILENAME_OUTPUT      = f"arxiv_{DATE_START}_{DATE_END}.txt"
+BOOL_PRINT           = 1
+BOOL_PRINT_VERBOSE   = 1
+BOOL_SAVE            = 1
 BOOL_SEARCH_TITLE    = 1
 BOOL_SEARCH_ABSTRACT = 0
 BOOL_SEARCH_AUTHORS  = 0
-LIST_CATEGORIES      = [
-  "astro-ph.HE", "astro-ph.GA", "astro-ph.SR", # astrophysics
-  "astro-ph.IM",                               # method papers
+LIST_CATEGORIES = [
+  # "astro-ph.HE", "astro-ph.GA", "astro-ph.SR", # astrophysics
+  # "astro-ph.IM",                               # method papers
   "physics.flu-dyn", "physics.plasm-ph",       # fluid physics
 ]
-LIST_KEYWORDS = [
-  "turbulen", # covers: "turbulence", "turbulent"
-  "magneti",  # covers: "magnetic", "magnetism", "magnetized"
-  "dynamo",
-  "magnetohydrodynamic", "mhd"
-]
 LIST_AUTHORS = [
-  "schekochihin", "federrath", "krumholz", "beattie", "sampson", "seta"
+  "schekochihin", "federrath", "krumholz", "beattie", "seta", "sampson"
+]
+LIST_KEYWORDS = [
+  # "turbulen", # covers: "turbulence", "turbulent"
+  # "magneti",  # covers: "magnetic", "magnetism", "magnetized"
+  "dynamo",
+  "magnetohydrodynamic", "mhd",
+  "galactic wind"
+]
+LIST_KEYWORDS_GROUPED = [
+  [ "cloud", [ "survival", "wind", "shock", "launch"] ],
+  [ "starburst", "outflows" ]
 ]
 
 def main():
+  time_start = time.time()
   ## initialise list of articles
   list_articles = []
   ## search different categories
@@ -145,7 +176,7 @@ def main():
     for article in search.results():
       ## check if the article was published within the desired date-range
       date_published = getArticleDate(article)
-      if (DATE_START <= date_published) and (date_published <= DATE_END):
+      if (DATE_START <= date_published) and (date_published <= DATE_FINAL):
         ## don't look at the article if it has appeared before
         if any(
             stored_article.title == article.title
@@ -172,7 +203,7 @@ def main():
         )
         ## if any of the criteria are satisfied
         if (bool_keywords_title or bool_keywords_abstract) or bool_authors:
-          list_articles.append(article) # store article
+          list_articles.append(article)
       else: break # break out of loop: because articles are ordered by date
   print(" ")
   if BOOL_PRINT:
@@ -180,18 +211,22 @@ def main():
     ## print articles to terminal
     for article_index, article in enumerate(list_articles):
       print(f"({article_index+1})")
-      printArticleInfo(article)
+      printArticleInfo(article, BOOL_PRINT_VERBOSE)
   if BOOL_SAVE:
     ## create output directory
-    filepath_output = f"{FILEPATH_BASE}/{SUBFOLDER_OUTPUT}"
-    filepath_file   = f"{filepath_output}/{FILENAME_OUTPUT}"
-    createFolder(filepath_output)
+    filepath_base = os.path.dirname(os.path.realpath(__file__))
+    filename_file = f"arxiv {DATE_FINAL} to {DATE_START} (test).txt"
+    filepath_output_folder = f"{filepath_base}/output"
+    filepath_output_file   = f"{filepath_output_folder}/{filename_file}"
+    createFolder(filepath_output_folder)
     ## save articles to file
-    with open(filepath_file, "w") as txt_file:
+    with open(filepath_output_file, "w") as txt_file:
       for article_index, article in enumerate(list_articles):
         txt_file.write(f"({article_index+1})\n")
         saveArticleInfo(txt_file, article)
-    print("Saved:", filepath_file)
+    print("Saved:", filepath_output_file)
+    time_elapsed = time.time() - time_start
+    print(f"Elapsed time: {time_elapsed:.2f} seconds.")
 
 
 
