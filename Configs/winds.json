@@ -1,0 +1,16 @@
+{
+  "list_authors" : [
+    "banda-barrag", "armillotta", "vijayan", "teodoro"
+  ],
+  "list_categories" : [
+    "astro-ph.GA"
+  ],
+  "list_keywords_exclude" : [ ],
+  "list_keywords_include" : [
+    [ "cloud", [ "cool", "surviv", "shock", "launch" ] ],
+    [
+      [ "wind", "cloud", "outflow" ],
+      [ [[ "star", "form" ]], "galactic", "inter", "collision", "simulat" ]
+    ]
+  ]
+}

@@ -2,11 +2,15 @@ import os
 os.system("clear")
 
 
+## ###############################################################
+## HELPER FUNCTIONS
+## ###############################################################
 def printHeading(str):
   print(str)
   print("=" * len(str))
 
-def allKeywordsInPhrase(phrase, list_search_terms):
+def containsAllKeywords(phrase, list_search_terms):
+  if len(list_search_terms) == 0: return False
   list_bools = []
   for term in list_search_terms:
     if type(term) is str:
@@ -14,11 +18,12 @@ def allKeywordsInPhrase(phrase, list_search_terms):
       list_bools.append(term_bool)
     elif type(term) is list:
       list_bools.append(
-        anyKeywordsInPhrase(phrase, term)
+        containsAnyKeyword(phrase, term)
       )
   return all(list_bools)
 
-def anyKeywordsInPhrase(phrase, list_search_terms):
+def containsAnyKeyword(phrase, list_search_terms):
+  if len(list_search_terms) == 0: return False
   list_bools = []
   for term in list_search_terms:
     if type(term) is str:
@@ -27,10 +32,14 @@ def anyKeywordsInPhrase(phrase, list_search_terms):
       if term_bool: break
     elif type(term) is list:
       list_bools.append(
-        allKeywordsInPhrase(phrase, term)
+        containsAllKeywords(phrase, term)
       )
   return any(list_bools)
 
+
+## ###############################################################
+## DEMO PROGRAM
+## ###############################################################
 def main():
   list_animals    = [ "fox", "turtle", "cow" ]
   list_actions    = [ "jumped", "leaped" ]
@@ -44,17 +53,28 @@ def main():
   print("\n".join(list_phrases))
   print(" ")
   list_search_terms = [
+    # ## where: "turtle" appears
     # "turtle",
-    # [ "cow", "river" ], # cow and river
-    # [ "fox", ["jumped", "river"] ], # fox and (jumped or river)
-    [ ["fox", "cow"], "jumped", ["moon", "log"] ], # (fox or cow) and jumped and (moon or log)
+
+    # ## where: "cow" and "river" appear
+    # [ "cow", "river" ],
+
+    ## where: "fox" and ("jumped" or "river") appears
+    [ "fox", ["jumped", "river"] ],
+
+    # ## where: ("fox" or "cow") and "jumped" and ("moon" or "log") appears
+    # [ ["fox", "cow"], "jumped", ["moon", "log"] ],
   ]
-  printHeading("List of phrases that met condition:")
+  printHeading("List of phrases that met the search conditions:")
   for phrase in list_phrases:
-    if anyKeywordsInPhrase(phrase, list_search_terms):
+    if containsAnyKeyword(phrase, list_search_terms):
       print(phrase)
       continue
 
+
+## ###############################################################
+## RUN DEMO
+## ###############################################################
 if __name__ == "__main__":
   main()
 

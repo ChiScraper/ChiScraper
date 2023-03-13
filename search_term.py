@@ -47,7 +47,7 @@ def printArticleInfo(article, num_pad_chars=20):
 ## MAIN PROGRAM
 ## ###############################################################
 BOOL_VERBOSE = 0
-SEARCH_TERM  = "dynamo"
+SEARCH_TERM  = "a. schekochihin"
 NUM_ARTICLES = 250
 
 def main():

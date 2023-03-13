@@ -1,0 +1,18 @@
+{
+  "list_authors" : [
+    "federrath", "beattie", "seta",
+    "subramanian", "brandenburg", "schekochihin", "kulsrud", "mckee", "schober",
+    "grete"
+  ],
+  "list_categories" : [
+    "astro-ph.GA", "astro-ph.HE", "astro-ph.SR",
+    "physics.flu-dyn", "physics.plasm-ph"
+  ],
+  "list_keywords_exclude" : [
+    "rmhd", "gr-mhd", "relativis"
+  ],
+  "list_keywords_include" : [
+    "mhd",
+    [ "magnet", [ "hydro", "turb", "structure", "cascade" ] ]
+  ]
+}
