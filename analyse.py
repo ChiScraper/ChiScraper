@@ -20,7 +20,7 @@ os.system("clear")
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
-def readAuthorNamesFromFile(filepath_input_file):
+def getAuthorNamesFromFile(filepath_input_file):
   ## helper function
   def getName(author):
     name = ""
@@ -44,7 +44,7 @@ def readAuthorNamesFromFile(filepath_input_file):
         ]
   return list_author_names
 
-def readArticleTitles(filepath_input_file):
+def getArticleTitles(filepath_input_file):
   list_words_exclude = [
     "of", "the", "in", "a", "and", "by", "on", "to", "from", "with", "for"
   ]
@@ -64,7 +64,7 @@ def readArticleTitles(filepath_input_file):
         )
   return list_titles
 
-def readArticleCategories(filepath_input_file):
+def getArticleCategories(filepath_input_file):
   list_categories = [ ]
   with open(filepath_input_file, "r") as txt_file:
     for line in txt_file:
@@ -113,14 +113,14 @@ BOOL_TITLE      = 1
 BOOL_CATEGORIES = 1
 
 def main():
-  filename = "arxiv 2023-01-31 to 2022-10-30 (mhd) [1 1 1].txt"
+  filename = "arxiv 2024-03-29 to 2023-03-23 (job) [1 1 1].txt"
   ## define path to file
   filepath_program    = os.path.dirname(os.path.realpath(__file__))
   filepath_input_file = f"{filepath_program}/Output/{filename}"
   ## extract information about articles
-  list_author_names   = readAuthorNamesFromFile(filepath_input_file)
-  list_titles         = readArticleTitles(filepath_input_file)
-  list_categories     = readArticleCategories(filepath_input_file)
+  list_author_names   = getAuthorNamesFromFile(filepath_input_file)
+  list_titles         = getArticleTitles(filepath_input_file)
+  list_categories     = getArticleCategories(filepath_input_file)
   print("Started analysis.")
   if BOOL_AUTHOR:
     printWordFreq(

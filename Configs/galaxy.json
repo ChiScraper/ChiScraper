@@ -1,0 +1,15 @@
+{
+  "list_authors" : [
+    "banerjee", "hopkins", "sharma", "quataert", "faucher-giguere", "keres",
+    "springel", "pakmor", "shukurov",
+    "teysseir", "girichidis", "pfrommer", "marinacci", "van de voort",
+    "o'shea"
+  ],
+  "list_categories" : [
+    "astro-ph.GA"
+  ],
+  "list_keywords_exclude" : [ ],
+  "list_keywords_include" : [
+    [ "gala", [ "form", "evol", "dynam" ], "simulat" ]
+  ]
+}

@@ -1,7 +1,8 @@
 {
   "list_authors" : [
     "federrath", "beattie", "seta",
-    "subramanian", "brandenburg", "schekochihin", "kulsrud", "mckee", "schober"
+    "subramanian", "brandenburg", "schekochihin", "kulsrud", "mckee", "schober",
+    "pipin"
   ],
   "list_categories" : [
     "astro-ph.GA", "astro-ph.HE", "astro-ph.SR",

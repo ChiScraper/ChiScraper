@@ -59,11 +59,11 @@ def main():
     # ## where: "cow" and "river" appear
     # [ "cow", "river" ],
 
-    ## where: "fox" and ("jumped" or "river") appears
-    [ "fox", ["jumped", "river"] ],
+    # ## where: "fox" and ("jumped" or "river") appears
+    # [ "fox", ["jumped", "river"] ],
 
-    # ## where: ("fox" or "cow") and "jumped" and ("moon" or "log") appears
-    # [ ["fox", "cow"], "jumped", ["moon", "log"] ],
+    ## where: ("fox" or "cow") and "jumped" and ("moon" or "log") appears
+    [ ["fox", "cow"], "jumped", ["moon", "log"] ],
   ]
   printHeading("List of phrases that met the search conditions:")
   for phrase in list_phrases:

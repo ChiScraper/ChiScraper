@@ -8,7 +8,6 @@ import datetime as dt
 import numpy as np
 from unidecode import unidecode
 from MyLibrary import HelperFuncs
-os.system("clear")
 
 
 ## ###############################################################
@@ -68,7 +67,8 @@ def search(dict_search):
             (author.lower() in list_author_lastnames)
             for author in dict_search["list_authors"]
           )
-        if (bool_title or bool_abstract) or bool_authors:
+        else: bool_authors = True
+        if (bool_title or bool_abstract) and bool_authors:
           list_articles.append(article)
       else: break
       ## display search progress
@@ -87,22 +87,23 @@ def search(dict_search):
 ## SEARCH PARAMETERS
 ## ###############################################################
 NUM_DAYS_IN_MONTH    = 31
-DATE_START           = HelperFuncs.getDateNDaysAgo(NUM_DAYS_IN_MONTH * 3)
+DATE_START           = HelperFuncs.getDateNDaysAgo(NUM_DAYS_IN_MONTH * 1)
+# DATE_FINAL           = HelperFuncs.getDateNDaysAgo(NUM_DAYS_IN_MONTH * 0)
 DATE_FINAL           = HelperFuncs.getDateToday()
 NUM_ARTICLES         = float(np.inf)
 BOOL_PRINT           = 0
 BOOL_SAVE            = 1
-FILENAME_CONFIG      = "winds" # excluding the .json extension
+FILENAME_CONFIG      = "mhd" # excluding the .json extension
 BOOL_SEARCH_TITLE    = 1
 BOOL_SEARCH_ABSTRACT = 1
-BOOL_SEARCH_AUTHORS  = 1
+BOOL_SEARCH_AUTHORS  = 0
 
 
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
-  if DATE_START > DATE_FINAL:
+  if DATE_FINAL < DATE_START:
     raise Exception(f"Final date ({DATE_FINAL}) in the search window should be after the start date ({DATE_START}).")
   time_start = time.time()
   current_time = dt.datetime.now().strftime("%H:%M:%S")
@@ -112,12 +113,17 @@ def main():
   dict_search = HelperFuncs.readConfigFile(FILENAME_CONFIG)
   ## search for files that meet criteria
   list_articles = search(dict_search)
+  list_articles_sorted = sorted(
+    list_articles,
+    key     = lambda article: article.updated,
+    reverse = True
+  )
   if BOOL_PRINT:
     ## print all the articles found to the terminal
-    for article_index, article in enumerate(list_articles):
+    for article_index, article in enumerate(list_articles_sorted):
       print(f"({article_index+1})") # article index
       HelperFuncs.printArticleInfo(article) # save article details
-  print(f"Found a total of {len(list_articles)} articles.")
+  print(f"Found a total of {len(list_articles_sorted)} articles.")
   print(" ")
   if BOOL_SAVE:
     ## creating output filename
@@ -131,7 +137,8 @@ def main():
     filepath_output_file = f"{filepath_output_folder}/{filename}.txt"
     ## save all the articles found to file
     with open(filepath_output_file, "w") as txt_file:
-      for article_index, article in enumerate(list_articles):
+      txt_file.write(f"Found {len(list_articles_sorted)} articles.\n\n")
+      for article_index, article in enumerate(list_articles_sorted):
         txt_file.write(f"({article_index+1})\n") # article index
         HelperFuncs.saveArticleInfo(txt_file, article) # save article details
     print(f"Saved article details under: \n\t{filepath_output_file}")

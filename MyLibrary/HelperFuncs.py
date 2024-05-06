@@ -63,7 +63,7 @@ def getDateToday():
 
 def getDateNDaysAgo(num_days):
   date_today = dt.datetime.now()
-  date_delta = dt.timedelta(days=num_days)
+  date_delta = dt.timedelta(days=int(num_days))
   date_num_days_ago = date_today - date_delta
   str_year  = str(date_num_days_ago.year ).zfill(4)
   str_month = str(date_num_days_ago.month).zfill(2)
