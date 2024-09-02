@@ -15,14 +15,14 @@ from MyLibrary import HelperFuncs
 ## SEARCH PARAMETERS
 ## ###############################################################
 ## search configuration
-CONFIG_FILENAME      = "sf" # excluding the .json extension
+CONFIG_FILENAME      = "demo" # excluding the .json extension
 START_DATE           = HelperFuncs.getDateNDaysAgo(14)
 BOOL_SEARCH_TITLE    = 1
 BOOL_SEARCH_ABSTRACT = 1
 BOOL_SEARCH_AUTHORS  = 0
 
 ## output options
-DIRECTORY_OUTPUT = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
+DIRECTORY_OUTPUT = "./articles"
 BOOL_SAVE_ARTICLES  = 1
 BOOL_PRINT_ARTICLES = 0
 

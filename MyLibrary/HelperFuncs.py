@@ -67,13 +67,12 @@ class MyParser(argparse.ArgumentParser):
 ## ###############################################################
 ## LOAD SEARCH CRITERIA
 ## ###############################################################
-def readSearchCriteria(filename):
-  filepath_subfolder = "Configs"
-  filepath_file = f"{filepath_subfolder}/{filename}.json"
+def readSearchCriteria(directory, filename):
+  filepath_file = f"{directory}/{filename}.json"
   if fileExists(filepath_file):
     with open(filepath_file, "r") as input:
       dict_config = json.load(input)
-  else: raise Exception(f"Error: '{filename}.json' config file does not exist in: '{filepath_subfolder}/'")
+  else: raise Exception(f"Error: '{filename}.json' config file does not exist in: '{directory}/'")
   list_missing_keys = []
   for key in [
       "config_tag",

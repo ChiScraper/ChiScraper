@@ -1,4 +1,5 @@
 .DS_Store
-
-Configs/
 MyLibrary/__pycache__
+
+Configs/*.json
+!Configs/demo.json
