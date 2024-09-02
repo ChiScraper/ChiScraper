@@ -113,7 +113,7 @@ BOOL_TITLE      = 1
 BOOL_CATEGORIES = 1
 
 def main():
-  filename = "arxiv 2024-03-29 to 2023-03-23 (job) [1 1 1].txt"
+  filename = "arxiv 2024-07-08 to 2024-07-01 (mhd) [1 1 0].txt"
   ## define path to file
   filepath_program    = os.path.dirname(os.path.realpath(__file__))
   filepath_input_file = f"{filepath_program}/Output/{filename}"
