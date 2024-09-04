@@ -14,17 +14,15 @@ from MyLibrary import HelperFuncs
 ## ###############################################################
 ## SEARCH PARAMETERS
 ## ###############################################################
-## search configuration
-CONFIG_FILENAME      = "demo" # excluding the .json extension
+OUTPUT_DIRECTORY     = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
+BOOL_SAVE_ARTICLES   = 1
+BOOL_PRINT_ARTICLES  = 0
+CONFIG_DIRECTORY     = "./configs"
+CONFIG_FILENAME      = "dynamo" # excluding the .json extension
 START_DATE           = HelperFuncs.getDateNDaysAgo(14)
 BOOL_SEARCH_TITLE    = 1
 BOOL_SEARCH_ABSTRACT = 1
 BOOL_SEARCH_AUTHORS  = 0
-
-## output options
-DIRECTORY_OUTPUT = "./articles"
-BOOL_SAVE_ARTICLES  = 1
-BOOL_PRINT_ARTICLES = 0
 
 
 ## ###############################################################
@@ -50,7 +48,7 @@ class ArxivScraper:
     )
 
   def search(self, dict_search):
-    self.list_articles = []
+    self.list_results = []
     for search_category in dict_search["list_categories"]:
       HelperFuncs.printToTerminal(f"Searching: {search_category}")
       HelperFuncs.printToTerminal(f"Date range: {HelperFuncs.getDateString(self.start_date)} to {HelperFuncs.getDateString(self.end_date)}")
@@ -61,16 +59,23 @@ class ArxivScraper:
         num_looked_at += 1
         self._displayProgress(num_looked_at)
         if not(self._isWithinDateRange(article)): break
-        if self._isDuplicate(article, self.list_articles): continue
-        if self._meetsCondition(article, dict_search):
-          self.list_articles.append(article)
+        if self._isDuplicate(article, self.list_results): continue
+        bool_result, list_config_reason = self._checkConditions(article, dict_search)
+        if bool_result:
+          self.list_results.append({
+            "article" : article,
+            "list_config_reason" : [
+              "1" if _bool else "0"
+              for _bool in list_config_reason
+            ]
+          })
           num_saved += 1
       HelperFuncs.printToTerminal(f"\nFound {num_saved} useful files from the {num_looked_at} looked at.\n")
 
   def getSortedArticles(self):
     return sorted(
-      self.list_articles,
-      key     = lambda article: article.updated,
+      self.list_results,
+      key     = lambda result: result["article"].updated,
       reverse = True
     )
 
@@ -85,22 +90,23 @@ class ArxivScraper:
     date_published = HelperFuncs.getArticleDate(article)
     return (self.start_date.date() <= date_published.date()) and (date_published.date() <= self.end_date.date())
 
-  def _isDuplicate(self, article, list_articles):
+  def _isDuplicate(self, article, list_results):
+    this_title = article.title.lower()
     return any(
-      stored_article.title == article.title
-      for stored_article in list_articles
+      this_title == result["article"].title.lower()
+      for result in list_results
     )
 
-  def _meetsCondition(self, article, dict_search):
-    bool_satisfied_title    = True
-    bool_satisfied_abstract = True
-    bool_satisfied_authors  = True
+  def _checkConditions(self, article, dict_search):
+    bool_satisfied_title    = False
+    bool_satisfied_abstract = False
+    bool_satisfied_authors  = False
     if self.bool_search_title:
-      if HelperFuncs.containsAnyKeyword(article.title.lower(), dict_search["list_keywords_exclude"]): return False
-      bool_satisfied_title = HelperFuncs.containsAnyKeyword(article.title.lower(), dict_search["list_keywords_include"])
+      if HelperFuncs.meetsSearchCriteria(article.title.lower(), dict_search["list_keywords_exclude"]): return False, None
+      bool_satisfied_title = HelperFuncs.meetsSearchCriteria(article.title.lower(), dict_search["list_keywords_include"])
     if self.bool_search_abstract:
-      if HelperFuncs.containsAnyKeyword(article.summary.lower(), dict_search["list_keywords_exclude"]): return False
-      bool_satisfied_abstract = HelperFuncs.containsAnyKeyword(article.summary.lower(), dict_search["list_keywords_include"])
+      if HelperFuncs.meetsSearchCriteria(article.summary.lower(), dict_search["list_keywords_exclude"]): return False, None
+      bool_satisfied_abstract = HelperFuncs.meetsSearchCriteria(article.summary.lower(), dict_search["list_keywords_include"])
     if self.bool_search_authors:
       list_author_lastnames = [
         unidecode(str(author).lower().split(" ")[-1])
@@ -110,7 +116,12 @@ class ArxivScraper:
         author.lower() in list_author_lastnames
         for author in dict_search["list_authors"]
       )
-    return (bool_satisfied_title or bool_satisfied_abstract) and bool_satisfied_authors
+    list_config_reason = [
+      bool_satisfied_title,
+      bool_satisfied_abstract,
+      bool_satisfied_authors
+    ]
+    return any(list_config_reason), list_config_reason
 
   def _displayProgress(self, num_looked_at):
     if (num_looked_at % 10) == 0: HelperFuncs.printToTerminal("x", end="")
@@ -121,7 +132,7 @@ class ArxivScraper:
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
-  HelperFuncs.createFolder(DIRECTORY_OUTPUT)
+  HelperFuncs.createFolder(OUTPUT_DIRECTORY)
   end_date = HelperFuncs.getDateToday()
   if (end_date.date() - START_DATE.date()).days < 1:
     raise ValueError(
@@ -129,12 +140,21 @@ def main():
       "Please ensure that the final date is the same or later than the start date."
     )
   time_start  = time.time()
-  dict_search = HelperFuncs.readSearchCriteria(CONFIG_FILENAME)
-  config_tag  = "#{}".format(dict_search["config_tag"])
+  filepath_config = f"{CONFIG_DIRECTORY}/{CONFIG_FILENAME}.json"
+  if not HelperFuncs.fileExists(filepath_config):
+    raise FileNotFoundError(f"Error: the config file '{CONFIG_FILENAME}.json' does not exist in: '{CONFIG_DIRECTORY}/'")
+  dict_criteria = HelperFuncs.readSearchCriteria(CONFIG_DIRECTORY, CONFIG_FILENAME)
+  config_tag = dict_criteria["config_tag"]
   HelperFuncs.printToTerminal(f"Searching for articles:")
-  HelperFuncs.printToTerminal("\t> from: {}".format(HelperFuncs.getDateString(START_DATE)))
-  HelperFuncs.printToTerminal("\t> to:   {}".format(HelperFuncs.getDateString(end_date)))
-  HelperFuncs.printToTerminal(f"\t> using the {config_tag} config file")
+  HelperFuncs.printToTerminal("> from: {}".format(HelperFuncs.getDateString(START_DATE)))
+  HelperFuncs.printToTerminal("> to:   {}".format(HelperFuncs.getDateString(end_date)))
+  HelperFuncs.printToTerminal(" ")
+  HelperFuncs.printToTerminal(f"> using the '#{config_tag}' config file")
+  if BOOL_SEARCH_TITLE:    HelperFuncs.printToTerminal("> searching titles.")
+  if BOOL_SEARCH_ABSTRACT: HelperFuncs.printToTerminal("> searching abstracts.")
+  if BOOL_SEARCH_AUTHORS:  HelperFuncs.printToTerminal("> searching authors.")
+  HelperFuncs.printToTerminal(" ")
+  HelperFuncs.printSearchCriteria(dict_criteria, BOOL_SEARCH_AUTHORS)
   HelperFuncs.printToTerminal("Started executing at: {}".format(dt.datetime.now().strftime("%H:%M:%S")))
   HelperFuncs.printToTerminal(" ")
   obj_scraper = ArxivScraper(
@@ -144,20 +164,21 @@ def main():
     bool_search_abstract = BOOL_SEARCH_ABSTRACT,
     bool_search_authors  = BOOL_SEARCH_AUTHORS
   )
-  obj_scraper.search(dict_search)
-  list_articles = obj_scraper.getSortedArticles()
-  HelperFuncs.printToTerminal(f"Found a total of {len(list_articles)} articles.")
-  HelperFuncs.printToTerminal(f"Saving articles to: {DIRECTORY_OUTPUT}")
-  num_articles = len(list_articles)
-  for article_index, article in enumerate(list_articles):
+  obj_scraper.search(dict_criteria)
+  list_results = obj_scraper.getSortedArticles()
+  HelperFuncs.printToTerminal(f"Found a total of {len(list_results)} articles.")
+  HelperFuncs.printToTerminal(f"Saving articles to: {OUTPUT_DIRECTORY}")
+  num_articles = len(list_results)
+  for article_index, result in enumerate(list_results):
     if BOOL_PRINT_ARTICLES:
       HelperFuncs.printToTerminal(f"({article_index+1}/{num_articles})")
-      HelperFuncs.printArticle(article)
+      HelperFuncs.printArticle(result["article"])
     if BOOL_SAVE_ARTICLES:
       HelperFuncs.saveArticle(
-        article          = article,
-        directory_output = DIRECTORY_OUTPUT,
-        config_tag       = config_tag
+        article            = result["article"],
+        directory_output   = OUTPUT_DIRECTORY,
+        config_tag         = config_tag,
+        list_config_reason = result["list_config_reason"]
       )
   time_elapsed = time.time() - time_start
   HelperFuncs.printToTerminal(" ")

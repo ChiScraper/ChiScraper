@@ -12,7 +12,7 @@ from unidecode import unidecode
 def createFolder(filepath):
   if not(os.path.exists(filepath)):
     os.makedirs(filepath)
-    print(f"Successfully created folder: {filepath}\n")
+    printToTerminal(f"Successfully created folder: {filepath}\n")
 
 def shortenList(list_elems, max_elems=5):
   list_sub_elems = [
@@ -29,6 +29,7 @@ def shortenList(list_elems, max_elems=5):
 
 def formatText(text):
   ## adjust text for things that go wrong with Obsidian's tex-rendering
+  text = text.replace("#", "")
   text = text.replace("\'", "")
   text = text.replace(":", "...")
   text = text.replace('"', "`")
@@ -83,8 +84,8 @@ def readSearchCriteria(directory, filename):
     ]:
     if key not in dict_config: list_missing_keys.append(f"'{key}'")
   if len(list_missing_keys) > 0:
-    print(f"The following config keys are missing:")
-    print("\t", ", ".join(list_missing_keys), "\n")
+    printToTerminal(f"The following config keys are missing:")
+    printToTerminal("\t", ", ".join(list_missing_keys), "\n")
     raise Exception("Error: Config file is missing search keys")
   return dict_config
 
@@ -118,46 +119,130 @@ def containsAllKeywords(phrase, list_search_terms):
   if len(list_search_terms) == 0: return False
   list_bools = []
   for term in list_search_terms:
-    if type(term) is str:
-      term_bool = (term in phrase)
-      list_bools.append(term_bool)
-    elif type(term) is list:
+    if isinstance(term, str):
+      bool_term_contained = term.lower() in phrase
+      list_bools.append(bool_term_contained)
+    elif isinstance(term, list):
       list_bools.append(
-        containsAnyKeyword(phrase, term)
+        containsAnyKeywords(phrase, term)
       )
   return all(list_bools)
 
-def containsAnyKeyword(phrase, list_search_terms):
+def containsAnyKeywords(phrase, list_search_terms):
   if len(list_search_terms) == 0: return False
   list_bools = []
   for term in list_search_terms:
-    if type(term) is str:
-      term_bool = (term in phrase)
-      list_bools.append(term_bool)
-      if term_bool: break
-    elif type(term) is list:
+    if isinstance(term, str):
+      bool_term_contained = term.lower() in phrase.lower()
+      list_bools.append(bool_term_contained)
+      if bool_term_contained: break
+    elif isinstance(term, list):
       list_bools.append(
         containsAllKeywords(phrase, term)
       )
   return any(list_bools)
 
+def meetsSearchCriteria(phrase, list_search_conditions):
+  return containsAnyKeywords(phrase, list_search_conditions)
+
+def getStringOperator(count_operator):
+  if count_operator % 2 == 1: return "OR"
+  else: return "AND"
+
+def printSearchCriteria(dict_search, bool_search_authors=False):
+  list_keywords_include = dict_search["list_keywords_include"]
+  list_keywords_exclude = dict_search["list_keywords_exclude"]
+  printToTerminal("> including articles with phrases:")
+  printToTerminal(lolsToSetNotation(list_keywords_include))
+  printToTerminal(" ")
+  if len(list_keywords_exclude) > 0:
+    printToTerminal("> excluding articles with phrases:")
+    printToTerminal(lolsToSetNotation(list_keywords_exclude))
+    printToTerminal(" ")
+  if bool_search_authors:
+    list_authors = dict_search["list_authors"]
+    printToTerminal("> including articles with authors:", end="")
+    printToTerminal(joinList(list_authors, str_pre="\n\t- "))
+    printToTerminal(" ")
+
+# def lolsToSetNotation(lst, level=0):
+#   ## unwrap single-element lists to remove unnecessary nesting
+#   while isinstance(lst, list) and len(lst) == 1:
+#     lst = lst[0]
+#     level += 1
+#   if not isinstance(lst, list):
+#     return f"'{lst.lower()}'"
+#   if level % 2 == 1: operator = " AND "
+#   else: operator = " OR "
+#   result = ""
+#   for i, item in enumerate(lst):
+#     if i > 0:                  result += operator
+#     if isinstance(item, list): result += f"({lolsToSetNotation(item, level + 1)})"
+#     else:                      result += f"'{item.lower()}'"
+#   return result
+
+def lolsToSetNotation(lst, level=0):
+  while isinstance(lst, list) and (len(lst) == 1):
+    lst = lst[0]
+    level += 1
+  if not isinstance(lst, list): return f"'{lst}'"
+  if level % 2 == 1: operator = " AND "
+  else: operator = " OR "
+  return operator.join(
+    f"({lolsToSetNotation(item, level + 1)})"
+    if isinstance(item, list)
+    else f"'{item}'"
+    for item in lst
+  )
+
 def getArticleDetails(filepath_article):
   task_status_found = None
-  list_tags_found = []
+  list_config_tags_found = []
+  list_dict_config_reasons = []
+  bool_reading_tags = False
   with open(filepath_article, "r") as filepointer:
     for line in filepointer.readlines():
-      if "#task" in line: task_status_found = line.split("[")[1].split("]")[0]
-      if "Tags:" in line: list_tags_found = line.split(":")[1].strip().split(" ")
+      ## usually at the end of the file
+      if ("#task" in line):
+        task_status_found = line.split("[")[1].split("]")[0]
+        continue
+      ## condition for when you have found the line where config tags are listed
+      if ("config_tags" in line):
+        bool_reading_tags = True
+        continue
+      elif bool_reading_tags and ("#" in line):
+        str_tag = line.split("- ")[1].strip()
+        list_config_tags_found.append(str_tag)
+        continue
+      ## once you had found the list of config tags, this indicates when you have transitioned to another section
+      elif (":" in line) or ("---" in line):
+        bool_reading_tags = False
+      if ("config_reason" in line):
+        str_config_tag = line.split("_reason_")[1].split(":")[0]
+        str_config_reason = line.split(":")[1].strip()
+        list_dict_config_reasons.append({
+          "tag"    : str_config_tag,
+          "reason" : str_config_reason
+        })
+        continue
   task_status = task_status_found if task_status_found in ["u", "r", "d"] else "u"
-  list_tags = [
-    tag
-    for tag in list_tags_found
-    if (tag != "") and (tag[0] == "#")
+  list_config_tags = [
+    tag.lower()
+    for tag in list_config_tags_found
+    if (tag != "")
   ]
   return {
     "task_status" : task_status,
-    "list_tags"   : list_tags
+    "list_config_tags" : list_config_tags,
+    "list_dict_config_reasons" : list_dict_config_reasons
   }
+
+def printHeading(str):
+  printToTerminal(str)
+  printToTerminal("=" * len(str))
+
+def joinList(list_elems, str_pre):
+  return str_pre + str_pre.join(list_elems)
 
 
 ## ###############################################################
@@ -165,46 +250,66 @@ def getArticleDetails(filepath_article):
 ## ###############################################################
 def printArticle(article, num_pad_chars=17):
   ## helper function
-  def printLine(category, content):
+  def _printLine(category, content):
     if isinstance(content, list): content = ", ".join(content)
     category = f"{category}:".ljust(num_pad_chars)
-    print(f"{category} {content}")
+    printToTerminal(f"{category} {content}")
   ## extract the author names
   list_authors = [
     unidecode(str(author))
     for author in shortenList(article.authors)
   ]
-  ## print article information
-  printLine("Title",          article.title)
-  printLine("PDF URL",        article.pdf_url)
-  printLine("Date Published", getDateString(article.published))
-  printLine("Author(s)",      list_authors)
-  print(" ")
+  ## printToTerminal article information
+  _printLine("Title",          article.title)
+  _printLine("PDF URL",        article.pdf_url)
+  _printLine("Date Published", getDateString(article.published))
+  _printLine("Author(s)",      list_authors)
+  printToTerminal(" ")
 
-def saveArticle(article, directory_output, config_tag):
+def saveArticle(article, directory_output, config_tag, list_config_reason=[]):
   task_status = "u" # unread by default
-  list_tags = []
+  list_config_tags = []
+  list_dict_config_reasons = []
   filename = article.pdf_url.split("/")[-1].split("v")[0]
   filepath_file = f"{directory_output}/{filename}.md"
   if fileExists(filepath_file):
     dict_details = getArticleDetails(filepath_file)
-    task_status  = dict_details["task_status"]
-    list_tags    = dict_details["list_tags"]
-  if config_tag not in list_tags: list_tags.append(config_tag)
+    task_status = dict_details["task_status"]
+    list_config_tags = dict_details["list_config_tags"]
+    list_dict_config_reasons = dict_details["list_dict_config_reasons"]
+  str_config_tag = f'"#{config_tag}"'
+  if str_config_tag not in list_config_tags: list_config_tags.append(str_config_tag)
+  if len(list_config_reason) > 0: str_config_reason = ",".join(list_config_reason)
+  else: str_config_reason = "None"
+  ## if the tag is already in the list of config reasons, replace it
+  bool_config_reason_replaced = False
+  for dict_config_reason in list_dict_config_reasons:
+    if config_tag == dict_config_reason["tag"]:
+      bool_config_reason_replaced = True
+      dict_config_reason["reason"] = str_config_reason
+      break
+  if not(bool_config_reason_replaced):
+    list_dict_config_reasons.append({
+      "tag"    : config_tag,
+      "reason" : str_config_reason
+    })
+  ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
   with open(filepath_file, "w") as filepointer:
-    ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
     writeArticle2File(
-      filepointer = filepointer,
-      article     = article,
-      task_status = task_status,
-      list_tags   = list_tags
+      filepointer         = filepointer,
+      article             = article,
+      task_status         = task_status,
+      list_config_tags    = sorted(list_config_tags),
+      list_dict_config_reasons = sorted(list_dict_config_reasons, key=lambda x: x['tag']),
     )
 
-def writeArticle2File(filepointer, article, task_status, list_tags):
+def writeArticle2File(filepointer, article, task_status, list_config_tags, list_dict_config_reasons):
   ## helper function
-  def writeProperty(category, content):
+  def _writeProperty(category, content):
     if isinstance(content, list): content = ", ".join(content)
     filepointer.write(f"{category}: {content}\n")
+  def _createTagList(_list_tags):
+    return joinList(_list_tags, str_pre="\n    - ")
   ## extract the author names
   list_authors = [
     unidecode(str(author))
@@ -216,22 +321,27 @@ def writeArticle2File(filepointer, article, task_status, list_tags):
     for elem in shortenList(article.categories)
     if (elem != article.primary_category)
   ]
+  str_other_categories = ", ".join(list_other_categories) if len(list_other_categories) > 0 else "None"
+  str_config_tags = _createTagList(list_config_tags)
   ## save article information
   filepointer.write(f"---\n")
-  writeProperty("title",            formatText(article.title))
-  writeProperty("url_pdf",          article.pdf_url)
-  writeProperty("date_published",   getDateString(article.published))
-  writeProperty("date_updated",     getDateString(article.updated))
-  writeProperty("category_primary", article.primary_category)
-  writeProperty("category_others",  list_other_categories if len(list_other_categories) > 0 else "None")
-  writeProperty("authors",          list_authors)
-  writeProperty("abstract",         formatText(article.summary))
+  ## print all article properties
+  _writeProperty("title",            formatText(article.title))
+  _writeProperty("arxiv_id",         article.pdf_url.split("/")[-1].split("v")[0])
+  _writeProperty("url_pdf",          article.pdf_url)
+  _writeProperty("date_published",   getDateString(article.published))
+  _writeProperty("date_updated",     getDateString(article.updated))
+  _writeProperty("category_primary", article.primary_category)
+  _writeProperty("category_others",  str_other_categories)
+  _writeProperty("authors",          list_authors)
+  _writeProperty("abstract",         formatText(article.summary))
+  _writeProperty("config_tags",      str_config_tags)
+  for dict_config_reason in list_dict_config_reasons:
+    _writeProperty(
+      "config_reason_{}".format(dict_config_reason["tag"]),
+      dict_config_reason["reason"]
+    )
   filepointer.write(f"---\n")
-  filepointer.write("# `$= dv.current().title`\n")
-  filepointer.write("`$= dv.current().abstract`\n")
-  filepointer.write("\n")
-  str_tags = " ".join(list_tags)
-  filepointer.write(f"Tags: {str_tags}\n")
   filepointer.write(f" - [{task_status}] #task status\n")
 
 
