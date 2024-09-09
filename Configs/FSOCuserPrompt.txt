@@ -1,0 +1,5 @@
+I am a researcher in Free Space Optical Communication (FSOC), specifically with space assets, 
+e.g. satellites and spacecraft
+
+I am intersted in Adaptive Optics, Wavefront Sensing and Wavefront Control / Correction. I am also interested
+in photonic solutions for FSOC and astronomy (astrophotonics). Finally I am intersted in photonic lanterns.

@@ -2,6 +2,8 @@
 __pycache__
 
 MyLibrary/__pycache__
-
+.venv/
+articles/
+CAMS_arxiv_search/
 configs/*.json
 !configs/demo.json
