@@ -2,8 +2,7 @@
 __pycache__
 
 MyLibrary/__pycache__
-.venv/
-articles/
-CAMS_arxiv_search/
-configs/*.json
+
+configs/*
 !configs/demo.json
+!configs/ai_rules.txt

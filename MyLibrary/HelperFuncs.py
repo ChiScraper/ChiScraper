@@ -1,7 +1,7 @@
 ## ###############################################################
 ## IMPORT MODULES
 ## ###############################################################
-import os, sys, json, re, argparse
+import os, sys, json, re, argparse, yaml
 import datetime as dt
 from unidecode import unidecode
 
@@ -12,7 +12,7 @@ from unidecode import unidecode
 def createFolder(filepath):
   if not(os.path.exists(filepath)):
     os.makedirs(filepath)
-    printToTerminal(f"Successfully created folder: {filepath}\n")
+    print2Terminal(f"Successfully created folder: {filepath}\n")
 
 def shortenList(list_elems, max_elems=5):
   list_sub_elems = [
@@ -42,8 +42,18 @@ def formatText(text):
 def fileExists(filepath):
   return os.path.isfile(filepath)
 
-def printToTerminal(message, end="\n"):
+def print2Terminal(message, end="\n"):
   print(message, end=end, flush=True)
+
+def printHeading(str):
+  print2Terminal(str)
+  print2Terminal("=" * len(str))
+
+def joinList(list_elems, str_sep="", bool_pre=False):
+  list_elems = map(str, list_elems)
+  if bool_pre: str_pre = str_sep
+  else:        str_pre = ""
+  return str_pre + str_sep.join(list_elems)
 
 class MyHelpFormatter(argparse.RawDescriptionHelpFormatter):
   def _format_action(self, action):
@@ -68,12 +78,8 @@ class MyParser(argparse.ArgumentParser):
 ## ###############################################################
 ## LOAD SEARCH CRITERIA
 ## ###############################################################
-def readSearchCriteria(directory, filename):
-  filepath_file = f"{directory}/{filename}.json"
-  if fileExists(filepath_file):
-    with open(filepath_file, "r") as input:
-      dict_config = json.load(input)
-  else: raise Exception(f"Error: '{filename}.json' config file does not exist in: '{directory}/'")
+def readSearchCriteria2Dict(directory, filename):
+  dict_config = readFile(f"{directory}/{filename}.json", ".json")
   list_missing_keys = []
   for key in [
       "config_tag",
@@ -84,8 +90,8 @@ def readSearchCriteria(directory, filename):
     ]:
     if key not in dict_config: list_missing_keys.append(f"'{key}'")
   if len(list_missing_keys) > 0:
-    printToTerminal(f"The following config keys are missing:")
-    printToTerminal("\t", ", ".join(list_missing_keys), "\n")
+    print2Terminal(f"The following config keys are missing:")
+    print2Terminal("\t", ", ".join(list_missing_keys), "\n")
     raise Exception("Error: Config file is missing search keys")
   return dict_config
 
@@ -93,11 +99,14 @@ def readSearchCriteria(directory, filename):
 ## ###############################################################
 ## FORMAT DATES
 ## ###############################################################
-def getDateString(date):
+def castDate2String(date):
   str_year  = str(date.year ).zfill(4)
   str_month = str(date.month).zfill(2)
   str_day   = str(date.day  ).zfill(2)
   return f"{str_year}-{str_month}-{str_day}"
+
+def castString2Date(str_date):
+  return dt.datetime.strptime(str_date, "%Y-%m-%d").date()
 
 def getDateToday():
   return dt.datetime.now()
@@ -108,241 +117,320 @@ def getDateNDaysAgo(num_days):
   date_ago  = date_today - date_delta
   return date_ago
 
-def getArticleDate(article):
-  return article.published
-
 
 ## ###############################################################
 ## SEARCH CRITERIA
 ## ###############################################################
-def containsAllKeywords(phrase, list_search_terms):
-  if len(list_search_terms) == 0: return False
+def containsAllKeywords(phrase, list_search_keywords):
+  if len(list_search_keywords) == 0: return False
   list_bools = []
-  for term in list_search_terms:
-    if isinstance(term, str):
-      bool_term_contained = term.lower() in phrase
+  for keyword in list_search_keywords:
+    if isinstance(keyword, str):
+      bool_term_contained = keyword.lower() in phrase
       list_bools.append(bool_term_contained)
-    elif isinstance(term, list):
+    elif isinstance(keyword, list):
       list_bools.append(
-        containsAnyKeywords(phrase, term)
+        containsAnyKeywords(phrase, keyword)
       )
   return all(list_bools)
 
-def containsAnyKeywords(phrase, list_search_terms):
-  if len(list_search_terms) == 0: return False
+def containsAnyKeywords(phrase, list_search_keywords):
+  if len(list_search_keywords) == 0: return False
   list_bools = []
-  for term in list_search_terms:
-    if isinstance(term, str):
-      bool_term_contained = term.lower() in phrase.lower()
+  for keyword in list_search_keywords:
+    if isinstance(keyword, str):
+      bool_term_contained = keyword.lower() in phrase.lower()
       list_bools.append(bool_term_contained)
       if bool_term_contained: break
-    elif isinstance(term, list):
+    elif isinstance(keyword, list):
       list_bools.append(
-        containsAllKeywords(phrase, term)
+        containsAllKeywords(phrase, keyword)
       )
   return any(list_bools)
 
 def meetsSearchCriteria(phrase, list_search_conditions):
   return containsAnyKeywords(phrase, list_search_conditions)
 
-def getStringOperator(count_operator):
-  if count_operator % 2 == 1: return "OR"
-  else: return "AND"
-
 def printSearchCriteria(dict_search, bool_search_authors=False):
   list_keywords_include = dict_search["list_keywords_include"]
   list_keywords_exclude = dict_search["list_keywords_exclude"]
-  printToTerminal("> including articles with phrases:")
-  printToTerminal(lolsToSetNotation(list_keywords_include))
-  printToTerminal(" ")
+  print2Terminal("> including articles with phrases:")
+  print2Terminal(lolsToSetNotation(list_keywords_include))
+  print2Terminal(" ")
   if len(list_keywords_exclude) > 0:
-    printToTerminal("> excluding articles with phrases:")
-    printToTerminal(lolsToSetNotation(list_keywords_exclude))
-    printToTerminal(" ")
+    print2Terminal("> excluding articles with phrases:")
+    print2Terminal(lolsToSetNotation(list_keywords_exclude))
+    print2Terminal(" ")
   if bool_search_authors:
     list_authors = dict_search["list_authors"]
-    printToTerminal("> including articles with authors:", end="")
-    printToTerminal(joinList(list_authors, str_pre="\n\t- "))
-    printToTerminal(" ")
+    print2Terminal("> including articles with authors:", end="")
+    print2Terminal(joinList(list_authors, str_sep="\n\t- ", bool_pre=True))
+    print2Terminal(" ")
 
-# def lolsToSetNotation(lst, level=0):
-#   ## unwrap single-element lists to remove unnecessary nesting
-#   while isinstance(lst, list) and len(lst) == 1:
-#     lst = lst[0]
-#     level += 1
-#   if not isinstance(lst, list):
-#     return f"'{lst.lower()}'"
-#   if level % 2 == 1: operator = " AND "
-#   else: operator = " OR "
-#   result = ""
-#   for i, item in enumerate(lst):
-#     if i > 0:                  result += operator
-#     if isinstance(item, list): result += f"({lolsToSetNotation(item, level + 1)})"
-#     else:                      result += f"'{item.lower()}'"
-#   return result
+def printDict2Terminal(input_dict, indent=0):
+  def _printWithIndent(indent, key, value, bool_print_type=True):
+    if bool_print_type: print(" " * indent + f"'{key}' ({type(value).__name__}) : {value}")
+    else:               print(" " * indent + f"'{key}' : {value}")
+  def _printDict(d, indent):
+    for key in sorted(d.keys()):
+      value = d[key]
+      if isinstance(value, dict):
+        _printWithIndent(indent, key, "[dict]", False)
+        _printDict(value, indent+4)
+      elif isinstance(value, list):
+        _printWithIndent(indent, key, "[list]", False)
+        for idx, item in enumerate(value):
+          if isinstance(item, dict) or isinstance(item, list):
+            _printDict(item, indent+4)
+          else: _printWithIndent(indent+4, f"{idx}->", item)
+      else: _printWithIndent(indent, key, value)
+  _printDict(input_dict, indent)
 
-def lolsToSetNotation(lst, level=0):
-  while isinstance(lst, list) and (len(lst) == 1):
-    lst = lst[0]
-    level += 1
-  if not isinstance(lst, list): return f"'{lst}'"
-  if level % 2 == 1: operator = " AND "
+def lolsToSetNotation(list_elems, set_level=0):
+  while isinstance(list_elems, list) and (len(list_elems) == 1):
+    list_elems = list_elems[0]
+    set_level += 1
+  if not isinstance(list_elems, list): return f"'{list_elems}'"
+  if set_level % 2 == 1: operator = " AND "
   else: operator = " OR "
   return operator.join(
-    f"({lolsToSetNotation(item, level + 1)})"
-    if isinstance(item, list)
-    else f"'{item}'"
-    for item in lst
+    f"({lolsToSetNotation(elem, set_level+1)})"
+    if isinstance(elem, list)
+    else f"'{elem}'"
+    for elem in list_elems
   )
 
-def getArticleDetails(filepath_article):
-  task_status_found = None
-  list_config_tags_found = []
-  list_dict_config_reasons = []
-  bool_reading_tags = False
-  with open(filepath_article, "r") as filepointer:
-    for line in filepointer.readlines():
-      ## usually at the end of the file
-      if ("#task" in line):
-        task_status_found = line.split("[")[1].split("]")[0]
-        continue
-      ## condition for when you have found the line where config tags are listed
-      if ("config_tags" in line):
-        bool_reading_tags = True
-        continue
-      elif bool_reading_tags and ("#" in line):
-        str_tag = line.split("- ")[1].strip()
-        list_config_tags_found.append(str_tag)
-        continue
-      ## once you had found the list of config tags, this indicates when you have transitioned to another section
-      elif (":" in line) or ("---" in line):
-        bool_reading_tags = False
-      if ("config_reason" in line):
-        str_config_tag = line.split("_reason_")[1].split(":")[0]
-        str_config_reason = line.split(":")[1].strip()
-        list_dict_config_reasons.append({
-          "tag"    : str_config_tag,
-          "reason" : str_config_reason
-        })
-        continue
-  task_status = task_status_found if task_status_found in ["u", "r", "d"] else "u"
-  list_config_tags = [
-    tag.lower()
-    for tag in list_config_tags_found
-    if (tag != "")
+def readFile(filepath_file, expected_file_extension):
+  if not(filepath_file.endswith(expected_file_extension)):
+      raise ValueError(f"Error: File must use a '{expected_file_extension}' extension. Input filepath: {filepath_file}")
+  try:
+    if expected_file_extension == ".json":
+      with open(filepath_file, "r") as fp:
+        file_content = json.load(fp)
+    else:
+      with open(filepath_file, "r", encoding="utf-8") as fp:
+        file_content = fp.read()
+  except Exception as e: raise IOError(f"Error reading file {filepath_file}: {e}")
+  return file_content
+
+REQUIRED_METADATA = [
+  "title",
+  "authors",
+  "abstract",
+  "arxiv_id",
+  "url_pdf",
+  "date_published",
+  "date_updated",
+  "category_primary",
+  "category_others",
+  "config_tags",
+]
+
+def readMarkdownFile2Dict(md_file):
+  content = readFile(md_file, ".md")
+  ## split the file into frontmatter (YAML) and body (markdown)
+  match = re.match(r"^---\n(.*?)\n---\n(.*)", content, re.DOTALL)
+  if match:
+    frontmatter_content = match.group(1)
+    body = match.group(2)
+  else: raise ValueError("Missing frontmatter section in the Markdown file.")
+  # Parse the YAML frontmatter
+  try:
+    metadata = yaml.safe_load(frontmatter_content)
+  except yaml.YAMLError as e: raise ValueError(f"Error parsing YAML frontmatter: {e}")
+  # Ensure all required keys are present in the metadata
+  missing_keys = [
+    key
+    for key in REQUIRED_METADATA
+    if key not in metadata
   ]
-  return {
-    "task_status" : task_status,
-    "list_config_tags" : list_config_tags,
-    "list_dict_config_reasons" : list_dict_config_reasons
+  if missing_keys: raise ValueError("Missing required keys in frontmatter:", ", ".join(missing_keys))
+  # Extract all config_reason_* keys
+  config_reasons = {k: v for k, v in metadata.items() if k.startswith("config_reason_")}
+  # Find the character inside the brackets [] on the same line as `#task`
+  task_status = "u"
+  task_match = re.search(r"^\s*-\s+\[([^\]]+)\].*#task", body, re.MULTILINE)
+  if task_match: task_status = task_match.group(1)
+  ## collect all the properties
+  properties = {
+    "title"            : metadata.get("title"),
+    "authors"          : metadata.get("authors"),
+    "abstract"         : metadata.get("abstract"),
+    "arxiv_id"         : metadata.get("arxiv_id"),
+    "url_pdf"          : metadata.get("url_pdf"),
+    "date_published"   : metadata.get("date_published"),
+    "date_updated"     : metadata.get("date_updated"),
+    "category_primary" : metadata.get("category_primary"),
+    "category_others"  : metadata.get("category_others", None),
+    "config_tags"      : metadata.get("config_tags", []),
+    "ai_rank"          : metadata.get("ai_rank", None),
+    "ai_reason"        : metadata.get("ai_reason", None),
+    "task_status"      : task_status,
+    **config_reasons
   }
+  return dict(sorted(properties.items()))
 
-def printHeading(str):
-  printToTerminal(str)
-  printToTerminal("=" * len(str))
-
-def joinList(list_elems, str_pre):
-  return str_pre + str_pre.join(list_elems)
-
-
-## ###############################################################
-## SAVING ARTICLE INFORMATION
-## ###############################################################
-def printArticle(article, num_pad_chars=17):
-  ## helper function
-  def _printLine(category, content):
-    if isinstance(content, list): content = ", ".join(content)
-    category = f"{category}:".ljust(num_pad_chars)
-    printToTerminal(f"{category} {content}")
-  ## extract the author names
+def getDictOfArticleInfo(article, dict_config_results={}, dict_ai_results={}, task_status="u"):
   list_authors = [
     unidecode(str(author))
     for author in shortenList(article.authors)
   ]
-  ## printToTerminal article information
-  _printLine("Title",          article.title)
-  _printLine("PDF URL",        article.pdf_url)
-  _printLine("Date Published", getDateString(article.published))
-  _printLine("Author(s)",      list_authors)
-  printToTerminal(" ")
-
-def saveArticle(article, directory_output, config_tag, list_config_reason=[]):
-  task_status = "u" # unread by default
-  list_config_tags = []
-  list_dict_config_reasons = []
-  filename = article.pdf_url.split("/")[-1].split("v")[0]
-  filepath_file = f"{directory_output}/{filename}.md"
-  if fileExists(filepath_file):
-    dict_details = getArticleDetails(filepath_file)
-    task_status = dict_details["task_status"]
-    list_config_tags = dict_details["list_config_tags"]
-    list_dict_config_reasons = dict_details["list_dict_config_reasons"]
-  str_config_tag = f'"#{config_tag}"'
-  if str_config_tag not in list_config_tags: list_config_tags.append(str_config_tag)
-  if len(list_config_reason) > 0: str_config_reason = ",".join(list_config_reason)
-  else: str_config_reason = "None"
-  ## if the tag is already in the list of config reasons, replace it
-  bool_config_reason_replaced = False
-  for dict_config_reason in list_dict_config_reasons:
-    if config_tag == dict_config_reason["tag"]:
-      bool_config_reason_replaced = True
-      dict_config_reason["reason"] = str_config_reason
-      break
-  if not(bool_config_reason_replaced):
-    list_dict_config_reasons.append({
-      "tag"    : config_tag,
-      "reason" : str_config_reason
-    })
-  ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
-  with open(filepath_file, "w") as filepointer:
-    writeArticle2File(
-      filepointer         = filepointer,
-      article             = article,
-      task_status         = task_status,
-      list_config_tags    = sorted(list_config_tags),
-      list_dict_config_reasons = sorted(list_dict_config_reasons, key=lambda x: x['tag']),
-    )
-
-def writeArticle2File(filepointer, article, task_status, list_config_tags, list_dict_config_reasons):
-  ## helper function
-  def _writeProperty(category, content):
-    if isinstance(content, list): content = ", ".join(content)
-    filepointer.write(f"{category}: {content}\n")
-  def _createTagList(_list_tags):
-    return joinList(_list_tags, str_pre="\n    - ")
-  ## extract the author names
-  list_authors = [
-    unidecode(str(author))
-    for author in shortenList(article.authors)
-  ]
-  ## extract other categories the article is published under
   list_other_categories = [
     formatText(elem)
     for elem in shortenList(article.categories)
     if (elem != article.primary_category)
   ]
-  str_other_categories = ", ".join(list_other_categories) if len(list_other_categories) > 0 else "None"
-  str_config_tags = _createTagList(list_config_tags)
-  ## save article information
-  filepointer.write(f"---\n")
-  ## print all article properties
-  _writeProperty("title",            formatText(article.title))
-  _writeProperty("arxiv_id",         article.pdf_url.split("/")[-1].split("v")[0])
-  _writeProperty("url_pdf",          article.pdf_url)
-  _writeProperty("date_published",   getDateString(article.published))
-  _writeProperty("date_updated",     getDateString(article.updated))
-  _writeProperty("category_primary", article.primary_category)
-  _writeProperty("category_others",  str_other_categories)
-  _writeProperty("authors",          list_authors)
-  _writeProperty("abstract",         formatText(article.summary))
-  _writeProperty("config_tags",      str_config_tags)
-  for dict_config_reason in list_dict_config_reasons:
-    _writeProperty(
-      "config_reason_{}".format(dict_config_reason["tag"]),
-      dict_config_reason["reason"]
-    )
-  filepointer.write(f"---\n")
-  filepointer.write(f" - [{task_status}] #task status\n")
+  list_config_tags = [
+    f'"#{key}"'
+    if "#" not in key
+    else key
+    for key in dict_config_results.keys()
+  ]
+  dict_article_info = {
+    "title"               : formatText(article.title),
+    "arxiv_id"            : article.pdf_url.split("/")[-1].split("v")[0],
+    "url_pdf"             : article.pdf_url,
+    "authors"             : list_authors,
+    "abstract"            : formatText(article.summary),
+    "date_published"      : article.published.date(),
+    "date_updated"        : article.updated.date(),
+    "category_primary"    : article.primary_category,
+    "category_others"     : list_other_categories,
+    "config_tags"         : list_config_tags,
+    "task_status"         : task_status,
+  }
+  for config_tag, list_bool_reasons in dict_config_results.items():
+    dict_article_info[f"config_reason_{config_tag}"] = list_bool_reasons
+  for ai_key, ai_value in dict_ai_results.items():
+    if   ai_key == "ai_rank":   dict_article_info["ai_rank"]   = ai_value
+    elif ai_key == "ai_reason": dict_article_info["ai_reason"] = ai_value
+  return dict_article_info
+
+
+## ###############################################################
+## SAVING ARTICLE INFORMATION
+## ###############################################################
+def printArticle(dict_article_info, num_pad_chars=17):
+  ## helper function
+  def _printLine(category, content):
+    if isinstance(content, list): content = ", ".join(content)
+    category = f"{category}".ljust(num_pad_chars)
+    print2Terminal(f"{category}: {content}")
+  ## print article information
+  printDict2Terminal(dict_article_info)
+  # _printLine("Title",         dict_article_info["title"])
+  # _printLine("PDF URL",       dict_article_info["url_pdf"])
+  # _printLine("Date Updated",  castDate2String(dict_article_info["date_updated"]))
+  # _printLine("Author(s)",     dict_article_info["authors"])
+  print2Terminal(" ")
+
+def saveArticle(directory_output, dict_article_info):
+  filename = dict_article_info["arxiv_id"]
+  filepath_file = f"{directory_output}/{filename}.md"
+  ## Check if the file already exists
+  if fileExists(filepath_file):
+    _dict_article_info = readMarkdownFile2Dict(filepath_file)
+    _task_status = _dict_article_info["task_status"]
+    # If the article has already been assessed, don't overwrite it
+    if _task_status in [ "D", "-" ]: return
+    # Retain the task status
+    dict_article_info["task_status"] = _task_status
+    # Merge `config_tags`: only add unique tags from `_dict_article_info`
+    if "config_tags" in _dict_article_info:
+      dict_article_info["config_tags"] = list(
+        set(dict_article_info.get("config_tags", [])) | set(_dict_article_info.get("config_tags", []))
+      )
+    # Retain `ai_rank` and `ai_reason` if they exist in the old file
+    dict_article_info["ai_rank"] = _dict_article_info.get("ai_rank", dict_article_info.get("ai_rank", None))
+    dict_article_info["ai_reason"] = _dict_article_info.get("ai_reason", dict_article_info.get("ai_reason", None))
+    # Merge `config_reason_*` keys from _dict_article_info if they don't already exist in dict_article_info
+    for key, value in _dict_article_info.items():
+      if key.startswith("config_reason_") and key not in dict_article_info:
+        dict_article_info[key] = value
+  ## Overwrite the file if it exists, but retain the Obsidian task status and search category tags
+  with open(filepath_file, "w") as filepointer:
+    writeArticle2File(filepointer, dict_article_info)
+
+# def writeArticle2File(filepointer, dict_article_info):
+#   ## helper function
+#   def _writeProperty(category, content):
+#     if isinstance(content, list):
+#       if len(content) == 0: content = "None"
+#       else:                 content = joinList(content, str_sep="\n    - ", bool_pre=True)
+#     elif (content is None): content = "None"
+#     else:                   content = str(content)
+#     filepointer.write(f"{category}: {content}\n")
+#   ## save article information
+#   filepointer.write(f"---\n")
+#   ## print all article properties
+#   _writeProperty("title",            formatText(dict_article_info["title"])) # string
+#   _writeProperty("arxiv_id",         dict_article_info["arxiv_id"]) # string
+#   _writeProperty("url_pdf",          dict_article_info["url_pdf"]) # string
+#   _writeProperty("date_published",   castDate2String(dict_article_info["date_published"])) # date -> string
+#   _writeProperty("date_updated",     castDate2String(dict_article_info["date_updated"])) # date -> string
+#   _writeProperty("category_primary", dict_article_info["category_primary"]) # string
+#   _writeProperty("category_others",  dict_article_info["category_others"]) # list of strings
+#   _writeProperty("config_tags",      dict_article_info["config_tags"]) # list of strings
+#   list_optional_key_conditons = [
+#     "config_reason_", # list of bools
+#     "ai_rank", # value
+#     "ai_reason" # string
+#   ]
+#   for key, value in dict_article_info.items():
+#     if any(
+#         key_condition in key
+#         for key_condition in list_optional_key_conditons
+#       ):
+#       _writeProperty(key, value)
+#   _writeProperty("authors",  dict_article_info["authors"])
+#   _writeProperty("abstract", formatText(dict_article_info["abstract"]))
+#   filepointer.write(f"---\n")
+#   task_status = dict_article_info["task_status"]
+#   filepointer.write(f" - [{task_status}] #task status\n")
+
+def writeArticle2File(filepointer, dict_article_info):
+  ## Helper functions
+  def _format_list(content):
+    if not content:
+      return None
+    return content
+  def _write_task_status(task_status):
+    filepointer.write(f" - [{task_status}] #task status\n")
+  ## Prepare the YAML frontmatter
+  yaml_content = {
+    "title":            formatText(dict_article_info["title"]),
+    "arxiv_id":         dict_article_info["arxiv_id"],
+    "url_pdf":          dict_article_info["url_pdf"],
+    "date_published":   castDate2String(dict_article_info["date_published"]),
+    "date_updated":     castDate2String(dict_article_info["date_updated"]),
+    "category_primary": dict_article_info["category_primary"],
+    "category_others":  _format_list(dict_article_info.get("category_others")),
+    "config_tags":      _format_list(dict_article_info.get("config_tags")),
+    "authors":          dict_article_info.get("authors"),
+    "abstract":         formatText(dict_article_info["abstract"]),
+  }
+  # Optional keys handling (these can be lists, booleans, or strings)
+  list_optional_key_conditions = [
+    "config_reason_",
+    "ai_rank",
+    "ai_reason",
+  ]
+  # Dynamically add optional keys to YAML content
+  for key, value in dict_article_info.items():
+    if any(
+      key_condition in key
+      for key_condition in list_optional_key_conditions
+    ):
+      yaml_content[key] = value
+  ## Sort the YAML content alphabetically
+  yaml_content_sorted = dict(sorted(yaml_content.items()))
+  ## Dump the sorted YAML frontmatter to the file
+  filepointer.write("---\n")
+  yaml.dump(yaml_content_sorted, filepointer, default_flow_style=False, sort_keys=False)
+  filepointer.write("---\n")
+  ## Write the task status
+  task_status = dict_article_info.get("task_status", "u")
+  _write_task_status(task_status)
 
 
 ## END OF LIBRARY

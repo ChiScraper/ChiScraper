@@ -11,7 +11,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ```
 
 ### Mac
-Installer https://ollama.com/download/mac
+Install from https://ollama.com/download/mac and follow the setup instructions in the app.
 
 ### Windows
 Ollama for windows is avaliable at https://ollama.com/download/windows howeever it is in beta (as of last time I checked), so my prefered method is to install Windows Subsystem for Linux (WSL), via

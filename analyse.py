@@ -20,6 +20,9 @@ os.system("clear")
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
+def loopOverAllArticles():
+  return
+
 def getAuthorNamesFromFile(filepath_input_file):
   ## helper function
   def getName(author):
@@ -120,7 +123,6 @@ def main():
   ## extract information about articles
   list_author_names   = getAuthorNamesFromFile(filepath_input_file)
   list_titles         = getArticleTitles(filepath_input_file)
-  list_categories     = getArticleCategories(filepath_input_file)
   print("Started analysis.")
   if BOOL_AUTHOR:
     printWordFreq(
@@ -133,12 +135,6 @@ def main():
       list_words = list_titles,
       str_type   = "word in the titles",
       min_count  = 2
-    )
-  if BOOL_CATEGORIES:
-    printWordFreq(
-      list_words = list_categories,
-      str_type   = "category",
-      min_count  = 1
     )
   print(" ")
   print("Finished analysis.")
