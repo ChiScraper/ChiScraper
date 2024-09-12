@@ -54,11 +54,11 @@ def evaluateArticle(dict_article_info, prompt_rules, prompt_criteria):
     }
   try:
     response_text = response.choices[0].message.content
-    pattern = r"(?i)RATING:\s*([\d.]+)\s*JUSTIFICATION:\s*(.*)"
+    pattern = r"(?i)JUSTIFICATION:\s*(.*)\s*RATING:\s*([\d.]+)"
     match = re.search(pattern, response_text)
     if match:
-      ai_rating = float(match.group(1).strip())
-      ai_reason = match.group(2).strip()
+      ai_reason = match.group(1).strip()
+      ai_rating = float(match.group(2).strip())
     else:
       return {
         "status"     : "Failed to extract rating and justification",
@@ -99,7 +99,7 @@ def main():
     HelperFuncs.print2Terminal(f"({article_index+1}/{num_articles})")
     HelperFuncs.print2Terminal(f"Looking at: {filepath_file}")
     dict_article_info = HelperFuncs.readMarkdownFile2Dict(filepath_file)
-    if "ai_rating" in dict_article_info.keys():
+    if dict_article_info.get("ai_rating") is not None:
       HelperFuncs.print2Terminal("Skipping because the article has already been rated.\n")
       continue
     time_start = time.time()

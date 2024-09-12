@@ -332,7 +332,7 @@ def saveArticle(directory_output, dict_article_info, bool_verbose=False):
     _dict_article_info = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article_info["task_status"]
     # If the article has already been assessed, don't overwrite it
-    if _task_status in ["D", "-"]: return
+    if _task_status in [ "D", "-" ]: return
     # Retain the task status
     dict_article_info["task_status"] = _task_status
     # Merge `config_tags`: only add unique tags from `_dict_article_info`
@@ -340,8 +340,6 @@ def saveArticle(directory_output, dict_article_info, bool_verbose=False):
       dict_article_info["config_tags"] = list(
         set(dict_article_info.get("config_tags", [])) | set(_dict_article_info.get("config_tags", []))
       )
-    if dict_article_info["arxiv_id"] == "2409.05958":
-      print2Terminal(f"config_tags: {dict_article_info['config_tags']}")
     # Retain `ai_rating` only if it is not None in `_dict_article_info`
     if _dict_article_info.get("ai_rating") is not None:
       dict_article_info["ai_rating"] = _dict_article_info.get("ai_rating")

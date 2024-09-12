@@ -5,7 +5,6 @@
 ## LOAD MODULES
 ## ###############################################################
 import sys, os
-from openai import OpenAI
 from MyLibrary import HelperFuncs
 
 
@@ -22,11 +21,14 @@ def removeBadConfigTags(dict_article_info):
   for key in dict_article_info.keys():
     if "config_tags" in key:
       list_tags = dict_article_info[key]
-      dict_article_info[key] = [
-        tag
-        for tag in list_tags
-        if ('"#' not in tag) and ("'#" not in tag)
-      ]
+      if list_tags is None:
+        dict_article_info[key] = [ "#plasma"]
+      else:
+        dict_article_info[key] = [
+          tag
+          for tag in list_tags
+          if ('"#' not in tag) and ("'#" not in tag)
+        ]
 
 
 ## ###############################################################

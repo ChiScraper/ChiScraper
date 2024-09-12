@@ -4,6 +4,6 @@ Your role is to evaluate how relevant a research paper is based on its title and
 
 Please provide the following:
 
-RATING: Assign a score from 1 to 10. A rating >7.5 means the paper is highly relevant, >5 indicates it is worth reading, 2.5-5 shows it is tangentially relevant, and <2.5 suggests low relevance.
-
 JUSTIFICATION: Provide exactly two sentences explaining why the paper is or isn’t relevant to the researcher’s interests. Highlight key reasons for your rating, focusing on how well the paper matches the researcher’s focus and the value it provides.
+
+RATING: Assign a score from 1 to 10. A rating >7.5 means the paper is highly relevant, >5 indicates it is worth reading, 2.5-5 shows it is tangentially relevant, and <2.5 suggests low relevance.
