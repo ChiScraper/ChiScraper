@@ -15,11 +15,11 @@ from MyLibrary import HelperFuncs
 ## SEARCH PARAMETERS
 ## ###############################################################
 OUTPUT_DIRECTORY     = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
-BOOL_PRINT_ARTICLES  = 1
+BOOL_PRINT_ARTICLES  = 0
 BOOL_SAVE_ARTICLES   = 1
 CONFIG_DIRECTORY     = "./configs"
-CONFIG_MODELNAME      = "plasma"
-START_DATE           = HelperFuncs.getDateNDaysAgo(14)
+CONFIG_MODEL         = "plasma"
+LOOKBACK_DATE        = HelperFuncs.getDateNDaysAgo(7 * 4)
 BOOL_SEARCH_TITLE    = 1
 BOOL_SEARCH_ABSTRACT = 1
 BOOL_SEARCH_AUTHORS  = 0
@@ -31,13 +31,13 @@ BOOL_SEARCH_AUTHORS  = 0
 class ArxivScraper:
   def __init__(
       self,
-      start_date, end_date,
+      lookback_date, current_date,
       bool_search_title    = True,
       bool_search_abstract = True,
       bool_search_authors  = True
     ):
-    self.start_date           = start_date
-    self.end_date             = end_date
+    self.lookback_date        = lookback_date
+    self.current_date         = current_date
     self.bool_search_title    = bool_search_title
     self.bool_search_abstract = bool_search_abstract
     self.bool_search_authors  = bool_search_authors
@@ -51,7 +51,7 @@ class ArxivScraper:
   def search(self, dict_search_criteria):
     for search_category in dict_search_criteria["list_categories"]:
       HelperFuncs.print2Terminal(f"Searching: {search_category}")
-      HelperFuncs.print2Terminal(f"Date range: {HelperFuncs.castDate2String(self.start_date)} to {HelperFuncs.castDate2String(self.end_date)}")
+      HelperFuncs.print2Terminal(f"Date range: {HelperFuncs.castDate2String(self.lookback_date)} to {HelperFuncs.castDate2String(self.current_date)}")
       num_looked_at_in_category = 0
       num_saved_in_category     = 0
       for article in self.client.results(self._createSearchQuery(search_category)):
@@ -84,7 +84,7 @@ class ArxivScraper:
 
   def _isWithinDateRange(self, article):
     article_date = article.updated.date()
-    return (self.start_date.date() <= article_date) and (article_date <= self.end_date.date())
+    return (self.lookback_date.date() <= article_date) and (article_date <= self.current_date.date())
 
   def _isDuplicate(self, this_arxiv_id):
     return any([
@@ -131,20 +131,22 @@ class ArxivScraper:
 def main():
   time_start = time.time()
   HelperFuncs.createFolder(OUTPUT_DIRECTORY)
-  end_date = HelperFuncs.getDateToday()
-  if (end_date.date() - START_DATE.date()).days < 1:
+  current_date = HelperFuncs.getDateToday()
+  if (current_date.date() - LOOKBACK_DATE.date()).days < 1:
     raise ValueError(
-      "Error: invalid date range: the final date ({}) must be at least one day after the start date ({}). ".format(end_date, START_DATE),
-      "Please ensure that the final date is the same or later than the start date."
+      "Error: Invalid date range: The final date '{}' must be at least one day after the start date '{}'.".format(
+        HelperFuncs.castDate2String(current_date),
+        HelperFuncs.castDate2String(LOOKBACK_DATE)
+      )
     )
-  filepath_config = f"{CONFIG_DIRECTORY}/{CONFIG_MODELNAME}.json"
+  filepath_config = f"{CONFIG_DIRECTORY}/{CONFIG_MODEL}.json"
   if not HelperFuncs.fileExists(filepath_config):
-    raise FileNotFoundError(f"Error: the config file '{CONFIG_MODELNAME}.json' does not exist in: '{CONFIG_DIRECTORY}/'")
-  dict_search_criteria = HelperFuncs.readSearchCriteria2Dict(CONFIG_DIRECTORY, CONFIG_MODELNAME)
+    raise FileNotFoundError(f"Error: the config file '{CONFIG_MODEL}.json' does not exist in: '{CONFIG_DIRECTORY}/'")
+  dict_search_criteria = HelperFuncs.readSearchCriteria2Dict(CONFIG_DIRECTORY, CONFIG_MODEL)
   config_tag = dict_search_criteria["config_tag"]
   HelperFuncs.print2Terminal(f"Searching for articles:")
-  HelperFuncs.print2Terminal("> from: {}".format(HelperFuncs.castDate2String(START_DATE)))
-  HelperFuncs.print2Terminal("> to:   {}".format(HelperFuncs.castDate2String(end_date)))
+  HelperFuncs.print2Terminal("> from: {}".format(HelperFuncs.castDate2String(LOOKBACK_DATE)))
+  HelperFuncs.print2Terminal("> to:   {}".format(HelperFuncs.castDate2String(current_date)))
   HelperFuncs.print2Terminal(" ")
   HelperFuncs.print2Terminal(f"> using the '#{config_tag}' config file")
   if BOOL_SEARCH_TITLE:    HelperFuncs.print2Terminal("> searching titles.")
@@ -155,8 +157,8 @@ def main():
   HelperFuncs.print2Terminal("Started executing at: {}".format(dt.datetime.now().strftime("%H:%M:%S")))
   HelperFuncs.print2Terminal(" ")
   obj_scraper = ArxivScraper(
-    start_date           = START_DATE,
-    end_date             = end_date,
+    lookback_date        = LOOKBACK_DATE,
+    current_date         = current_date,
     bool_search_title    = BOOL_SEARCH_TITLE,
     bool_search_abstract = BOOL_SEARCH_ABSTRACT,
     bool_search_authors  = BOOL_SEARCH_AUTHORS

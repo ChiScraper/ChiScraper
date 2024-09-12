@@ -258,12 +258,12 @@ def readMarkdownFile2Dict(md_file):
     "abstract"         : metadata.get("abstract"),
     "arxiv_id"         : metadata.get("arxiv_id"),
     "url_pdf"          : metadata.get("url_pdf"),
-    "date_published"   : metadata.get("date_published"),
-    "date_updated"     : metadata.get("date_updated"),
+    "date_published"   : castString2Date(metadata.get("date_published")),
+    "date_updated"     : castString2Date(metadata.get("date_updated")),
     "category_primary" : metadata.get("category_primary"),
     "category_others"  : metadata.get("category_others", None),
     "config_tags"      : metadata.get("config_tags", []),
-    "ai_rank"          : metadata.get("ai_rank", None),
+    "ai_rating"        : metadata.get("ai_rating", None),
     "ai_reason"        : metadata.get("ai_reason", None),
     "task_status"      : task_status,
     **config_reasons
@@ -281,7 +281,7 @@ def getDictOfArticleInfo(article, dict_config_results={}, dict_ai_results={}, ta
     if (elem != article.primary_category)
   ]
   list_config_tags = [
-    f'"#{key}"'
+    f"#{key}"
     if "#" not in key
     else key
     for key in dict_config_results.keys()
@@ -302,7 +302,7 @@ def getDictOfArticleInfo(article, dict_config_results={}, dict_ai_results={}, ta
   for config_tag, list_bool_reasons in dict_config_results.items():
     dict_article_info[f"config_reason_{config_tag}"] = list_bool_reasons
   for ai_key, ai_value in dict_ai_results.items():
-    if   ai_key == "ai_rank":   dict_article_info["ai_rank"]   = ai_value
+    if   ai_key == "ai_rating": dict_article_info["ai_rating"] = ai_value
     elif ai_key == "ai_reason": dict_article_info["ai_reason"] = ai_value
   return dict_article_info
 
@@ -324,15 +324,15 @@ def printArticle(dict_article_info, num_pad_chars=17):
   # _printLine("Author(s)",     dict_article_info["authors"])
   print2Terminal(" ")
 
-def saveArticle(directory_output, dict_article_info):
-  filename = dict_article_info["arxiv_id"]
-  filepath_file = f"{directory_output}/{filename}.md"
-  ## Check if the file already exists
+def saveArticle(directory_output, dict_article_info, bool_verbose=False):
+  filename = dict_article_info["arxiv_id"] + ".md"
+  filepath_file = f"{directory_output}/{filename}"
+  # Check if the file already exists
   if fileExists(filepath_file):
     _dict_article_info = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article_info["task_status"]
     # If the article has already been assessed, don't overwrite it
-    if _task_status in [ "D", "-" ]: return
+    if _task_status in ["D", "-"]: return
     # Retain the task status
     dict_article_info["task_status"] = _task_status
     # Merge `config_tags`: only add unique tags from `_dict_article_info`
@@ -340,53 +340,23 @@ def saveArticle(directory_output, dict_article_info):
       dict_article_info["config_tags"] = list(
         set(dict_article_info.get("config_tags", [])) | set(_dict_article_info.get("config_tags", []))
       )
-    # Retain `ai_rank` and `ai_reason` if they exist in the old file
-    dict_article_info["ai_rank"] = _dict_article_info.get("ai_rank", dict_article_info.get("ai_rank", None))
-    dict_article_info["ai_reason"] = _dict_article_info.get("ai_reason", dict_article_info.get("ai_reason", None))
-    # Merge `config_reason_*` keys from _dict_article_info if they don't already exist in dict_article_info
+    if dict_article_info["arxiv_id"] == "2409.05958":
+      print2Terminal(f"config_tags: {dict_article_info['config_tags']}")
+    # Retain `ai_rating` only if it is not None in `_dict_article_info`
+    if _dict_article_info.get("ai_rating") is not None:
+      dict_article_info["ai_rating"] = _dict_article_info.get("ai_rating")
+    # Retain `ai_reason` only if it is not None in `_dict_article_info`
+    if _dict_article_info.get("ai_reason") is not None:
+      dict_article_info["ai_reason"] = _dict_article_info.get("ai_reason")
+    # Merge `config_reason_*` keys from `_dict_article_info` if they don't already exist in `dict_article_info`
     for key, value in _dict_article_info.items():
       if key.startswith("config_reason_") and key not in dict_article_info:
         dict_article_info[key] = value
-  ## Overwrite the file if it exists, but retain the Obsidian task status and search category tags
+  # Overwrite the file if it exists, but retain the Obsidian task status and search category tags
   with open(filepath_file, "w") as filepointer:
     writeArticle2File(filepointer, dict_article_info)
+  if bool_verbose: print2Terminal(f"Saved: {filename}\n")
 
-# def writeArticle2File(filepointer, dict_article_info):
-#   ## helper function
-#   def _writeProperty(category, content):
-#     if isinstance(content, list):
-#       if len(content) == 0: content = "None"
-#       else:                 content = joinList(content, str_sep="\n    - ", bool_pre=True)
-#     elif (content is None): content = "None"
-#     else:                   content = str(content)
-#     filepointer.write(f"{category}: {content}\n")
-#   ## save article information
-#   filepointer.write(f"---\n")
-#   ## print all article properties
-#   _writeProperty("title",            formatText(dict_article_info["title"])) # string
-#   _writeProperty("arxiv_id",         dict_article_info["arxiv_id"]) # string
-#   _writeProperty("url_pdf",          dict_article_info["url_pdf"]) # string
-#   _writeProperty("date_published",   castDate2String(dict_article_info["date_published"])) # date -> string
-#   _writeProperty("date_updated",     castDate2String(dict_article_info["date_updated"])) # date -> string
-#   _writeProperty("category_primary", dict_article_info["category_primary"]) # string
-#   _writeProperty("category_others",  dict_article_info["category_others"]) # list of strings
-#   _writeProperty("config_tags",      dict_article_info["config_tags"]) # list of strings
-#   list_optional_key_conditons = [
-#     "config_reason_", # list of bools
-#     "ai_rank", # value
-#     "ai_reason" # string
-#   ]
-#   for key, value in dict_article_info.items():
-#     if any(
-#         key_condition in key
-#         for key_condition in list_optional_key_conditons
-#       ):
-#       _writeProperty(key, value)
-#   _writeProperty("authors",  dict_article_info["authors"])
-#   _writeProperty("abstract", formatText(dict_article_info["abstract"]))
-#   filepointer.write(f"---\n")
-#   task_status = dict_article_info["task_status"]
-#   filepointer.write(f" - [{task_status}] #task status\n")
 
 def writeArticle2File(filepointer, dict_article_info):
   ## Helper functions
@@ -412,7 +382,7 @@ def writeArticle2File(filepointer, dict_article_info):
   # Optional keys handling (these can be lists, booleans, or strings)
   list_optional_key_conditions = [
     "config_reason_",
-    "ai_rank",
+    "ai_rating",
     "ai_reason",
   ]
   # Dynamically add optional keys to YAML content

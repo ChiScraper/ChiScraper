@@ -15,9 +15,21 @@ DIRECTORY_OUTPUT = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsid
 
 
 ## ###############################################################
+## ARXIV ID
+## ###############################################################
+def getUserInput():
+  parser = HelperFuncs.MyParser(description="Calculate kinetic and magnetic energy spectra.")
+  args_req = parser.add_argument_group(description="Required processing arguments:")
+  args_req.add_argument("-id", type=str, required=True, help="type: %(type)s")
+  args = vars(parser.parse_args())
+  return args["id"]
+
+
+## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
-def main(arxiv_id):
+def main():
+  arxiv_id = getUserInput()
   HelperFuncs.createFolder(DIRECTORY_OUTPUT)
   client = arxiv.Client()
   search = arxiv.Search(id_list=[arxiv_id])
@@ -35,25 +47,22 @@ def main(arxiv_id):
   if config_tag == "":
     print("Error: config tag cannot be empty.")
     return
-  if bool_save.lower() == "y":
-    HelperFuncs.saveArticle(
-        article          = article,
-        directory_output = DIRECTORY_OUTPUT,
-        config_tag       = f"#{config_tag}"
-      )
-    print(f"Saved: {filepath_file}")
+  if " " in config_tag:
+    print("Error: config tag cannot contain spaces.")
+    return
+  HelperFuncs.saveArticle(
+      article          = article,
+      directory_output = DIRECTORY_OUTPUT,
+      config_tag       = f"#{config_tag}"
+    )
+  print(f"Saved: {filepath_file}")
 
 
 ## ###############################################################
 ## RUN PROGRAM
 ## ###############################################################
 if __name__ == "__main__":
-  parser = HelperFuncs.MyParser(description="Calculate kinetic and magnetic energy spectra.")
-  args_req = parser.add_argument_group(description="Required processing arguments:")
-  args_req.add_argument("-id", type=str, required=True, help="type: %(type)s")
-  args = vars(parser.parse_args())
-  arxiv_id = args["id"]
-  main(arxiv_id)
+  main()
   sys.exit()
 
 
