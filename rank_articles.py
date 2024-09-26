@@ -5,17 +5,21 @@
 ## LOAD MODULES
 ## ###############################################################
 import sys, time, re, os
-from openai import OpenAI
+import yaml
 from MyLibrary import HelperFuncs
 
 
 ## ###############################################################
 ## SEARCH PARAMETERS
 ## ###############################################################
-OUTPUT_DIRECTORY = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
-CONFIG_DIRECTORY = "./configs"
-CONFIG_MODELNAME = "plasma"
+# Load configuration from config.yaml
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
 
+OUTPUT_DIRECTORY = config['output_directory']
+CONFIG_DIRECTORY = config['config_directory']
+CONFIG_MODELNAME = config['ai_model']
+HOST = config['host']
 
 ## ###############################################################
 ## HELPER FUNCTIONS
@@ -27,64 +31,21 @@ def readTextFile(filepath):
 ## ###############################################################
 ## OPERATOR FUNCTION
 ## ###############################################################
-def evaluateArticle(dict_article_info, prompt_rules, prompt_criteria):
-  article_title    = dict_article_info.get("title", "")
-  article_abstract = dict_article_info.get("abstract", "")
-  if not article_title or not article_abstract:
-    return {
-      "status"    : "Missing title or abstract",
-      "ai_rating" : None,
-      "ai_reason" : None
-    }
-  prompt_input = f"{prompt_criteria} \n\nTITLE: {article_title}\n\nABSTRACT: {article_abstract}"
-  try:
-    client = OpenAI()
-    response = client.chat.completions.create(
-      model    = "gpt-4o-mini",
-      messages = [
-        { "role": "system", "content": prompt_rules },
-        { "role": "user",   "content": prompt_input },
-      ]
-    )
-  except Exception as e:
-    return {
-      "status"    : f"API call failed: {e}",
-      "ai_rating" : None,
-      "ai_reason" : None
-    }
-  try:
-    response_text = response.choices[0].message.content
-    pattern = r"(?i)JUSTIFICATION:\s*(.*)\s*RATING:\s*([\d.]+)"
-    match = re.search(pattern, response_text)
-    if match:
-      ai_reason = match.group(1).strip()
-      ai_rating = float(match.group(2).strip())
-    else:
-      return {
-        "status"     : "Failed to extract rating and justification",
-        "ai_message" : response_text,
-        "ai_rating"  : None,
-        "ai_reason"  : None
-      }
-  except Exception as e:
-    return {
-      "status"     : f"Parsing error occurred: {e}",
-      "ai_message" : response_text,
-      "ai_rating"  : None,
-      "ai_reason"  : None
-    }
-  return {
-    "status"    : "success",
-    "ai_rating" : ai_rating,
-    "ai_reason" : ai_reason
-  }
 
+if HOST == "OpenAI":
+  from openai import OpenAI
+  OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+  from ai_eval import evaluateArticle_OpenAI as evaluateArticle
+elif HOST == "Ollama":
+  import ollama
+  from ai_eval import evaluateArticle_Ollama as evaluateArticle
+else:
+  raise ValueError(f"Host {HOST} not supported")
 
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
-  OpenAI.api_key = os.getenv("OPENAI_API_KEY")
   list_filenames_in_directory = os.listdir(OUTPUT_DIRECTORY)
   list_filenames = [
     filename

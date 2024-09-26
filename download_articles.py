@@ -4,15 +4,21 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import sys, os, requests
+import sys, os, requests, yaml
 from MyLibrary import HelperFuncs
 
 
 ## ###############################################################
-## SEARCH PARAMETERS
+## LOAD CONFIGURATION
 ## ###############################################################
-DIRECTORY_MD  = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
-DIRECTORY_PDF = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
+
+## ###############################################################
+## OUTPUT PARAMETERS
+## ###############################################################
+DIRECTORY_MD = config['output_directory']
+DIRECTORY_PDF = config['output_pdf']
 
 
 ## ###############################################################

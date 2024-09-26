@@ -6,24 +6,30 @@
 ## ###############################################################
 import sys, time, arxiv
 import datetime as dt
+import yaml
 import numpy as np
 from unidecode import unidecode
 from MyLibrary import HelperFuncs
+from articleDB import ArticleDatabase
 
 
 ## ###############################################################
 ## SEARCH PARAMETERS
 ## ###############################################################
-OUTPUT_DIRECTORY     = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
-BOOL_PRINT_ARTICLES  = 0
-BOOL_SAVE_ARTICLES   = 1
-CONFIG_DIRECTORY     = "./configs"
-CONFIG_MODEL         = "plasma"
-LOOKBACK_DATE        = HelperFuncs.getDateNDaysAgo(7 * 4)
-BOOL_SEARCH_TITLE    = 1
-BOOL_SEARCH_ABSTRACT = 1
-BOOL_SEARCH_AUTHORS  = 0
+# Load configuration from config.yaml
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
 
+OUTPUT_DIRECTORY     = config['output_directory']
+BOOL_PRINT_ARTICLES  = config['print_articles']
+BOOL_SAVE_ARTICLES   = config['save_articles']
+BOOL_SAVE_DATABASE   = config['output_db']
+CONFIG_DIRECTORY     = config['config_directory']
+CONFIG_MODEL         = config['config_modelname']
+LOOKBACK_DATE        = HelperFuncs.getDateNDaysAgo(config['lookback_date'])
+BOOL_SEARCH_TITLE    = config['search_title']
+BOOL_SEARCH_ABSTRACT = config['search_abstract']
+BOOL_SEARCH_AUTHORS  = config['search_authors']
 
 ## ###############################################################
 ## OPERATOR CLASS
@@ -129,6 +135,10 @@ class ArxivScraper:
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
+  if BOOL_SAVE_DATABASE:
+    # Initialize the database
+    articleDB = ArticleDatabase('articles.db')
+ 
   time_start = time.time()
   HelperFuncs.createFolder(OUTPUT_DIRECTORY)
   current_date = HelperFuncs.getDateToday()
@@ -177,6 +187,25 @@ def main():
         directory_output  = OUTPUT_DIRECTORY,
         dict_article_info = dict_article_info
       )
+    if BOOL_SAVE_DATABASE:
+        # print(result)
+        articleMetadata = {
+            'title': dict_article_info['title'],
+            'arxiv_id': dict_article_info['arxiv_id'],
+            'url_pdf': dict_article_info['url_pdf'],
+            'date_published': dict_article_info['date_published'],
+            'date_updated': dict_article_info['date_updated'],
+            'category_primary': dict_article_info['category_primary'],
+            'authors': [
+                unidecode(str(author))
+                for author in HelperFuncs.shortenList(dict_article_info['authors'])
+            ],
+            'abstract': dict_article_info['abstract']
+        }
+        article_id = articleDB.add_article_metadata(**articleMetadata)
+        articleDB.add_article_tag(article_id, [config_tag])
+
+
   time_elapsed = time.time() - time_start
   HelperFuncs.print2Terminal(" ")
   HelperFuncs.print2Terminal(f"Elapsed time: {time_elapsed:.2f} seconds.")
