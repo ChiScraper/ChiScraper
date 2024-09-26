@@ -5,8 +5,6 @@ MyLibrary/__pycache__
 
 configs/*
 articles/*
-!configs/demo.json
-!configs/ai_rules.txt
 *.md
 .venv
 .gitignore
