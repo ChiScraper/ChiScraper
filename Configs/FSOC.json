@@ -1,0 +1,16 @@
+{
+    "config_tag": "FSOC",
+    "list_authors" : [],
+    "list_categories" : ["astro-ph.IM","physics.optics","eess.SP"],
+    "list_keywords_exclude" : [],
+    "list_keywords_include" : [
+        
+            ["adaptive","optics"],
+            [ ["atmosphere","atmospheric"],"turbulence"],
+            ["wavefront","sensor"],
+            ["free","space"],
+            ["optical","communication"]
+    ],
+    "user_prompt": "FSOCuserPrompt.txt",
+    "system_prompt": "systemPrompt.txt"
+}

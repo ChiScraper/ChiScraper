@@ -1,0 +1,13 @@
+.DS_Store
+__pycache__
+
+MyLibrary/__pycache__
+
+configs/*
+articles/*
+!configs/demo.json
+!configs/ai_rules.txt
+*.md
+.venv
+.gitignore
+*.db
