@@ -42,7 +42,8 @@ class ArticleDatabase:
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS article_ratings (
             id INTEGER PRIMARY KEY,
-            article_id INTEGER,
+            article_id INTEGER UNIQUE,
+            arxiv_id INTEGER,
             ai_rating REAL,
             ai_reason TEXT,
             user_rating INTEGER,
