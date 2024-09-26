@@ -4,7 +4,10 @@ __pycache__
 MyLibrary/__pycache__
 
 configs/*
+articles/*
 !configs/demo.json
 !configs/ai_rules.txt
-.venv/*
-articles/*
+*.md
+.venv
+.gitignore
+*.db

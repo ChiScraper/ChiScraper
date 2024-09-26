@@ -6,12 +6,15 @@
 ## ###############################################################
 import sys, arxiv
 from MyLibrary import HelperFuncs
-
+import yaml
 
 ## ###############################################################
 ## OUTPUT DIRECTORY
 ## ###############################################################
-DIRECTORY_OUTPUT = "/Users/necoturb/Library/CloudStorage/OneDrive-Personal/Obsidian/arXiv-articles"
+
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
+DIRECTORY_OUTPUT = config['output_directory']
 
 
 ## ###############################################################
