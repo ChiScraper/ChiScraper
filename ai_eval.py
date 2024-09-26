@@ -5,15 +5,6 @@ from openai import OpenAI
 import json
 
 
-# This is the LLM model to use. Make sure it is installed on your system
-model = "llama3:latest"
-# model = "phi3.5:latest"    
-# model = "mistral-nemo"
-
-configPath = "./Configs/FSOC.json" # This will need to change
-maxAttempts = 2
-
-
 
 def load_prompts(json_path):
     """ 
