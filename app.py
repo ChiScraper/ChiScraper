@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from articleDB import ArticleDatabase
 from datetime import datetime
+import yaml
 import re
 import os   
 
@@ -15,9 +16,15 @@ def load_colors_from_css(file_path):
             colors[name.strip()] = value.strip()
     return colors
 
+def setup_database(article_dir):
+    print(f"Setting up database")
+    db = ArticleDatabase(start_fresh=True)
+    print(f"Loading articles from {article_dir}")
+    db.add_articles_from_directory(article_dir)
+    print(f"Database setup complete")
+    return db
 
 app = Flask(__name__)
-db = ArticleDatabase()
 @app.route('/')
 def index(): 
     theme = request.args.get('theme', 'default_theme')  # Get selected theme
@@ -98,5 +105,15 @@ def process_article(arxiv_id):
         conn.commit()
     return redirect(url_for('index'))
 
+
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
+ARTICLES_DIR = config['output_directory']
+# db = setup_database(ARTICLES_DIR)
+
 if __name__ == '__main__':
+
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        db = setup_database(ARTICLES_DIR)
+
     app.run(debug=True)
