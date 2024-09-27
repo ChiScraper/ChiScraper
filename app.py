@@ -18,9 +18,18 @@ def load_colors_from_css(file_path):
 
 def setup_database(article_dir):
     print(f"Setting up database")
-    db = ArticleDatabase(start_fresh=True)
+    db = ArticleDatabase(start_fresh=False)
     print(f"Loading articles from {article_dir}")
-    db.add_articles_from_directory(article_dir)
+    # db.add_articles_from_directory(article_dir)
+    # First check if the file_metadata is up to date
+    modified_articles = db.find_modified_articles(article_dir)
+    print(f"detected {len(modified_articles)} modified articles")
+    # Add all articles if the file_metadata is not up to date
+    for articlePath in modified_articles:
+        print(f"Updating article {articlePath}")
+        db.add_article_from_MD(articlePath)
+    # And clean up stale entries
+    db.clean_up_file_metadata(article_dir)
     print(f"Database setup complete")
     return db
 
@@ -115,6 +124,6 @@ if __name__ == '__main__':
 
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         db = setup_database(ARTICLES_DIR)
-        db.display_table_heads()
+        # db.display_table_heads()
 
     app.run(debug=True)
