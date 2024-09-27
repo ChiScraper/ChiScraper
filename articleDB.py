@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime
+from MyLibrary import HelperFuncs
 
 class ArticleDatabase:
     def __init__(self, db_name='articles.db', overwrite_duplicates=False):
@@ -271,6 +272,8 @@ class ArticleDatabase:
                 values.append(kwargs[field].isoformat() if kwargs[field] else None)
             elif field == 'authors' and isinstance(kwargs[field], list):
                 values.append(','.join(kwargs[field]))
+            elif field == 'category_others' and isinstance(kwargs[field], list):
+                values.append(','.join(kwargs[field]))
             else:
                 values.append(kwargs[field])
 
@@ -364,12 +367,56 @@ class ArticleDatabase:
         else:
             print("Article not added (likely due to existing entry and no overwrite)")
         return article_id
+    
+    def add_article_from_MD(self, filepath):
+        try:
+            article_dict = HelperFuncs.readMarkdownFile2Dict(filepath)
+            # Add article metadata
+            article_id = self.add_article_metadata(
+                title=article_dict["title"],
+                arxiv_id=article_dict["arxiv_id"],
+                url_pdf=article_dict["url_pdf"],
+                date_published=article_dict["date_published"],
+                date_updated=article_dict["date_updated"],
+                category_primary=article_dict["category_primary"],
+                category_others=article_dict["category_others"],
+                authors=article_dict["authors"],
+                abstract=article_dict["abstract"]
+            )
+            # Add AI rating if available
+            if "ai_rating" in article_dict and "ai_reason" in article_dict:
+                self.add_article_rating(
+                    arxiv_id=article_dict["arxiv_id"],
+                    ai_rating=article_dict["ai_rating"],
+                    ai_reason=article_dict["ai_reason"]
+                )
+            print(f"Successfully loaded article: {article_dict['title']}")
+        except Exception as e:
+            print(f"Failed to load article {filepath}: {e}")
+    
+    def add_articles_from_directory(self, directory):
+        list_filenames = [
+            filename
+            for filename in os.listdir(directory)
+            if filename.endswith(".md")
+        ]
+
+        for filename in list_filenames:
+            filepath = os.path.join(directory, filename)
+            self.add_article_from_MD(filepath)
+
 
 
 
 # Example usage
 if __name__ == "__main__":
     db = ArticleDatabase()
+    db.add_articles_from_directory("articles")
+
+    # Print the head of each table
+    db.display_table_heads()
+
+
     # db.create_database()
 
     # Adding a full article
