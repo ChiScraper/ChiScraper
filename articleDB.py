@@ -72,6 +72,15 @@ class ArticleDatabase:
         )
         ''')
 
+        # Create file_metadata table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS file_metadata (
+            article_id INTEGER PRIMARY KEY,
+            last_updated DATETIME,
+            FOREIGN KEY (article_id) REFERENCES article_metadata (id)
+        )
+        ''')
+
         conn.commit()
         conn.close()
         print("Database and tables created successfully.")
@@ -137,7 +146,7 @@ class ArticleDatabase:
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
-        tables = ['article_metadata', 'article_ratings', 'article_tags']
+        tables = ['article_metadata', 'article_ratings', 'article_tags', 'file_metadata']
 
         for table in tables:
             print(f"\n{table} table columns:")
@@ -159,6 +168,10 @@ class ArticleDatabase:
         print("\nArticle Tags Table:")
         tags_rows = self.get_article_tags_head(limit)
         for row in tags_rows:
+            print(row)
+        print("\nFile Metadata Table:")
+        file_metadata_rows = self.get_file_metadata_head(limit)
+        for row in file_metadata_rows:
             print(row)
 
     def get_unprocessed_articles(self):
@@ -203,6 +216,14 @@ class ArticleDatabase:
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM article_tags LIMIT ?", (limit,))
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+
+    def get_file_metadata_head(self, limit=5):
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM file_metadata LIMIT ?", (limit,))
         rows = cursor.fetchall()
         conn.close()
         return rows
@@ -394,6 +415,8 @@ class ArticleDatabase:
                     ai_rating=article_dict["ai_rating"],
                     ai_reason=article_dict["ai_reason"]
                 )
+            # Add file modified time
+            self.add_file_modified_time(filepath)
             print(f"Successfully loaded article: {article_dict['title']}")
         except Exception as e:
             print(f"Failed to load article {filepath}: {e}")
@@ -409,16 +432,119 @@ class ArticleDatabase:
             filepath = os.path.join(directory, filename)
             self.add_article_from_MD(filepath)
 
+    def check_modified(self, filepath):
+        try:
+            arxiv_id = os.path.splitext(os.path.basename(filepath))[0]
+            article_id = self.get_article_index_by_id(arxiv_id)
+            
+            # Get the last modified time of the file
+            file_modified_time = datetime.fromtimestamp(os.path.getmtime(filepath))
+            
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute('SELECT last_updated FROM file_metadata WHERE article_id = ?', (article_id,))
+            result = cursor.fetchone()
+            conn.close()
+            
+            if result:
+                db_last_updated = datetime.fromisoformat(result[0])
+                return file_modified_time > db_last_updated
+            else:
+                return True  # If no record exists, consider it as modified
+        except Exception as e:
+            print(f"Failed to check modification for {filepath}: {e}")
+            return False
 
+    def add_file_modified_time(self, filepaths):
+        if isinstance(filepaths, str):
+            filepaths = [filepaths]
+        
+        for filepath in filepaths:
+            try:
+                arxiv_id = os.path.splitext(os.path.basename(filepath))[0]
+                article_id = self.get_article_index_by_id(arxiv_id)
+                
+                # Get the last modified time of the file
+                file_modified_time = datetime.fromtimestamp(os.path.getmtime(filepath))
+                
+                conn = sqlite3.connect(self.db_name)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    INSERT OR REPLACE INTO file_metadata (article_id, last_updated)
+                    VALUES (?, ?)
+                ''', (article_id, file_modified_time.isoformat()))
+                conn.commit()
+                conn.close()
+                print(f"File modified time for article ID {article_id} updated successfully.")
+            except Exception as e:
+                print(f"Failed to add file modified time for {filepath}: {e}")
 
+    def find_modified_articles(self, directory):
+        modified_articles = []
+        list_filenames = [
+            filename
+            for filename in os.listdir(directory)
+            if filename.endswith(".md")
+        ]
+
+        for filename in list_filenames:
+            filepath = os.path.join(directory, filename)
+            if self.check_modified(filepath):
+                modified_articles.append(filepath)
+        
+        return modified_articles # List of filepaths
+
+    def clean_up_file_metadata(self, directory):
+        # This function removes entries for articles that no longer have a 
+        # corresponding file from every table, including tags.
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT article_id FROM file_metadata')
+        article_ids = [row[0] for row in cursor.fetchall()]
+        
+        for article_id in article_ids:
+            cursor.execute('SELECT arxiv_id FROM article_metadata WHERE id = ?', (article_id,))
+            result = cursor.fetchone()
+            if result:
+                arxiv_id = result[0]
+                filepath = os.path.join(directory, f"{arxiv_id}.md")
+                if not os.path.exists(filepath):
+                    # Delete from file_metadata
+                    cursor.execute('DELETE FROM file_metadata WHERE article_id = ?', (article_id,))
+                    # Delete from article_metadata
+                    cursor.execute('DELETE FROM article_metadata WHERE id = ?', (article_id,))
+                    # Delete from article_ratings
+                    cursor.execute('DELETE FROM article_ratings WHERE article_id = ?', (article_id,))
+                    # Delete from tags
+                    cursor.execute('DELETE FROM article_tags WHERE article_id = ?', (article_id,))
+                    print(f"Removed stale entries for article ID {article_id} from all tables")
+        
+        conn.commit()
+        conn.close()
 
 # Example usage
 if __name__ == "__main__":
     db = ArticleDatabase()
-    db.add_articles_from_directory("articles")
+    # db.add_articles_from_directory("articles")
 
     # Print the head of each table
     db.display_table_heads()
+    modified_articles = db.find_modified_articles("articles")
+    print(f"Found {len(modified_articles)} modified articles:")
+    for article in modified_articles:
+        print(article)
+
+    # Update the file modified time for the modified articles
+    db.add_file_modified_time(modified_articles)
+
+    # Now verify that the modified articles are no longer detected as modified
+    modified_articles = db.find_modified_articles("articles")
+    print(f"Found {len(modified_articles)} after update")
+
+    #  Clean up file metadata
+    db.clean_up_file_metadata("articles")
+    
 
 
     # db.create_database()
