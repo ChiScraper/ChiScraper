@@ -36,7 +36,7 @@ body {
 .sort-container {
     margin-bottom: 20px;
 }
-.pdf-button, .process-button {
+.pdf-button, .link-button, .process-button {
     display: inline-block;
     padding: 5px 10px;
     color: white;
@@ -69,6 +69,13 @@ body {
 .process-button:hover {
     background-color: var(--color-tertiary-hover);
 }
+.link-button {
+    background-color: var(--color-primary);
+}
+.link-button:hover {
+    background-color: var(--color-primary-hover);
+}
+
 .confidence-bar {
     width: 100%;
     background-color: var(--color-confidence-bar);

@@ -67,6 +67,7 @@
         <p><strong>Tags:</strong> {{ article[10] }}</p>
         <p><strong>Processed:</strong> {{ 'Yes' if article[-1] else 'No' }}</p>
         <a href="{{ article[3] }}" target="_blank" class="pdf-button">View PDF</a>
+        <a href="{{ url_for('link_article', arxiv_id=article[2]) }}" class="link-button">Link</a>
         {% if not article[13] %}
         <a href="{{ url_for('process_article', arxiv_id=article[2]) }}" class="process-button">Process</a>
         {% endif %}

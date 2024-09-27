@@ -114,6 +114,11 @@ def process_article(arxiv_id):
         conn.commit()
     return redirect(url_for('index'))
 
+@app.route('/link/<string:arxiv_id>')
+def link_article(arxiv_id):
+    # Constrct the arXiv URL
+    url = f'https://arxiv.org/abs/{arxiv_id}'
+    return redirect(url)
 
 with open('config.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
