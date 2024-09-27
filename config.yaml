@@ -1,7 +1,7 @@
 # Output settings
 output_directory: ./articles
 output_pdf: ./articles/pdf
-output_db: True
+output_db: False
 output_md: True
 print_articles: False
 save_articles: True
