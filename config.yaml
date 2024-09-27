@@ -7,8 +7,8 @@ print_articles: False
 save_articles: True
 # Configuration settings
 config_directory: configs
-# config_modelname: FSOC
-config_modelname: QuantumOptics
+config_modelname: FSOC
+# config_modelname: QuantumOptics
 # Search settings
 lookback_date: 14
 search_title: True

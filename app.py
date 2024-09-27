@@ -115,5 +115,6 @@ if __name__ == '__main__':
 
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         db = setup_database(ARTICLES_DIR)
+        db.display_table_heads()
 
     app.run(debug=True)

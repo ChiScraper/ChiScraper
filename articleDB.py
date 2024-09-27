@@ -4,10 +4,13 @@ from datetime import datetime
 from MyLibrary import HelperFuncs
 
 class ArticleDatabase:
-    def __init__(self, db_name='articles.db', overwrite_duplicates=False):
+    def __init__(self, db_name='articles.db', overwrite_duplicates=False, start_fresh=False):
         self.db_name = db_name
+        # If start_fresh is True, delete the existing database
+        if start_fresh and os.path.exists(self.db_name):
+            os.remove(self.db_name)
+            
         self.overwrite_duplicates = overwrite_duplicates
-
 
         self.conn = sqlite3.connect(self.db_name)
         self.cursor = self.conn.cursor()
@@ -383,6 +386,7 @@ class ArticleDatabase:
                 authors=article_dict["authors"],
                 abstract=article_dict["abstract"]
             )
+            self.add_article_tag(article_id, article_dict["config_tags"])
             # Add AI rating if available
             if "ai_rating" in article_dict and "ai_reason" in article_dict:
                 self.add_article_rating(
