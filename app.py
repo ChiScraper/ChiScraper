@@ -1,5 +1,5 @@
 # from flask import Flask, render_template, request
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from articleDB import ArticleDatabase
 from datetime import datetime
 import yaml
@@ -105,6 +105,36 @@ def index():
                            current_sort=sort_by, current_filter=filter_tag, 
                            show_processed=show_processed, colors=colors, current_theme=theme,
                            available_themes=available_themes)
+
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    theme = request.args.get('theme', 'default_theme')  # Get selected theme
+    
+    print(f"Loading theme: {theme}")  # Debug statement
+    colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
+    config_path = 'config.yaml'
+    
+    if request.method == 'POST':
+        # Save the settings
+        new_config = request.form.to_dict()
+        with open(config_path, 'w') as config_file:
+            yaml.safe_dump(new_config, config_file)
+        success_message = 'Settings saved successfully!'
+        return redirect(url_for('settings'))
+    
+    # Load the settings
+    with open(config_path, 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    
+    # Categorize settings
+    ai_settings = {k: v for k, v in config.items() if k.startswith('ai_') or k.startswith('Run_AI') or k == 'host'}
+    search_settings = {k: v for k, v in config.items() if k.startswith('search_') or k in ['config_modelname', 'lookback_date']}
+    output_settings = {k: v for k, v in config.items() if k.startswith('output_')}
+    misc_settings = {k: v for k, v in config.items() if k not in ai_settings and k not in search_settings and k not in output_settings}
+    
+    return render_template('settings.html', ai_settings=ai_settings, search_settings=search_settings, 
+                           output_settings=output_settings, misc_settings=misc_settings, colors=colors)
 
 @app.route('/process/<string:arxiv_id>')
 def process_article(arxiv_id):

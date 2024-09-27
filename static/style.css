@@ -76,6 +76,24 @@ body {
     background-color: var(--color-primary-hover);
 }
 
+.settings-button {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.settings-button:hover {
+    background-color: var(--color-primary-hover);
+}
+
 .confidence-bar {
     width: 100%;
     background-color: var(--color-confidence-bar);
@@ -158,3 +176,5 @@ body {
 #filter-form label {
     color: var(--color-text); /* Ensure label color is appropriate */
 }
+
+

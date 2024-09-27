@@ -53,7 +53,7 @@
                 {% endfor %}
             </select>
         </form>
-
+        <button onclick="window.location.href='{{ url_for('settings') }}'" class="settings-button">Settings</button> <!-- Updated line -->
     </div>
         
 {% for article in articles %}
