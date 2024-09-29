@@ -33,11 +33,27 @@ def setup_database(article_dir):
     print(f"Database setup complete")
     return db
 
+def get_theme():
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    THEME = config['default_theme']
+    theme = request.args.get('theme', THEME)  # Get selected theme
+    return theme
+
 app = Flask(__name__)
-@app.route('/')
-def index(): 
-    theme = request.args.get('theme', DEFAULT_THEME)  # Get selected theme
-    
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Save the selected theme
+        selected_theme = request.form.get('theme')
+        with open('config.yaml', 'r') as config_file:
+            config = yaml.safe_load(config_file)
+        config['default_theme'] = selected_theme
+        with open('config.yaml', 'w') as config_file:
+            yaml.safe_dump(config, config_file)
+        return redirect(url_for('index'))
+
+    theme = get_theme()
     print(f"Loading theme: {theme}")  # Debug statement
     colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
 
@@ -109,7 +125,7 @@ def index():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    theme = request.args.get('theme', DEFAULT_THEME)  # Get selected theme
+    theme = get_theme()
     
     print(f"Loading theme: {theme}")  # Debug statement
     colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
