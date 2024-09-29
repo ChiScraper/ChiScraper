@@ -36,7 +36,7 @@ def setup_database(article_dir):
 app = Flask(__name__)
 @app.route('/')
 def index(): 
-    theme = request.args.get('theme', 'default_theme')  # Get selected theme
+    theme = request.args.get('theme', DEFAULT_THEME)  # Get selected theme
     
     print(f"Loading theme: {theme}")  # Debug statement
     colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
@@ -109,7 +109,7 @@ def index():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    theme = request.args.get('theme', 'default_theme')  # Get selected theme
+    theme = request.args.get('theme', DEFAULT_THEME)  # Get selected theme
     
     print(f"Loading theme: {theme}")  # Debug statement
     colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
@@ -153,6 +153,7 @@ def link_article(arxiv_id):
 with open('config.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
 ARTICLES_DIR = config['output_directory']
+DEFAULT_THEME = config['default_theme']
 # db = setup_database(ARTICLES_DIR)
 
 if __name__ == '__main__':
