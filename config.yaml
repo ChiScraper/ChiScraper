@@ -1,28 +1,15 @@
-# Output settings
-output_directory: ./articles
-output_pdf: ./articles/pdf
-output_db: True
-output_md: True
-print_articles: False
-save_articles: True
-# Configuration settings
-config_directory: configs
-# config_modelname: FSOC
-config_modelname: QuantumOptics
-# Search settings
-lookback_date: 14
-search_title: True
-search_abstract: True
-search_authors: False
-
-# AI settings
-ai_rank: True
-host: OpenAI
+Run_Search: 'True'
+Run_WebApp: 'True'
 ai_model: gpt-4o-mini
-# host: Ollama
-# ai_model: llama3:latest
-# ai_model: phi3.5:latest
-# Bash Settings
-Run_Search: True
-Run_AI_Rank: False 
-Run_WebApp: True
+ai_rank: 'True'
+config_directory: configs
+config_modelname: FSOC
+default_theme: catpuccino-mocha
+host: OpenAI
+lookback_date: '14'
+output_directory: ./articles
+output_md: 'True'
+output_pdf: ./articles/pdf
+save_articles: 'True'
+search_abstract: 'True'
+search_title: 'True'

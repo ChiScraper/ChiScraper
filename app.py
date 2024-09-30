@@ -1,7 +1,8 @@
 # from flask import Flask, render_template, request
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from articleDB import ArticleDatabase
 from datetime import datetime
+import yaml
 import re
 import os   
 
@@ -15,13 +16,44 @@ def load_colors_from_css(file_path):
             colors[name.strip()] = value.strip()
     return colors
 
+def setup_database(article_dir):
+    print(f"Setting up database")
+    db = ArticleDatabase(start_fresh=False)
+    print(f"Loading articles from {article_dir}")
+    # db.add_articles_from_directory(article_dir)
+    # First check if the file_metadata is up to date
+    modified_articles = db.find_modified_articles(article_dir)
+    print(f"detected {len(modified_articles)} modified articles")
+    # Add all articles if the file_metadata is not up to date
+    for articlePath in modified_articles:
+        print(f"Updating article {articlePath}")
+        db.add_article_from_MD(articlePath)
+    # And clean up stale entries
+    db.clean_up_file_metadata(article_dir)
+    print(f"Database setup complete")
+    return db
+
+def get_theme():
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    THEME = config['default_theme']
+    theme = request.args.get('theme', THEME)  # Get selected theme
+    return theme
 
 app = Flask(__name__)
-db = ArticleDatabase()
-@app.route('/')
-def index(): 
-    theme = request.args.get('theme', 'default_theme')  # Get selected theme
-    
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Save the selected theme
+        selected_theme = request.form.get('theme')
+        with open('config.yaml', 'r') as config_file:
+            config = yaml.safe_load(config_file)
+        config['default_theme'] = selected_theme
+        with open('config.yaml', 'w') as config_file:
+            yaml.safe_dump(config, config_file)
+        return redirect(url_for('index'))
+
+    theme = get_theme()
     print(f"Loading theme: {theme}")  # Debug statement
     colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
 
@@ -90,6 +122,36 @@ def index():
                            show_processed=show_processed, colors=colors, current_theme=theme,
                            available_themes=available_themes)
 
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    theme = get_theme()
+    
+    print(f"Loading theme: {theme}")  # Debug statement
+    colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
+    config_path = 'config.yaml'
+    
+    if request.method == 'POST':
+        # Save the settings
+        new_config = request.form.to_dict()
+        with open(config_path, 'w') as config_file:
+            yaml.safe_dump(new_config, config_file)
+        success_message = 'Settings saved successfully!'
+        return redirect(url_for('settings'))
+    
+    # Load the settings
+    with open(config_path, 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    
+    # Categorize settings
+    ai_settings = {k: v for k, v in config.items() if k.startswith('ai_') or k.startswith('Run_AI') or k == 'host'}
+    search_settings = {k: v for k, v in config.items() if k.startswith('search_') or k in ['config_modelname', 'lookback_date']}
+    output_settings = {k: v for k, v in config.items() if k.startswith('output_')}
+    misc_settings = {k: v for k, v in config.items() if k not in ai_settings and k not in search_settings and k not in output_settings}
+    
+    return render_template('settings.html', ai_settings=ai_settings, search_settings=search_settings, 
+                           output_settings=output_settings, misc_settings=misc_settings, colors=colors)
+
 @app.route('/process/<string:arxiv_id>')
 def process_article(arxiv_id):
     with db.get_connection() as conn:
@@ -98,5 +160,22 @@ def process_article(arxiv_id):
         conn.commit()
     return redirect(url_for('index'))
 
+@app.route('/link/<string:arxiv_id>')
+def link_article(arxiv_id):
+    # Constrct the arXiv URL
+    url = f'https://arxiv.org/abs/{arxiv_id}'
+    return redirect(url)
+
+with open('config.yaml', 'r') as config_file:
+    config = yaml.safe_load(config_file)
+ARTICLES_DIR = config['output_directory']
+DEFAULT_THEME = config['default_theme']
+# db = setup_database(ARTICLES_DIR)
+
 if __name__ == '__main__':
+
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        db = setup_database(ARTICLES_DIR)
+        # db.display_table_heads()
+
     app.run(debug=True)

@@ -45,7 +45,9 @@
                 <option value="processed" {% if show_processed == 'processed' %}selected{% endif %}>Processed only</option>
                 <option value="unprocessed" {% if show_processed == 'unprocessed' %}selected{% endif %}>Unprocessed only</option>
             </select>
+        </form>
 
+        <form method="post">
             <label for="theme">Select Theme:</label>
             <select name="theme" id="theme" onchange="this.form.submit()">
                 {% for theme in available_themes %}
@@ -54,6 +56,7 @@
             </select>
         </form>
 
+        <button onclick="window.location.href='{{ url_for('settings') }}'" class="settings-button">Settings</button>
     </div>
         
 {% for article in articles %}
@@ -67,6 +70,7 @@
         <p><strong>Tags:</strong> {{ article[10] }}</p>
         <p><strong>Processed:</strong> {{ 'Yes' if article[-1] else 'No' }}</p>
         <a href="{{ article[3] }}" target="_blank" class="pdf-button">View PDF</a>
+        <a href="{{ url_for('link_article', arxiv_id=article[2]) }}" class="link-button">Link</a>
         {% if not article[13] %}
         <a href="{{ url_for('process_article', arxiv_id=article[2]) }}" class="process-button">Process</a>
         {% endif %}

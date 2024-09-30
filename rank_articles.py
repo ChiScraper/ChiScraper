@@ -68,6 +68,7 @@ def main():
       dict_article_info = dict_article_info,
       prompt_rules      = prompt_rules,
       prompt_criteria   = prompt_criteria,
+      model=CONFIG_MODELNAME
     )
     time_elapsed = time.time() - time_start
     if not("success" == dict_ai_result["status"].lower()):

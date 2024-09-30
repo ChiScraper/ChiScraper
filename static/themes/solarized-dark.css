@@ -1,5 +1,6 @@
 :root {
   --color-primary: #268bd2; /* Solarized Blue */
+  --color-primary-hover: #1e7ebc; /* Darker Blue */
   --color-primary-light: #93cce6; /* Light Blue */
   --color-secondary: #2aa198; /* Solarized Cyan */
   --color-secondary-hover: #26a69a; /* Darker Cyan */

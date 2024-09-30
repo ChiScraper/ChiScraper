@@ -71,7 +71,6 @@ def main():
         except Exception as e:
             print(f"Error getting article info: {e}, \n for article {filename}")
             continue
-
         # Get AI evaluation
         try:    
             evaluation = evaluateArticle(articleInfo, userPrompt, systemPrompt,CONFIG_MODELNAME)
