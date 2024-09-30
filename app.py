@@ -43,6 +43,7 @@ def get_theme():
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    print(f"Loading index page")  # Debug statement
     if request.method == 'POST':
         # Save the selected theme
         selected_theme = request.form.get('theme')
@@ -51,6 +52,7 @@ def index():
         config['default_theme'] = selected_theme
         with open('config.yaml', 'w') as config_file:
             yaml.safe_dump(config, config_file)
+            print(f"Theme saved: {selected_theme}")
         return redirect(url_for('index'))
 
     theme = get_theme()

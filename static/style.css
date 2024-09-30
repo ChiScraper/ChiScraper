@@ -178,3 +178,14 @@ body {
 }
 
 
+.settings-column {
+    float: left;
+    width: 22%;
+    padding: 10px;
+}
+.settings-container {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-text);
+    
+}

@@ -23,7 +23,7 @@
     <div class="page-frontmatter">
         <h1>ArXiv Round Up</h1>
         
-        <form id="filter-form" method="get">
+        <form id="filter-form" method="post">
             <label for="sort_by">Sort by:</label>
             <select name="sort_by" id="sort_by" onchange="applyFilters()">
                 <option value="date_published" {% if current_sort == 'date_published' %}selected{% endif %}>Publish Date</option>
@@ -45,9 +45,7 @@
                 <option value="processed" {% if show_processed == 'processed' %}selected{% endif %}>Processed only</option>
                 <option value="unprocessed" {% if show_processed == 'unprocessed' %}selected{% endif %}>Unprocessed only</option>
             </select>
-        </form>
 
-        <form method="post">
             <label for="theme">Select Theme:</label>
             <select name="theme" id="theme" onchange="this.form.submit()">
                 {% for theme in available_themes %}
@@ -55,7 +53,6 @@
                 {% endfor %}
             </select>
         </form>
-
         <button onclick="window.location.href='{{ url_for('settings') }}'" class="settings-button">Settings</button>
     </div>
         

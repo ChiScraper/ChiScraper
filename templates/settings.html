@@ -1,22 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Settings</title>
     <style>
         :root {
             {% for name, value in colors.items() %}
             --{{ name }}: {{ value }};
             {% endfor %}
-        }
-        .settings-column {
-            float: left;
-            width: 22%;
-            padding: 10px;
-        }
-        .settings-container {
-            display: flex;
-            justify-content: space-between;
         }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
