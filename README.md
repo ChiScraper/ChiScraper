@@ -1,5 +1,7 @@
 # Chi_Scraper
 
+**NOTE:** This program is in Alpha. Key QOL improvements are coming soon. Keep an eye on the github or on my blog for new releases. For bugs, raise a GitHub issue, or shoot me an email.
+
 This application is designed to search for academic articles from the ArXiv repository, rank them based on relevance, and display the results in a web browser. It leverages LLLMs running locally or on the cloud to enhance the search and ranking processes.
 
 ## Key Scripts
