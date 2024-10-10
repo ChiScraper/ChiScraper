@@ -11,8 +11,6 @@ output_db: articles.db
 output_directory: ./articles
 output_md: 'True'
 output_pdf: ./articles/pdf
-print_articles: 'False'
 save_articles: 'True'
 search_abstract: 'True'
-search_authors: 'False'
 search_title: 'True'
