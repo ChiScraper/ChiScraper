@@ -96,17 +96,22 @@ def index():
             query += ' AND at.processed = 1'
         elif show_processed == 'unprocessed':
             query += ' AND at.processed = 0'
-        
-        query += f'''
-        GROUP BY am.id
-        ORDER BY {sort_by} DESC
-        '''
+
+        # Ensure the sort_by parameter is safe to use in the query
+        if sort_by in ['date_published', 'date_updated', 'ai_rating']:
+            query += f' GROUP BY am.id ORDER BY {sort_by} DESC'
+        else:
+            query += ' GROUP BY am.id ORDER BY ai_rating DESC'  # Default sorting
+
         cursor.execute(query, params)
         
         articles = cursor.fetchall()
         # Get all unique tags for the filter dropdown
         cursor.execute('SELECT DISTINCT tag FROM tag_labels')
-        all_tags = [row[0] for row in cursor.fetchall()]
+        all_tags = {row[0].lstrip('#') for row in cursor.fetchall()}  # Use a set to ensure uniqueness and strip any leading '#'
+        all_tags = sorted(all_tags)  # Sort tags for better user experience
+
+        # all_tags = [row[0] for row in cursor.fetchall()]
     
     formatted_articles = []
     for article in articles:
