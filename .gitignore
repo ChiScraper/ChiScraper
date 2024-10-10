@@ -5,7 +5,6 @@ MyLibrary/__pycache__
 
 configs/*
 articles/*
-*.md
 .venv
 .gitignore
 *.db
