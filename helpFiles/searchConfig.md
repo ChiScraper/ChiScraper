@@ -2,6 +2,8 @@
 
 The configuration file is a JSON file that contains several key-value pairs. Each key represents a specific search criterion or setting, and the values define the parameters for that criterion. Here is a breakdown of the keys you can include in your configuration file:
 
+Items within square brackets are combined with an AND operation, and between square brackets are OR operations. 
+
 # 2. Required Keys
 ## 2.1 config_tag:
 **Type**: String
@@ -22,20 +24,26 @@ The configuration file is a JSON file that contains several key-value pairs. Eac
 # 3 Example Configuration Files
 Here are two example configuration files:
 ## 3.1 Quantum Optics Configuration
+```json
 {
     "config_tag": "QuantumOptics",
     "list_authors": [],
     "list_categories": ["astro-ph.IM", "physics.optics", "eess.SP"],
     "list_keywords_exclude": [],
     "list_keywords_include": [
-        ["quantum"],
         ["qubit"],
         ["QKD"],
         ["quantum", "key", "distribution"],
         ["quantum", "communication"]
     ]
 }
+```
+
+This will search for articles with the keywords "qubit" OR "QKD" OR ("quantum" and "key" and "distribution") OR ("quantum" AND "communication")
+
 ## 3.2 FSOC Configuration
+
+```json
 {
     "config_tag": "FSOC",
     "list_authors": [],
@@ -49,6 +57,9 @@ Here are two example configuration files:
         ["optical", "communication"]
     ]
 }
+```
+This will search for articles with ("adaptive" AND "optics") OR ( ("atmosphere" or "atmospherioc") AND "turbulence"), or ("wavefront" and "sensor") or ("free" and "space") or ("optical" and "communication"). 
+
 
 # 4 How to Use the Configuration
 1. Create a JSON file: Write your configuration in a JSON file, following the structure and examples provided above.
