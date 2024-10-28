@@ -54,7 +54,7 @@ cd arXivScraper
 pip install -r requirements.txt
 ```
 
-### Usage Summary
+## Usage Summary
 
 Search for new papers: ```python main.py --search```
 Fetch a specific paper: ```python main.py --fetch --download```
@@ -62,7 +62,7 @@ Rank papers: ```python main.py --rank```
 
 You can also string together `--search` (or `-s`) along with other commands (e.g., `-r`, `-p`, and/or `-d`).
 
-### Configuration files
+## Configuration files
 
 Program runtime settings: Customise runtime settings in `./configs/settings.yaml`
 JSON Profile Configurations: Define search criteria in JSON files located in `./configs/*.json`
@@ -70,10 +70,10 @@ User Profile for AI-ranking: Define a ranking profile in `./configs/user_profile
 For detailed configuration instructions, see: `./docs/json-profiles.pdf`
 Local LLM Support: see details in `./docs/bla.pdf`
 
-### Contributing
+## Contributing
 
 Contributions are welcome! Please submit issues and pull requests on GitHub.
 
-### License
+## License
 
 This project is licensed under the MIT License.
