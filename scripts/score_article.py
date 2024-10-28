@@ -1,9 +1,7 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import os, sys, re, time
-
-from openai import OpenAI
+import os, sys, re, time, openai
 
 from headers import Directories
 from headers import FileNames
@@ -14,7 +12,7 @@ from headers import WWArticles
 ## ###############################################################
 ## GLOBAL PARAMETERS
 ## ###############################################################
-OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+openai.OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 
 ## ###############################################################
@@ -37,7 +35,7 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
     }
   prompt_input = f"{prompt_criteria} \n\nTITLE: {article_title}\n\nABSTRACT: {article_abstract}"
   try:
-    client = OpenAI()
+    client = openai.OpenAI()
     response = client.chat.completions.create(
       model    = "gpt-4o-mini",
       messages = [
