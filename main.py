@@ -148,6 +148,7 @@ def main():
   elif dict_user_args["rank"]:
     list_article_dicts = WWArticles.readAllMarkdownFiles()
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
+    obj_arxiv_scraper.saveArticles(list_article_dicts)
   elif dict_user_args["fetch"]:
     article_dict = obj_arxiv_scraper.fetchFromArxiv()
     if dict_user_args["download"]: obj_arxiv_scraper.downloadPDFs([ article_dict ]) # bug: does not download
