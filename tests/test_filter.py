@@ -1,5 +1,6 @@
 import sys, unittest
-from MyLibrary import HelperFuncs
+
+from header import WWLists
 
 
 ## ###############################################################
@@ -18,7 +19,7 @@ class TestHelperFuncs(unittest.TestCase):
     matching_phrases = {
       phrase
       for phrase in self.list_phrases
-      if HelperFuncs.meetsSearchCriteria(phrase, search_condition)
+      if WWLists.meetsSearchCriteria(phrase, search_condition)
     }
     self.assertEqual(matching_phrases, expected_phrases)
 
@@ -102,7 +103,7 @@ class TestHelperFuncs(unittest.TestCase):
 ## ###############################################################
 if __name__ == "__main__":
   unittest.main()
-  sys.exit()
+  sys.exit(0)
 
 
 ## END OF TEST PROGRAM

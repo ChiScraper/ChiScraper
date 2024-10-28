@@ -1,0 +1,7 @@
+config_name: "plasma"
+lookback_days: 28
+score_articles: true
+search_title: true
+search_abstract: true
+search_authors: true
+print_articles: false

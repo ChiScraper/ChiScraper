@@ -145,7 +145,7 @@ def settings():
     
     # Categorize settings
     ai_settings = {k: v for k, v in config.items() if k.startswith('ai_') or k.startswith('Run_AI') or k == 'host'}
-    search_settings = {k: v for k, v in config.items() if k.startswith('search_') or k in ['config_modelname', 'lookback_date']}
+    search_settings = {k: v for k, v in config.items() if k.startswith('search_') or k in ['config_name', 'lookback_date']}
     output_settings = {k: v for k, v in config.items() if k.startswith('output_')}
     misc_settings = {k: v for k, v in config.items() if k not in ai_settings and k not in search_settings and k not in output_settings}
     

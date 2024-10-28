@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime
-from MyLibrary import HelperFuncs
+from header import HelperFuncs
 
 class ArticleDatabase:
     def __init__(self, db_name='articles.db', overwrite_duplicates=False, start_fresh=False):

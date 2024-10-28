@@ -1,11 +1,9 @@
 .DS_Store
 __pycache__
-
 MyLibrary/__pycache__
 
-configs/*
-articles/*
-*.md
 .venv
-.gitignore
 *.db
+
+mdfiles/*
+pdfs/*

@@ -1,5 +1,15 @@
 import sys
-from MyLibrary import HelperFuncs
+
+from header import WWLists
+
+
+## ###############################################################
+## HELPER FUNCTION
+## ###############################################################
+def printHeading(str):
+  print(str)
+  print("=" * len(str))
+  return
 
 
 ## ###############################################################
@@ -11,19 +21,19 @@ def main():
     for action in [ "jumped", "leaped" ]:
       for object in [ "moon", "log", "river" ]:
         list_phrases.append(f"the {animal} {action} over the {object}")
-  HelperFuncs.printHeading("List of phrases:")
+  printHeading("List of phrases:")
   print("\n".join(list_phrases))
   print(" ")
   ## "fox" AND ("jumped" OR "river")
   list_search_conditions = [
     [ "fox", ["jumped", "river"] ]
   ]
-  HelperFuncs.printHeading("Search condition:")
-  print(HelperFuncs.lolsToSetNotation(list_search_conditions))
+  printHeading("Search condition:")
+  print(WWLists.lolsToSetNotation(list_search_conditions))
   print(" ")
-  HelperFuncs.printHeading("List of phrases that met the search conditions:")
+  printHeading("List of phrases that met the search conditions:")
   for phrase in list_phrases:
-    if HelperFuncs.meetsSearchCriteria(phrase, list_search_conditions):
+    if WWLists.meetsSearchCriteria(phrase, list_search_conditions):
       print(phrase)
 
 

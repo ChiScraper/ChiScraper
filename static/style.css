@@ -141,17 +141,17 @@ body {
 
 
 .article-title {
-    color: var(--color-text); /* Updated text color */
+    color: var(--color-text);
 }
 .article-meta {
-    color: var(--color-text-light); /* Updated text color */
+    color: var(--color-text-light);
 }
 .article-abstract {
     margin-top: 10px;
     background-color: var(--color-abstract-background);
     padding: 10px;
     border-left: 3px solid var(--color-secondary);
-    color: var(--color-text); /* Ensured text color is light */
+    color: var(--color-text);
 }
 .article-ai {
     margin-top: 10px;
@@ -159,22 +159,20 @@ body {
     background-color: var(--color-background);
     padding: 10px;
     border-left: 3px solid var(--color-primary);
-    color: var(--color-text); /* Ensured text color is light */
+    color: var(--color-text);
 }
 .pdf-button, .process-button {
-    color: white; /* Ensure button text is white */
+    color: white;
 }
 .article-arxiv-id {
-    color: var(--color-text); /* Updated text color */
+    color: var(--color-text);
 }
 .confidence-level {
-    color: white; /* Ensure confidence level text is white */
+    color: white;
 }
 .page-frontmatter h1 {
-    color: var(--color-primary); /* Ensure heading color is appropriate */
+    color: var(--color-primary);
 }
 #filter-form label {
-    color: var(--color-text); /* Ensure label color is appropriate */
+    color: var(--color-text);
 }
-
-
