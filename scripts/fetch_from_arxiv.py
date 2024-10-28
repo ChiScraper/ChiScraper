@@ -6,10 +6,10 @@
 ## ###############################################################
 import sys, arxiv
 
-from header import Directories
-from header import WWFnFs
-from header import WWArgParse
-from header import WWArticles
+from headers import Directories
+from headers import WWFnFs
+from headers import WWArgParse
+from headers import WWArticles
 
 
 ## ###############################################################

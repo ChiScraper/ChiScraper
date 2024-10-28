@@ -6,9 +6,9 @@
 ## ###############################################################
 import sys, requests
 
-from header import Directories
-from header import WWFnFs
-from header import WWArticles
+from headers import Directories
+from headers import WWFnFs
+from headers import WWArticles
 
 
 ## ###############################################################

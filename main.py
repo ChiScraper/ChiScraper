@@ -1,13 +1,13 @@
 import sys, time, re
 import datetime as dt
 
-from header import Directories
-from header import FileNames
-from header import IO
-from header import WWFnFs
-from header import WWDates
-from header import WWArgParse
-from header import WWArticles
+from headers import Directories
+from headers import FileNames
+from headers import IO
+from headers import WWFnFs
+from headers import WWDates
+from headers import WWArgParse
+from headers import WWArticles
 
 from scripts import search_arxiv as SearchArxiv
 from scripts import score_article as ScoreArticle

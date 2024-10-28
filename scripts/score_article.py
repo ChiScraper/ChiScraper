@@ -2,10 +2,10 @@ import os, sys, re, time
 
 from openai import OpenAI
 
-from header import Directories
-from header import FileNames
-from header import IO
-from header import WWArticles
+from headers import Directories
+from headers import FileNames
+from headers import IO
+from headers import WWArticles
 
 
 ## ###############################################################

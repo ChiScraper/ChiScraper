@@ -3,12 +3,12 @@ import numpy as np
 
 from unidecode import unidecode
 
-from header import Directories
-from header import IO
-from header import WWFnFs
-from header import WWDates
-from header import WWLists
-from header import WWArticles
+from headers import Directories
+from headers import IO
+from headers import WWFnFs
+from headers import WWDates
+from headers import WWLists
+from headers import WWArticles
 
 
 ## ###############################################################

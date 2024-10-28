@@ -1,0 +1,17 @@
+:root {
+  --color-primary: #f5c2e7; /* Rosewater */
+  --color-primary-hover: #f2d3e5; /* Rosewater Light */
+  --color-primary-light: #f2d3e5; /* Rosewater Light */
+  --color-secondary: #c3e88d; /* Green */
+  --color-secondary-hover: #b2e0a1; /* Green Light */
+  --color-tertiary: #ffcb6b; /* Yellow */
+  --color-tertiary-hover: #ffb74d; /* Yellow Light */
+  --color-background: #1e1e2e; /* Mocha Background */
+  --color-background-darker: #181825; /* Darker Mocha Background */
+  --color-text: #c8c8c2; /* Text */
+  --color-text-light: #d7d7d7; /* Light Text */
+  --color-border: #3c3c3e; /* Border */
+  --color-shadow: rgba(0, 0, 0, 0.2); /* Shadow */
+  --color-confidence-bar: #3b3b3e; /* Confidence Bar */
+  --color-abstract-background: #2a2a2e; /* Abstract Background */
+}

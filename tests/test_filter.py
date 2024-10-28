@@ -1,6 +1,6 @@
 import sys, unittest
 
-from header import WWLists
+from headers import WWLists
 
 
 ## ###############################################################

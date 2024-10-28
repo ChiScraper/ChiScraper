@@ -1,0 +1,16 @@
+:root {
+  --color-primary: #268bd2; /* Solarized Blue */
+  --color-primary-hover: #1e7ebc; /* Darker Blue */
+  --color-primary-light: #93cce6; /* Light Blue */
+  --color-secondary: #2aa198; /* Solarized Cyan */
+  --color-secondary-hover: #26a69a; /* Darker Cyan */
+  --color-tertiary: #b58900; /* Solarized Yellow */
+  --color-tertiary-hover: #a57e00; /* Darker Yellow */
+  --color-background: #002b36; /* Solarized Background */
+  --color-text: #839496; /* Solarized Base0 */
+  --color-text-light: #93a1a1; /* Solarized Base1 */
+  --color-border: #073642; /* Solarized Border */
+  --color-shadow: rgba(0,0,0,0.5);
+  --color-confidence-bar: #073642; /* Solarized Confidence Bar */
+  --color-abstract-background: #002b36; /* Solarized Abstract Background */
+}

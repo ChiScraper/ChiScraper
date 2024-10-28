@@ -1,5 +1,5 @@
 config_name: "plasma"
-lookback_days: 28
+lookback_days: 14
 score_articles: true
 search_title: true
 search_abstract: true
