@@ -1,4 +1,4 @@
-config_name: "plasma"
+config_name: "FSOC"
 lookback_days: 14
 search_title: true
 search_abstract: true
