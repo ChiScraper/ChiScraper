@@ -56,11 +56,12 @@ pip install -r requirements.txt
 
 ## Usage Summary
 
-Search for new papers: ```python main.py --search```
-Fetch a specific paper: ```python main.py --fetch --download```
-Rank papers: ```python main.py --rank```
+1. Search for new papers: ```python main.py --search```
+2. Fetch a specific paper: ```python main.py --fetch```
+3. Rank papers: ```python main.py --rank```
+4. Download papers with "to-download" status: ```python main.py --download```
 
-You can also string together `--search` (or `-s`) along with other commands (e.g., `-r`, `-p`, and/or `-d`).
+You can also string together `--search` (or `-s`) along with other commands (e.g., `-r` or `-p`). You can also download (`-d`) the paper you have fetched (`-f`).
 
 ## Configuration files
 
