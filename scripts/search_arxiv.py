@@ -1,7 +1,7 @@
-import sys, arxiv
-import numpy as np
-
-from unidecode import unidecode
+## ###############################################################
+## LOAD MODULES
+## ###############################################################
+import sys, arxiv, numpy, unidecode
 
 from headers import Directories
 from headers import IO
@@ -93,7 +93,7 @@ class SearchArxiv:
   def _createSearchQuery(self, category):
     return arxiv.Search(
       query       = category,
-      max_results = float(np.inf),
+      max_results = float(numpy.inf),
       sort_by     = arxiv.SortCriterion.SubmittedDate
     )
 
@@ -119,7 +119,7 @@ class SearchArxiv:
       bool_satisfied_abstract = WWLists.meetsSearchCriteria(dict_arxiv.summary.lower(), self.dict_search_criteria["list_keywords_include"])
     if self.bool_search_authors:
       list_author_lastnames = [
-        unidecode(str(author).lower().split(" ")[-1])
+        unidecode.unidecode(str(author).lower().split(" ")[-1])
         for author in dict_arxiv.authors
       ]
       bool_satisfied_authors = any(

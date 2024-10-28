@@ -4,11 +4,10 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import os, sys
+import os, sys, unidecode
 import numpy as np
 
 from collections import Counter
-from unidecode import unidecode
 
 
 ## ###############################################################
@@ -30,11 +29,11 @@ def getAuthorNamesFromFile(filepath_input_file):
     for elem in author.split(" ")[:-1]:
       if len(elem) == 0: continue
       if elem == "-": continue
-      elem_uni = unidecode(elem.replace("-", ""))
+      elem_uni = unidecode.unidecode(elem.replace("-", ""))
       if ("a" < elem_uni[0]) and (elem_uni[0] < "z"):
         name += f"{elem_uni} "
       else: name += f"{elem_uni[0]}. "
-    name += unidecode(author.split(" ")[-1]).capitalize()
+    name += unidecode.unidecode(author.split(" ")[-1]).capitalize()
     return name
   ## create list of author names
   list_author_names = []

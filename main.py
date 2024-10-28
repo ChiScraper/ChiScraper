@@ -1,5 +1,7 @@
-import sys, time, re
-import datetime as dt
+## ###############################################################
+## LOAD MODULES
+## ###############################################################
+import sys, time, datetime, re
 
 from headers import Directories
 from headers import FileNames
@@ -22,8 +24,10 @@ def getUserInputs():
   dict_args = { "required":False, "action":"store_true", "help":"type: bool, default: %(default)s" }
   parser = WWArgParse.MyParser(description="Calculate kinetic and magnetic energy spectra.")
   parse_args = parser.add_argument_group(description="Optional arguments:")
-  parse_args.add_argument("-f", "--fetch",    default=False, **dict_args)
   parse_args.add_argument("-s", "--search",   default=False, **dict_args)
+  parse_args.add_argument("-f", "--fetch",    default=False, **dict_args)
+  parse_args.add_argument("-r", "--rank",     default=False, **dict_args)
+  parse_args.add_argument("-p", "--print",    default=False, **dict_args)
   parse_args.add_argument("-w", "--webapp",   default=False, **dict_args)
   parse_args.add_argument("-d", "--download", default=False, **dict_args)
   args = vars(parser.parse_args())
@@ -110,16 +114,19 @@ class ArxivScraper():
 def main():
   time_start = time.time()
   print("Program started at {}\n".format(
-    dt.datetime.now().strftime("%H:%M:%S")
+    datetime.datetime.now().strftime("%H:%M:%S")
   ))
   dict_user_args = getUserInputs()
   dict_yaml = IO.readParameterFile(Directories.directory_config)
   obj_arxiv_scraper = ArxivScraper(dict_yaml)
   if dict_user_args["search"]:
     list_article_dicts = obj_arxiv_scraper.searchArxiv()
-    if dict_yaml["score_articles"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
-    if dict_yaml["print_articles"]: obj_arxiv_scraper.printArticles(list_article_dicts)
+    if dict_user_args["rank"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
+    if dict_user_args["print"]: obj_arxiv_scraper.printArticles(list_article_dicts)
     obj_arxiv_scraper.saveArticles(list_article_dicts)
+  elif dict_user_args["rank"]:
+    list_article_dicts = WWArticles.readAllMarkdownFiles()
+    obj_arxiv_scraper.scoreArticles(list_article_dicts)
   elif dict_user_args["fetch"]:
     article_dict = obj_arxiv_scraper.fetchFromArxiv()
     if dict_user_args["download"]: obj_arxiv_scraper.downloadPDFs([ article_dict ])

@@ -1,6 +1,7 @@
-import os, re, yaml
-
-from unidecode import unidecode
+## ###############################################################
+## LOAD MODULES
+## ###############################################################
+import os, re, yaml, unidecode
 
 from headers import Directories
 from headers import WWFnFs
@@ -125,7 +126,7 @@ def saveArticle2Markdown(directory_output, dict_article, bool_verbose=False):
 ## ###############################################################
 def getArticleSummaryDict(dict_arxiv, dict_config_results={}, dict_ai_results={}, task_status="u"):
   list_authors = [
-    unidecode(str(author))
+    unidecode.unidecode(str(author))
     for author in WWLists.shortenList(dict_arxiv.authors)
   ]
   list_other_categories = [

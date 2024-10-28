@@ -1,3 +1,6 @@
+## ###############################################################
+## LOAD MODULES
+## ###############################################################
 import json, yaml
 
 from headers import FileNames
@@ -57,11 +60,9 @@ def readParameterFile(directory):
     for key in [
       "config_name",
       "lookback_days",
-      "score_articles",
       "search_title",
       "search_abstract",
       "search_authors",
-      "print_articles",
     ]
     if key not in dict_yaml_params
   ]
