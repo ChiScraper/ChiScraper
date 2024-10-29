@@ -29,7 +29,7 @@ def formatText(text):
 ## ###############################################################
 ## PRINT ARTICLE CONTENTS
 ## ###############################################################
-def printArticle(dict_article, num_pad_chars=17):
+def printArticle(dict_article, num_pad_chars=13):
   ## helper function
   def _printLine(category, content):
     if isinstance(content, list): content = ", ".join(content)
