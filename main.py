@@ -64,10 +64,7 @@ class ArxivScraper():
     WWFnFs.createDirectory(Directories.directory_mdfiles, bool_add_space=True)
     num_articles = len(list_article_dicts)
     for dict_article in list_article_dicts:
-      WWArticles.saveArticle2Markdown(
-        directory_output = Directories.directory_mdfiles,
-        dict_article     = dict_article
-      )
+      WWArticles.saveArticle2Markdown(dict_article)
     print(f"Saved {num_articles} articles.")
     print(" ")
 
@@ -92,7 +89,7 @@ class ArxivScraper():
 ## ###############################################################
 def main():
   time_start = time.time()
-  print("Program started at {}\n".format(
+  print("Program started at {}".format(
     datetime.datetime.now().strftime("%H:%M:%S")
   ))
   obj_user_inputs = WWArgParse.GetUserInputs()
@@ -108,7 +105,9 @@ def main():
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
   elif dict_program_flags["fetch"]:
     dict_article = obj_arxiv_scraper.fetchFromArxiv()
-    if dict_program_flags["download"]: DownloadArticles.downloadPDF(dict_article)
+    if (dict_article is not None) and dict_program_flags["download"]:
+      DownloadArticles.downloadPDF(dict_article)
+      print(" ")
   elif dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs()
   if dict_program_flags["webapp"]: obj_arxiv_scraper.launchWebApp()
   time_elapsed = time.time() - time_start

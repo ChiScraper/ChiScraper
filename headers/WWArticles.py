@@ -89,14 +89,20 @@ def writeArticleContent2File(filepointer, dict_article):
   filepointer.write(f" - [{task_status}] #task status\n")
   return
 
-def saveArticle2Markdown(directory_output, dict_article, bool_verbose=False):
+def saveArticle2Markdown(dict_article, bool_verbose=False):
   filename = dict_article["arxiv_id"] + ".md"
-  filepath_file = f"{directory_output}/{filename}"
+  filepath_file = f"{Directories.directory_mdfiles}/{filename}"
   if WWFnFs.fileExists(filepath_file):
     _dict_article = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article["task_status"]
     ## if the article has already been assessed, don't overwrite it
-    if _task_status in [ "D", "-" ]: return
+    if _task_status in [ "D", "-" ]:
+      if _task_status == "D": print("The following article has already been downloaded:")
+      if _task_status == "-": print("The following article has already been ignored:")
+      printArticle(dict_article)
+      input_save = input("Do you want to save it again? (y/n): ")
+      print(" ")
+      if input_save[0].lower() != "y": return
     ## retain the task status
     dict_article["task_status"] = _task_status
     ## merge `config_tags`: only add unique tags from `_dict_article`
@@ -117,7 +123,7 @@ def saveArticle2Markdown(directory_output, dict_article, bool_verbose=False):
   ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
   with open(filepath_file, "w") as filepointer:
     writeArticleContent2File(filepointer, dict_article)
-  if bool_verbose: print(f"Saved: {filepath_file}\n")
+  if bool_verbose: print(f"Saved: {filepath_file}")
   return
 
 

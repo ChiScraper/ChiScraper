@@ -23,27 +23,25 @@ def fetchFromArxiv(arxiv_id):
   print("The article you have requested:")
   WWArticles.printArticle(_dict_article)
   print(" ")
+  input_right_article = input("Was this the article you intended to fetch? (y/n): ")
+  print(" ")
+  if input_right_article[0].lower() != "y": return None
   filepath_file = f"{Directories.directory_mdfiles}/{arxiv_id}.md"
-  if WWFnFs.fileExists(filepath_file): print(f"Note: this arXiv article has already been saved: {filepath_file}\n")
-  input_save = input("Do you want to save this article? (y/n): ")
-  if input_save[0].lower() != "y": return None
+  if WWFnFs.fileExists(filepath_file):
+    print(f"Note: this arXiv article has already been saved: {filepath_file}")
+    input_save_again = input("Would you like to save it again? (y/n): ")
+    print(" ")
+    if input_save_again[0].lower() != "y": return _dict_article
   input_tag = input("Enter a config tag: ")
-  if input_tag == "":
-    print("Error: config tag cannot be empty.")
-    return None
-  if " " in input_tag:
-    print("Error: config tag cannot contain spaces.")
-    return None
+  print(" ")
+  if input_tag == "": raise Exception("Error: config tag cannot be empty.")
+  if " " in input_tag: raise Exception("Error: config tag cannot contain spaces.")
   dict_config_results = { input_tag : [ 1, 0, 0 ] }
   dict_article = WWArticles.getArticleSummaryDict(
     dict_arxiv          = dict_arxiv,
     dict_config_results = dict_config_results
   )
-  WWArticles.saveArticle2Markdown(
-    directory_output = Directories.directory_mdfiles,
-    dict_article     = dict_article,
-    bool_verbose     = True,
-  )
+  WWArticles.saveArticle2Markdown(dict_article, bool_verbose=True)
   return dict_article
 
 
