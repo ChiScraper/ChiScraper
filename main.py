@@ -149,8 +149,8 @@ class ArxivScraper():
       WebApp.app.config['db'] = db  # Store db in app config
       
     Port = 5000
+    print(f"Running on http://127.0.0.1:{Port}")  # Print the IP address and port
     WebApp.app.run(debug=True, port=Port)
-    print(f"Running on http://127.0.0.1:{5000}")  # Print the IP address and port
     pass
 
 
