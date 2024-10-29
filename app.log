@@ -10862,3 +10862,218 @@ INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:01:47] "[36mGET /home/cameron/Docum
 INFO:root:Loading theme: default_theme
 INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:01:53] "GET /?sort_by=ai_rating&filter_tag=&show_processed=processed&theme=default_theme HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:01:53] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Launching webapp...
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:root:Launching webapp...
+DEBUG:root:MAIN.py:ArxivScraper.launchWebApp: Setting up db from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Setting up database
+INFO:root:Creating database and tables
+INFO:root:Loading articles from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Finding modified articles
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20407.md
+DEBUG:root:Checking modification for 2410.20407
+DEBUG:root:Article ID: 1
+DEBUG:root:File modified time: 2024-10-29 14:07:35.243587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.243587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20206.md
+DEBUG:root:Checking modification for 2410.20206
+DEBUG:root:Article ID: 2
+DEBUG:root:File modified time: 2024-10-29 14:07:35.244587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.244587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20173.md
+DEBUG:root:Checking modification for 2410.20173
+DEBUG:root:Article ID: 3
+DEBUG:root:File modified time: 2024-10-29 14:07:35.246587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.246587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20099.md
+DEBUG:root:Checking modification for 2410.20099
+DEBUG:root:Article ID: 4
+DEBUG:root:File modified time: 2024-10-29 14:07:35.247587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.247587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20073.md
+DEBUG:root:Checking modification for 2410.20073
+DEBUG:root:Article ID: 5
+DEBUG:root:File modified time: 2024-10-29 14:07:35.249587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.249587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20009.md
+DEBUG:root:Checking modification for 2410.20009
+DEBUG:root:Article ID: 6
+DEBUG:root:File modified time: 2024-10-29 14:07:35.250587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.250587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14192.md
+DEBUG:root:Checking modification for 2410.14192
+DEBUG:root:Article ID: 7
+DEBUG:root:File modified time: 2024-10-29 14:07:35.251587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.251587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.19097.md
+DEBUG:root:Checking modification for 2410.19097
+DEBUG:root:Article ID: 8
+DEBUG:root:File modified time: 2024-10-29 14:07:35.252587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.252587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.18789.md
+DEBUG:root:Checking modification for 2410.18789
+DEBUG:root:Article ID: 9
+DEBUG:root:File modified time: 2024-10-29 14:07:35.253587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.253587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.18000.md
+DEBUG:root:Checking modification for 2410.18000
+DEBUG:root:Article ID: 10
+DEBUG:root:File modified time: 2024-10-29 14:07:35.254587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.254587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.17970.md
+DEBUG:root:Checking modification for 2410.17970
+DEBUG:root:Article ID: 11
+DEBUG:root:File modified time: 2024-10-29 14:07:35.256587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.256587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.17877.md
+DEBUG:root:Checking modification for 2410.17877
+DEBUG:root:Article ID: 12
+DEBUG:root:File modified time: 2024-10-29 14:07:35.257587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.257587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.17640.md
+DEBUG:root:Checking modification for 2410.17640
+DEBUG:root:Article ID: 13
+DEBUG:root:File modified time: 2024-10-29 14:07:35.258587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.258587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.16630.md
+DEBUG:root:Checking modification for 2410.16630
+DEBUG:root:Article ID: 14
+DEBUG:root:File modified time: 2024-10-29 14:07:35.260587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.260587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.17113.md
+DEBUG:root:Checking modification for 2410.17113
+DEBUG:root:Article ID: 15
+DEBUG:root:File modified time: 2024-10-29 14:07:35.261587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.261587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.16125.md
+DEBUG:root:Checking modification for 2410.16125
+DEBUG:root:Article ID: 16
+DEBUG:root:File modified time: 2024-10-29 14:07:35.262587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.262587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.15418.md
+DEBUG:root:Checking modification for 2410.15418
+DEBUG:root:Article ID: 17
+DEBUG:root:File modified time: 2024-10-29 14:07:35.263587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.263587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.15172.md
+DEBUG:root:Checking modification for 2410.15172
+DEBUG:root:Article ID: 18
+DEBUG:root:File modified time: 2024-10-29 14:07:35.265587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.265587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.15175.md
+DEBUG:root:Checking modification for 2410.15175
+DEBUG:root:Article ID: 19
+DEBUG:root:File modified time: 2024-10-29 14:07:35.266587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.266587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14611.md
+DEBUG:root:Checking modification for 2410.14611
+DEBUG:root:Article ID: 20
+DEBUG:root:File modified time: 2024-10-29 14:07:35.267587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.267587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14828.md
+DEBUG:root:Checking modification for 2410.14828
+DEBUG:root:Article ID: 21
+DEBUG:root:File modified time: 2024-10-29 14:07:35.269587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.269587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14642.md
+DEBUG:root:Checking modification for 2410.14642
+DEBUG:root:Article ID: 22
+DEBUG:root:File modified time: 2024-10-29 14:07:35.270587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.270587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.13134.md
+DEBUG:root:Checking modification for 2410.13134
+DEBUG:root:Article ID: 23
+DEBUG:root:File modified time: 2024-10-29 14:07:35.271587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.271587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14015.md
+DEBUG:root:Checking modification for 2410.14015
+DEBUG:root:Article ID: 24
+DEBUG:root:File modified time: 2024-10-29 14:07:35.272587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.272587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.13801.md
+DEBUG:root:Checking modification for 2410.13801
+DEBUG:root:Article ID: 25
+DEBUG:root:File modified time: 2024-10-29 14:07:35.273587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.273587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.13474.md
+DEBUG:root:Checking modification for 2410.13474
+DEBUG:root:Article ID: 26
+DEBUG:root:File modified time: 2024-10-29 14:07:35.274587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.274587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.13064.md
+DEBUG:root:Checking modification for 2410.13064
+DEBUG:root:Article ID: 27
+DEBUG:root:File modified time: 2024-10-29 14:07:35.276587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.276587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.12212.md
+DEBUG:root:Checking modification for 2410.12212
+DEBUG:root:Article ID: 28
+DEBUG:root:File modified time: 2024-10-29 14:07:35.277587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.277587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.12177.md
+DEBUG:root:Checking modification for 2410.12177
+DEBUG:root:Article ID: 29
+DEBUG:root:File modified time: 2024-10-29 14:07:35.278587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.278587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.12111.md
+DEBUG:root:Checking modification for 2410.12111
+DEBUG:root:Article ID: 30
+DEBUG:root:File modified time: 2024-10-29 14:07:35.280587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.280587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.12106.md
+DEBUG:root:Checking modification for 2410.12106
+DEBUG:root:Article ID: 31
+DEBUG:root:File modified time: 2024-10-29 14:07:35.281587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.281587',)
+DEBUG:root:Checking file: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.12084.md
+DEBUG:root:Checking modification for 2410.12084
+DEBUG:root:Article ID: 32
+DEBUG:root:File modified time: 2024-10-29 14:07:35.282587
+DEBUG:root:Connected to database
+DEBUG:root:Result: ('2024-10-29T14:07:35.282587',)
+INFO:root:detected 0 modified articles
+INFO:root:Checked all the articles. Now running cleanup
+INFO:root:Database setup complete
+INFO:root:Database setup complete.
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 333-904-855
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:04:18] "GET /?sort_by=ai_rating&filter_tag=&show_processed=processed&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:04:18] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:04:19] "GET /?sort_by=ai_rating&filter_tag=&show_processed=processed&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 16:04:19] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
