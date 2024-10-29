@@ -148,6 +148,12 @@ class ArticleDatabase:
                     (1 << tag_id, article_id))
     conn.commit()
     conn.close()
+  
+  def update_article_processed_status(self, arxiv_id):
+      with self.get_connection() as conn:
+          cursor = conn.cursor()
+          cursor.execute('UPDATE article_tags SET processed = 1 WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
+          conn.commit()
 
   def list_table_columns(self):
     conn = sqlite3.connect(self.db_name)

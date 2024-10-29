@@ -517,3 +517,53 @@ INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:26:05] "[36mGET /home/cameron/Docum
 INFO:root:Loading theme: default_theme
 INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:26:06] "GET /?sort_by=date_published&filter_tag=%23FSOC&show_processed=all&theme=default_theme HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:26:06] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Launching webapp...
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:root:Launching webapp...
+INFO:root:Setting up database
+INFO:root:Creating database and tables
+INFO:root:Loading articles from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Finding modified articles
+INFO:root:detected 0 modified articles
+INFO:root:Checked all the articles. Now clean up any stale entries
+INFO:root:Database setup complete
+INFO:root:Database setup complete.
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 333-904-855
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:42] "[35m[1mGET / HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:42] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:42] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:42] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=DB4uhMECRF9WgJzUeAtu HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/launch_webapp.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:root:Launching webapp...
+INFO:root:Setting up database
+INFO:root:Creating database and tables
+INFO:root:Loading articles from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Finding modified articles
+INFO:root:detected 0 modified articles
+INFO:root:Checked all the articles. Now clean up any stale entries
+INFO:root:Database setup complete
+INFO:root:Database setup complete.
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 333-904-855
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:58] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:29:58] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.19058.md
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:00] "[32mGET /process/2410.19058 HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:00] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:00] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.17354.md
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:02] "[32mGET /process/2410.17354 HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:02] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:02] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:03] "GET /?sort_by=ai_rating&filter_tag=&show_processed=processed&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [29/Oct/2024 20:30:03] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
