@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "summary.md",
-                "mode": "preview",
+                "file": "mdfiles/2410.12084.md",
+                "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "summary"
+              "title": "2410.12084"
             }
           }
         ]
@@ -52,11 +52,11 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#task read",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
-                "extraContext": true,
+                "extraContext": false,
                 "sortOrder": "alphabetical"
               },
               "icon": "lucide-search",
@@ -73,12 +73,12 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
-    "width": 214.5,
-    "collapsed": true
+    "width": 214.5
   },
   "right": {
     "id": "be14470f62bb4eb4",
@@ -180,6 +180,9 @@
   },
   "active": "1797d88ad0cdb8ba",
   "lastOpenFiles": [
+    "docs/development/databaseScheme.md",
+    "docs/development",
+    "summary.md",
     "scripts/launch_webapp.py",
     "headers/WWDatabase.py",
     "todo/launch_webapp.py",
@@ -214,9 +217,6 @@
     "arXiv-articles/2410.18813.md",
     "arXiv-articles/2410.18801.md",
     "arXiv-articles/2410.18755.md",
-    "arXiv-articles/2410.18672.md",
-    "Untitled.canvas",
-    "arXiv-articles/2408.09690.pdf",
-    "arXiv-articles"
+    "Untitled.canvas"
   ]
 }
