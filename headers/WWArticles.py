@@ -89,7 +89,7 @@ def writeArticleContent2File(filepointer, dict_article):
   filepointer.write(f" - [{task_status}] #task status\n")
   return
 
-def saveArticle2Markdown(dict_article):
+def saveArticle2Markdown(dict_article, bool_verbose=True):
   filename = dict_article["arxiv_id"] + ".md"
   filepath_file = f"{Directories.directory_mdfiles}/{filename}"
   if WWFnFs.fileExists(filepath_file):
@@ -123,7 +123,7 @@ def saveArticle2Markdown(dict_article):
   ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
   with open(filepath_file, "w") as filepointer:
     writeArticleContent2File(filepointer, dict_article)
-  print(f"Saved: {filepath_file}")
+  if bool_verbose: print(f"Saved: {filepath_file}")
   return
 
 

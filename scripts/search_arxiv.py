@@ -136,7 +136,7 @@ def main():
   list_article_dicts = obj_search_arxiv.getSortedArticles()
   WWFnFs.createDirectory(Directories.directory_mdfiles, bool_add_space=True)
   for dict_article in list_article_dicts:
-    WWArticles.saveArticle2Markdown(dict_article)
+    WWArticles.saveArticle2Markdown(dict_article, bool_verbose=False)
   print(f"Saved {len(list_article_dicts)} articles.")
   print(" ")
 
