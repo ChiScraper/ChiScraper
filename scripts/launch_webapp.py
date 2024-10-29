@@ -138,8 +138,9 @@ def index():
     articles = cursor.fetchall()
 
     # Generate a new query, this one is to grab all the unique tags for the filter dropdown
-    cursor.execute('SELECT DISTINCT tag FROM tag_labels')
-    all_tags = [row[0] for row in cursor.fetchall()]
+    # cursor.execute('SELECT DISTINCT tag FROM tag_labels')
+    # all_tags = [row[0] for row in cursor.fetchall()]
+    all_tags = app.config['db'].get_all_unique_tags()
   
   formatted_articles = []
   for article in articles:

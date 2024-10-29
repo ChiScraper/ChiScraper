@@ -283,6 +283,13 @@ class ArticleDatabase:
 
   def get_connection(self):
     return sqlite3.connect(self.db_name)
+  
+  def get_all_unique_tags(self):
+      with self.get_connection() as conn:
+          cursor = conn.cursor()
+          cursor.execute('SELECT DISTINCT tag FROM tag_labels')
+          return [row[0] for row in cursor.fetchall()]
+
 
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
