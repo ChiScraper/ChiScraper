@@ -90,57 +90,8 @@ def index():
   sort_by = request.args.get('sort_by', 'ai_rating')
   filter_tag = request.args.get('filter_tag', '')
   show_processed = request.args.get('show_processed', 'unprocessed')
-
-  with app.config['db'].get_connection() as conn:
-    cursor = conn.cursor()
-
-    # This SQL query selects all columns from article_metadata (am), 
-    # concatenates all tags from tag_labels (tl) into a single string, 
-    # and also selects ai_rating, ai_reason from article_ratings (ar), 
-    # and processed status from article_tags (at). 
-    # It joins these tables based on their relationships and applies no specific condition.
-    query = '''
-      SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, at.processed
-      FROM article_metadata am
-      LEFT JOIN article_tags at ON am.id = at.article_id
-      LEFT JOIN tag_labels tl ON (at.tags & (1 << tl.tag_id)) != 0
-      LEFT JOIN article_ratings ar ON am.id = ar.article_id
-      WHERE 1=1
-    '''
-    params = []
-
-    # If a tag is selected, filter by that tag
-    if filter_tag:
-      query += '''
-      AND EXISTS (
-          SELECT 1 FROM tag_labels tl2
-          WHERE (at.tags & (1 << tl2.tag_id)) != 0
-          AND tl2.tag = ?
-          )
-        '''
-      params.append(filter_tag)
-
-    # If show_processed is set, filter by processed status
-    if show_processed == 'processed':
-      query += ' AND at.processed = 1'
-    elif show_processed == 'unprocessed':
-      query += ' AND at.processed = 0'
-    
-    # Finish the query by grouping by article id and ordering by the selected column
-    query += f'''
-    GROUP BY am.id
-    ORDER BY {sort_by} DESC
-    '''
-    # Now actually execute the SQL query we constructed
-    cursor.execute(query, params)
-
-    # Once the query is executed, fetch all the results 
-    articles = cursor.fetchall()
-
-    # Generate a new query, this one is to grab all the unique tags for the filter dropdown
-    # cursor.execute('SELECT DISTINCT tag FROM tag_labels')
-    # all_tags = [row[0] for row in cursor.fetchall()]
-    all_tags = app.config['db'].get_all_unique_tags()
+  articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by)
+  all_tags = app.config['db'].get_all_unique_tags()
   
   formatted_articles = []
   for article in articles:
