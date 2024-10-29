@@ -170,11 +170,11 @@ def readMarkdownFile2Dict(md_file):
     frontmatter_content = match.group(1)
     body = match.group(2)
   else: raise ValueError("Missing frontmatter section in the Markdown file.")
-  # Parse the YAML frontmatter
+  ## parse the YAML frontmatter
   try:
     metadata = yaml.safe_load(frontmatter_content)
   except yaml.YAMLError as e: raise ValueError(f"Error parsing YAML frontmatter: {e}")
-  # Ensure all required keys are present in the metadata
+  ## ensure all required keys are present in the metadata
   missing_keys = [
     key
     for key in [
@@ -192,9 +192,13 @@ def readMarkdownFile2Dict(md_file):
     if key not in metadata
   ]
   if missing_keys: raise ValueError("Missing required keys in frontmatter:", ", ".join(missing_keys))
-  # Extract all config_reason_* keys
-  config_reasons = {k: v for k, v in metadata.items() if k.startswith("config_reason_")}
-  # Find the character inside the brackets [] on the same line as `#task`
+  ## extract all config_reason_* keys
+  config_reasons = {
+    k: v
+    for k, v in metadata.items()
+    if k.startswith("config_reason_")
+  }
+  ## find the character inside the brackets [] on the same line as `#task`
   task_status = "u"
   task_match = re.search(r"^\s*-\s+\[([^\]]+)\].*#task", body, re.MULTILINE)
   if task_match: task_status = task_match.group(1)
