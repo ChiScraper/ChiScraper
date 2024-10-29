@@ -1,22 +1,22 @@
 %% DATAVIEW_PUBLISHER: start
 #dataview-publisher
 ```dataviewjs
-const paper_dir = "mdfiles/";
+const directory_mdfiles = "mdfiles/";
 // u => Entry still needs to be evaluated
 // r => Paper should be read
 // d => Paper should be downloaded
 // D => Paper has been downloaded
 // - => Paper is not relevant
-const status = "u";
-const tag = "";
+const task_status = "u";
+const config_tag = "";
 
-// Collect a complete list of papers meeting the status and tag condition
+// Collect a complete list of papers meeting the task_status and config_tag condition
 let pages = dv.pages().filter(
-    p => p.file.path.startsWith(paper_dir)
+    p => p.file.path.startsWith(directory_mdfiles)
 ).filter(
-    p => (status && p.file.tasks.filter(t => t.status === status).length > 0) || (!status)
+    p => (task_status && p.file.tasks.filter(t => t.task_status === task_status).length > 0) || (!task_status)
 ).filter(
-    p => (tag && p?.config_tags?.contains(tag)) || (!tag)
+    p => (config_tag && p?.config_tags?.contains(config_tag)) || (!config_tag)
 ).sort(
     p => -p.ai_rating
 );
