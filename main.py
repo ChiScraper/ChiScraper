@@ -71,13 +71,10 @@ class ArxivScraper():
     print(f"Saved {num_articles} articles.")
     print(" ")
 
-  def downloadPDFs(
-      self,
-      list_article_dicts = [],
-      bool_download_from_markdown = False
-    ):
+  def downloadPDFs(self):
     WWFnFs.createDirectory(Directories.directory_pdfs, bool_add_space=True)
-    if bool_download_from_markdown: list_article_dicts = WWArticles.readAllMarkdownFiles()
+    list_article_dicts = WWArticles.readAllMarkdownFiles()
+    ## download markdown files (articles) that have been flaged `-d`
     DownloadArticles.downloadPDFs(list_article_dicts)
 
   def launchWebApp(self):
@@ -110,9 +107,9 @@ def main():
     list_article_dicts = WWArticles.readAllMarkdownFiles()
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
   elif dict_program_flags["fetch"]:
-    article_dict = obj_arxiv_scraper.fetchFromArxiv()
-    if dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs([ article_dict ]) # bug: does not download
-  elif dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs(bool_download_from_markdown=True)
+    dict_article = obj_arxiv_scraper.fetchFromArxiv()
+    if dict_program_flags["download"]: DownloadArticles.downloadPDF(dict_article)
+  elif dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs()
   if dict_program_flags["webapp"]: obj_arxiv_scraper.launchWebApp()
   time_elapsed = time.time() - time_start
   print(f"Elapsed time: {time_elapsed:.2f} seconds.")
