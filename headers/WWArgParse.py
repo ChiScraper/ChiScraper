@@ -52,7 +52,7 @@ class GetUserInputs:
     parse_flags = self.parser.add_argument_group(description="Main program flags:")
     parse_flags.add_argument("-s", "--search",   **dict_args)
     parse_flags.add_argument("-f", "--fetch",    **dict_args)
-    parse_flags.add_argument("-r", "--rank",     **dict_args)
+    parse_flags.add_argument("-s", "--score",     **dict_args)
     parse_flags.add_argument("-p", "--print",    **dict_args)
     parse_flags.add_argument("-d", "--download", **dict_args)
     parse_flags.add_argument("-w", "--webapp",   **dict_args)
@@ -72,7 +72,7 @@ class GetUserInputs:
     """Returns only the main program flag."""
     ## check at least one program flag has been passed
     list_required_program_flags = [
-      "search", "fetch", "rank", "download", "webapp"
+      "search", "fetch", "score", "download", "webapp"
     ]
     str_error_message = "Error: At least one of the following program flags must be provided: " + ", ".join([
       f"--{key}"
@@ -86,7 +86,7 @@ class GetUserInputs:
     dict_main_flags = {
       key: self.args.get(key)
       for key in [
-        "search", "fetch", "rank", "print", "download", "webapp"
+        "search", "fetch", "score", "print", "download", "webapp"
       ]
     }
     return dict_main_flags

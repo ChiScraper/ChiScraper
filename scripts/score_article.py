@@ -80,8 +80,8 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
 ## ###############################################################
 ## FUNCTION TO INTERPRET AI RESPONSE
 ## ###############################################################
-def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_rank_all=False):
-  if not(bool_rank_all) and not(dict_article.get("ai_rating") is None):
+def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_score_all=False):
+  if not(bool_score_all) and not(dict_article.get("ai_rating") is None):
     print("Skipping because the article has already been rated.")
     return False
   time_start = time.time()
@@ -96,7 +96,7 @@ def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_rank_all=False)
     if "ai_message" in dict_ai_score.keys():
       print("LLM response:")
       print(dict_ai_score["ai_message"])
-    raise Exception("Error: something went wrong with resquesting a LLM ranking.")
+    raise Exception("Error: something went wrong with resquesting a LLM score.")
   print("arXiv-id:", dict_article["arxiv_id"])
   print("Title:", dict_article["title"])
   print("Rating:", dict_ai_score['ai_rating'])
@@ -120,7 +120,7 @@ def main():
       dict_article    = dict_article,
       prompt_rules    = prompt_rules,
       prompt_criteria = prompt_criteria,
-      bool_rank_all   = True,
+      bool_score_all  = True,
     )
     WWArticles.saveArticle2Markdown(dict_article)
     print(" ")

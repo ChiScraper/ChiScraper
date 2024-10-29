@@ -43,7 +43,7 @@ class SearchArxiv:
         if self._isDuplicate(arxiv_id): continue
         bool_relevant, list_bool_reasons = self._checkConfigConditions(dict_arxiv)
         if bool_relevant:
-          dict_config_results = { self.dict_search_criteria["config_tag"] : list_bool_reasons }
+          dict_config_results = { self.config_name : list_bool_reasons }
           dict_article = WWArticles.getArticleSummaryDict(
             dict_arxiv          = dict_arxiv,
             dict_config_results = dict_config_results
@@ -61,15 +61,14 @@ class SearchArxiv:
 
   def _readSearchCriteria(self):
     self.dict_search_criteria = IO.readSearchCriteria2Dict(
-      directory = Directories.directory_config,
-      filename  = self.config_name,
+      directory   = Directories.directory_config,
+      config_name = self.config_name,
     )
-    config_tag = self.dict_search_criteria["config_tag"]
     print(f"Searching for articles:")
     print("> from: {}".format(WWDates.castDate2String(self.lookback_date)))
     print("> to:   {}".format(WWDates.castDate2String(self.current_date)))
     print(" ")
-    print(f"> using the `#{config_tag}` config file")
+    print(f"> using the `#{self.config_name}` config file")
     print(" ")
     WWLists.printSearchCriteria(self.dict_search_criteria)
 

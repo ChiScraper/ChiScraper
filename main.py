@@ -98,17 +98,17 @@ def main():
   obj_arxiv_scraper = ArxivScraper(obj_user_inputs)
   if dict_program_flags["search"]:
     list_article_dicts = obj_arxiv_scraper.searchArxiv()
-    if dict_program_flags["rank"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
+    if dict_program_flags["score"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
     if dict_program_flags["print"]: obj_arxiv_scraper.printArticles(list_article_dicts)
     obj_arxiv_scraper.saveArticles(list_article_dicts)
-  elif dict_program_flags["rank"]:
+  elif dict_program_flags["score"]:
     list_article_dicts = WWArticles.readAllMarkdownFiles()
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
   elif dict_program_flags["fetch"]:
     dict_article = obj_arxiv_scraper.fetchFromArxiv()
     if (dict_article is not None) and dict_program_flags["download"]:
       DownloadArticles.downloadPDF(dict_article)
-      print(" ")
+    print(" ")
   elif dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs()
   if dict_program_flags["webapp"]: obj_arxiv_scraper.launchWebApp()
   time_elapsed = time.time() - time_start
