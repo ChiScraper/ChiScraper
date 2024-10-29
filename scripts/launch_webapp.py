@@ -1,19 +1,16 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-# from flask import Flask, render_template, request
 from flask import Flask, render_template, request, redirect, url_for
-
-import os, sys, re, yaml
-import logging
-
+import os, sys, re, yaml, logging
+# Import the logging environment variables, 
+# IT IS IMPORTANT TO DO THIS BEFORE IMPORTING ANY OTHER MODULES,
+# OTHERWISE THE LOGGING CONFIGURATION WILL NOT BE SET FOR THEM
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
 from datetime import datetime
-
-
 
 from headers import Directories
 from headers import FileNames
@@ -23,6 +20,31 @@ from headers import WWDatabase
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
+
+def setup_database(article_dir):
+  logging.info("Setting up database")
+  db = WWDatabase.ArticleDatabase(start_fresh=False)
+  logging.info(f"Loading articles from {article_dir}")
+
+  # First check if the file_metadata is up to date
+  modified_articles = db.find_modified_articles(article_dir)
+  logging.info(f"detected {len(modified_articles)} modified articles")
+
+  # Add all articles if the file_metadata is not up to date
+  for articlePath in modified_articles:
+    logging.debug(f"Updating article {articlePath}")
+    db.add_article_from_MD(articlePath)
+  
+  logging.info(f"Checked all the articles. Now clean up any stale entries")
+  db.clean_up_file_metadata(article_dir)
+  logging.info(f"Database setup complete")
+  return db
+
+def get_theme():
+  THEME = 'default_theme'
+  theme = request.args.get('theme', THEME)  # Get selected theme
+  return theme
+
 def load_colors_from_css(file_path):
   colors = {}
   with open(file_path, 'r') as file:
@@ -33,36 +55,8 @@ def load_colors_from_css(file_path):
       colors[name.strip()] = value.strip()
   return colors
 
-def setup_database(article_dir):
-  logging.info("Setting up database")
-  db = WWDatabase.ArticleDatabase(start_fresh=False)
-  logging.info(f"Loading articles from {article_dir}")
-  # db.add_articles_from_directory(article_dir)
-  # First check if the file_metadata is up to date
-  modified_articles = db.find_modified_articles(article_dir)
-  logging.info(f"detected {len(modified_articles)} modified articles")
-  # Add all articles if the file_metadata is not up to date
-  for articlePath in modified_articles:
-    logging.debug(f"Updating article {articlePath}")
-    db.add_article_from_MD(articlePath)
-  
-  logging.info(f"Checked all the articles. Now running cleanup")
-  # And clean up stale entries
-  db.clean_up_file_metadata(article_dir)
-  logging.info(f"Database setup complete")
-  return db
-
-def get_theme():
-  # with open('config.yaml', 'r') as config_file:
-  #   config = yaml.safe_load(config_file)
-  # THEME = config['default_theme']
-  THEME = 'default_theme'
-  theme = request.args.get('theme', THEME)  # Get selected theme
-  return theme
-
-
 ## ###############################################################
-## FLASK APP
+## FLASK APPLICATION
 ## ###############################################################
 
 # Setup the paths for the css and html files
@@ -79,35 +73,31 @@ app = Flask(__name__,
 ## ##############
 @app.route('/', methods=['GET', 'POST'])
 def index():
-  db = app.config['db'] 
-  if request.method == 'POST':
-    # Save the selected theme
-    selected_theme = request.form.get('theme')
-    with open('config.yaml', 'r') as config_file:
-      config = yaml.safe_load(config_file)
-    config['default_theme'] = selected_theme
-    with open('config.yaml', 'w') as config_file:
-      yaml.safe_dump(config, config_file)
-    return redirect(url_for('index'))
 
   theme = get_theme()
-  logging.info(f"Loading theme: {theme}")  # Debug statement
-  path = os.path.join(Directories.directory_webApp, 'static', 'themes')
-
-  colors = load_colors_from_css(os.path.join(path, f'{theme}.css'))  # Load colors based on selected theme
-
-  # List all theme files in the static/themes directory
+  logging.info(f"Loading theme: {theme}")  
   theme_dir = os.path.join(staticPath, 'themes')
-  available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  # Remove .css extension
 
+  # Variables Accessed in the HTML
+
+  ## Colour Variables
+  colors = load_colors_from_css(os.path.join(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
+  # List all theme files in the static/themes directory
+  available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
+
+  ## Filtering and Sorting Variables
   sort_by = request.args.get('sort_by', 'ai_rating')
   filter_tag = request.args.get('filter_tag', '')
   show_processed = request.args.get('show_processed', 'unprocessed')
 
-  # Create a new connection for each request
   with app.config['db'].get_connection() as conn:
     cursor = conn.cursor()
-  
+
+    # This SQL query selects all columns from article_metadata (am), 
+    # concatenates all tags from tag_labels (tl) into a single string, 
+    # and also selects ai_rating, ai_reason from article_ratings (ar), 
+    # and processed status from article_tags (at). 
+    # It joins these tables based on their relationships and applies no specific condition.
     query = '''
       SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, at.processed
       FROM article_metadata am
@@ -118,6 +108,7 @@ def index():
     '''
     params = []
 
+    # If a tag is selected, filter by that tag
     if filter_tag:
       query += '''
       AND EXISTS (
@@ -128,25 +119,33 @@ def index():
         '''
       params.append(filter_tag)
 
+    # If show_processed is set, filter by processed status
     if show_processed == 'processed':
       query += ' AND at.processed = 1'
     elif show_processed == 'unprocessed':
       query += ' AND at.processed = 0'
     
+    # Finish the query by grouping by article id and ordering by the selected column
     query += f'''
     GROUP BY am.id
     ORDER BY {sort_by} DESC
     '''
+    # Now actually execute the SQL query we constructed
     cursor.execute(query, params)
-    
+
+    # Once the query is executed, fetch all the results 
     articles = cursor.fetchall()
-    # Get all unique tags for the filter dropdown
+
+    # Generate a new query, this one is to grab all the unique tags for the filter dropdown
     cursor.execute('SELECT DISTINCT tag FROM tag_labels')
     all_tags = [row[0] for row in cursor.fetchall()]
   
   formatted_articles = []
   for article in articles:
+    # For each article returned by the query, format it into a list
     formatted_article = list(article)
+    # These indexes correspong to the columns of the SQL Tables. 
+    # TODO: Document the schema of the tables
     # Format date_published (index 4) and date_updated (index 5)
     if formatted_article[4]:
       formatted_article[4] = datetime.fromisoformat(formatted_article[4]).strftime('%d-%m-%Y')
@@ -155,6 +154,7 @@ def index():
 
     formatted_articles.append(formatted_article)
 
+  # Now all the variables are ready, we can render the page using the `index.html` template
   return render_template('index.html', articles=formatted_articles, all_tags=all_tags, 
                current_sort=sort_by, current_filter=filter_tag, 
                show_processed=show_processed, colors=colors, current_theme=theme,
@@ -163,9 +163,9 @@ def index():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
+  # This is the settings page, where the user can change the settings of the webapp
   theme = get_theme()
-  
-  print(f"Loading theme: {theme}")  # Debug statement
+  logging.info(f"Loading theme: {theme}")  # Debug statement
   colorPath = os.path.join(staticPath, 'themes', f'{theme}.css')
   colors = load_colors_from_css(colorPath)  # Load colors based on selected theme
   config_path = os.path.join(Directories.directory_config, FileNames.filename_yaml)
