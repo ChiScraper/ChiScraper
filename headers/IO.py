@@ -35,11 +35,10 @@ def readMarkdownFile(filepath):
 def readYamlFile(filepath):
   return readFile(filepath, expected_file_extension=".yaml")
 
-def readSearchCriteria2Dict(directory, filename):
-  dict_config = readFile(f"{directory}/{filename}.json", ".json")
+def readSearchCriteria2Dict(directory, config_name):
+  dict_config = readFile(f"{directory}/{config_name}.json", ".json")
   list_missing_keys = []
   for key in [
-      "config_tag",
       "list_authors",
       "list_categories",
       "list_keywords_exclude",
