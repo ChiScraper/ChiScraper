@@ -1,0 +1,14 @@
+I research Free Space Optical Communicaiton technologies of space applicaiton. 
+I.e. using lasers to communicate wirelessly with satelites and spacecraft.
+
+My key area of research is Adaptive Optics enabled optical communicaiton.
+I am working on using fiber optic technology for wavefront sensing technolgy. 
+This is the hybrid between photonic telecommunication research and astrophgotonics.
+
+I am interested in reading more about 
+- Free Space Optical Communicaiton
+- Adaptive Optics
+- wavefront sensors, 
+- wavefront shaping, 
+- photonic lanterns
+- Optic fiber bundles
