@@ -90,7 +90,10 @@ def index():
   sort_by = request.args.get('sort_by', 'ai_rating')
   filter_tag = request.args.get('filter_tag', '')
   show_processed = request.args.get('show_processed', 'unprocessed')
-  articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by)
+
+  # Access the database to get the articles
+  articles = app.config['db'].get_article_list(filter_tag, show_processed, sort_by)
+  # ... and the tags
   all_tags = app.config['db'].get_all_unique_tags()
   
   formatted_articles = []
