@@ -1,0 +1,18 @@
+[project]
+name = "ChiScraper"
+version = "0.1.0"
+description = "A tool for scraping and analyzing arXiv papers"
+requires-python = ">=3.8"
+
+# This will use your requirements.txt file
+dynamic = ["dependencies"]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ChiScraper"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

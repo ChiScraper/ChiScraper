@@ -1,5 +1,0 @@
-config_name: "FSOC"
-lookback_days: 14
-search_title: true
-search_abstract: true
-search_authors: false
