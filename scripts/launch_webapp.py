@@ -6,7 +6,7 @@ import os, sys, re, yaml, logging
 # Import the logging environment variables, 
 # IT IS IMPORTANT TO DO THIS BEFORE IMPORTING ANY OTHER MODULES,
 # OTHERWISE THE LOGGING CONFIGURATION WILL NOT BE SET FOR THEM
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
+LOG_LEVEL = os.getenv('LOG_LEVVEL', 'INFO')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
@@ -15,6 +15,7 @@ from datetime import datetime
 from headers import Directories
 from headers import FileNames
 from headers import WWDatabase
+from headers import WWArticles
 
 
 ## ###############################################################
@@ -201,6 +202,10 @@ def process_article(arxiv_id):
     cursor = conn.cursor()
     cursor.execute('UPDATE article_tags SET processed = 1 WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
     conn.commit()
+  articlePath = os.path.join(Directories.directory_mdfiles, f'{arxiv_id}.md')
+  article = WWArticles.readMarkdownFile2Dict(articlePath)
+  article['task_status'] = 'r' # TODO:  Add multiple types of tagging
+  WWArticles.saveArticle2Markdown(Directories.directory_mdfiles, article)
   return redirect(url_for('index'))
 
 @app.route('/link/<string:arxiv_id>')
