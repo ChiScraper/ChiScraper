@@ -153,10 +153,6 @@ def settings():
 
 @app.route('/process/<string:arxiv_id>')
 def process_article(arxiv_id):
-  # with app.config['db'].get_connection() as conn:
-  #   cursor = conn.cursor()
-  #   cursor.execute('UPDATE article_tags SET processed = 1 WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
-  #   conn.commit()
   app.config['db'].update_article_processed_status(arxiv_id)
   articlePath = os.path.join(Directories.directory_mdfiles, f'{arxiv_id}.md')
   article = WWArticles.readMarkdownFile2Dict(articlePath)
