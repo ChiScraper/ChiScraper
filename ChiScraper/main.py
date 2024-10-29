@@ -3,13 +3,13 @@
 ## ###############################################################
 import sys, time, datetime, re
 
-from headers import Directories
-from headers import FileNames
-from headers import IO
-from headers import WWFnFs
-from headers import WWDates
-from headers import WWArgParse
-from headers import WWArticles
+from ChiScraper.headers import Directories
+from ChiScraper.headers import FileNames
+from ChiScraper.headers import IO
+from ChiScraper.headers import WWFnFs
+from ChiScraper.headers import WWDates
+from ChiScraper.headers import WWArgParse
+from ChiScraper.headers import WWArticles
 
 from scripts import search_arxiv as SearchArxiv
 from scripts import score_article as ScoreArticle
