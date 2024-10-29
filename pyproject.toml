@@ -12,6 +12,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
+package-dir = {"ChiScraper" = "src"}  # Maps the package name to src directory
 packages = ["ChiScraper"]
 
 [tool.setuptools.dynamic]
