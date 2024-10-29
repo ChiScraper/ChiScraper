@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        :root {
+            {% for name, value in colors.items() %}
+            --{{ name }}: {{ value }};
+            {% endfor %}
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<script>
+    function applyFilters() {
+        document.getElementById('filter-form').submit();
+    }
+</script>
+</head>
+
+<body>
+    
+    <div class="page-frontmatter">
+        <h1>ArXiv Round Up</h1>
+        
+<form id="filter-form" method="get"> <!-- Change method to 'get' -->
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by" id="sort_by" onchange="applyFilters()">
+        <option value="date_published" {% if current_sort == 'date_published' %}selected{% endif %}>Publish Date</option>
+        <option value="date_updated" {% if current_sort == 'date_updated' %}selected{% endif %}>Update Date</option>
+        <option value="ai_rating" {% if current_sort == 'ai_rating' %}selected{% endif %}>AI Rating</option>
+    </select>
+    
+    <label for="filter_tag">Filter by tag:</label>
+    <select name="filter_tag" id="filter_tag" onchange="applyFilters()">
+        <option value="">All tags</option>
+        {% for tag in all_tags %}
+            <option value="{{ tag }}" {% if current_filter == tag %}selected{% endif %}>{{ tag }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="show_processed">Show:</label>
+    <select name="show_processed" id="show_processed" onchange="applyFilters()">
+        <option value="all" {% if show_processed == 'all' %}selected{% endif %}>All articles</option>
+        <option value="processed" {% if show_processed == 'processed' %}selected{% endif %}>Processed only</option>
+        <option value="unprocessed" {% if show_processed == 'unprocessed' %}selected{% endif %}>Unprocessed only</option>
+    </select>
+
+    <label for="theme">Select Theme:</label>
+    <select name="theme" id="theme" onchange="this.form.submit()">
+        {% for theme in available_themes %}
+            <option value="{{ theme }}" {% if current_theme == theme %}selected{% endif %}>{{ theme }}</option>
+        {% endfor %}
+    </select>
+</form>
+<button onclick="window.location.href='{{ url_for('settings') }}'" class="settings-button">Settings</button>
+</div>
+        
+{% for article in articles %}
+<div class="article-section">
+    <div class="article-arxiv-id">{{ article[2] }}</div>
+    <div class="article-title">{{ article[1] }}</div>
+    <div class="article-meta">
+        <p><strong>Authors:</strong> {{ article[8] }}</p>
+        <p><strong>Published Date:</strong> {{ article[4] if article[4] else 'N/A' }}</p>
+        <p><strong>Category:</strong> {{ article[6] }}</p>
+        <p><strong>Tags:</strong> {{ article[10] }}</p>
+        <p><strong>Processed:</strong> {{ 'Yes' if article[-1] else 'No' }}</p>
+        <a href="{{ article[3] }}" target="_blank" class="pdf-button">View PDF</a>
+        <a href="{{ url_for('link_article', arxiv_id=article[2]) }}" class="link-button">Link</a>
+        {% if not article[13] %}
+        <a href="{{ url_for('process_article', arxiv_id=article[2]) }}" class="process-button">Process</a>
+        {% endif %}
+    </div>
+        <div class="article-abstract">
+            <strong>Abstract:</strong> {{ article[9] if article[9] else 'N/A' }}
+        </div>
+        <div class="article-ai">
+            <p><strong>AI Confidence:</strong> {{ "%.0f%%"|format(article[11]*10) if article[11] is not none else 'N/A' }}</p>
+            <div class="confidence-bar">
+                <div class="confidence-level" style="width: {{ article[11]*10 if article[11] is not none else 0 }}%">
+                </div>
+            </div>
+            <p><strong>AI Justification:</strong> {{ article[12] if article[12] is not none else 'N/A' }}</p>
+        </div>
+    </div>
+    {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

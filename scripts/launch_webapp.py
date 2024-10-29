@@ -5,13 +5,23 @@
 from flask import Flask, render_template, request, redirect, url_for
 
 import os, sys, re, yaml
+import logging
+
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
+LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
+logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
+
 from datetime import datetime
 
-import WWDatabase
+
+
+from headers import Directories
+from headers import FileNames
+from headers import WWDatabase
 
 
 ## ###############################################################
-## FUNCTIONS
+## HELPER FUNCTIONS
 ## ###############################################################
 def load_colors_from_css(file_path):
   colors = {}
@@ -24,32 +34,52 @@ def load_colors_from_css(file_path):
   return colors
 
 def setup_database(article_dir):
-  print(f"Setting up database")
+  logging.info("Setting up database")
   db = WWDatabase.ArticleDatabase(start_fresh=False)
-  print(f"Loading articles from {article_dir}")
+  logging.info(f"Loading articles from {article_dir}")
   # db.add_articles_from_directory(article_dir)
   # First check if the file_metadata is up to date
   modified_articles = db.find_modified_articles(article_dir)
-  print(f"detected {len(modified_articles)} modified articles")
+  logging.info(f"detected {len(modified_articles)} modified articles")
   # Add all articles if the file_metadata is not up to date
   for articlePath in modified_articles:
-    print(f"Updating article {articlePath}")
+    logging.debug(f"Updating article {articlePath}")
     db.add_article_from_MD(articlePath)
+  
+  logging.info(f"Checked all the articles. Now running cleanup")
   # And clean up stale entries
   db.clean_up_file_metadata(article_dir)
-  print(f"Database setup complete")
+  logging.info(f"Database setup complete")
   return db
 
 def get_theme():
-  with open('config.yaml', 'r') as config_file:
-    config = yaml.safe_load(config_file)
-  THEME = config['default_theme']
+  # with open('config.yaml', 'r') as config_file:
+  #   config = yaml.safe_load(config_file)
+  # THEME = config['default_theme']
+  THEME = 'default_theme'
   theme = request.args.get('theme', THEME)  # Get selected theme
   return theme
 
-app = Flask(__name__)
+
+## ###############################################################
+## FLASK APP
+## ###############################################################
+
+# Setup the paths for the css and html files
+templatesPath = os.path.join(Directories.directory_webApp, 'templates')
+staticPath = os.path.join(Directories.directory_webApp, 'static')
+# Create the Flask app
+app = Flask(__name__,
+             static_url_path=staticPath,static_folder=staticPath,
+             template_folder=templatesPath
+             )
+
+## ##############
+## Pages
+## ##############
 @app.route('/', methods=['GET', 'POST'])
 def index():
+  db = app.config['db'] 
   if request.method == 'POST':
     # Save the selected theme
     selected_theme = request.form.get('theme')
@@ -61,20 +91,21 @@ def index():
     return redirect(url_for('index'))
 
   theme = get_theme()
-  print(f"Loading theme: {theme}")  # Debug statement
-  colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
+  logging.info(f"Loading theme: {theme}")  # Debug statement
+  path = os.path.join(Directories.directory_webApp, 'static', 'themes')
+
+  colors = load_colors_from_css(os.path.join(path, f'{theme}.css'))  # Load colors based on selected theme
 
   # List all theme files in the static/themes directory
-  theme_dir = 'static/themes'
+  theme_dir = os.path.join(staticPath, 'themes')
   available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  # Remove .css extension
-  print(f"Available themes: {available_themes}")  # Debug statement
 
   sort_by = request.args.get('sort_by', 'ai_rating')
   filter_tag = request.args.get('filter_tag', '')
   show_processed = request.args.get('show_processed', 'unprocessed')
 
   # Create a new connection for each request
-  with db.get_connection() as conn:
+  with app.config['db'].get_connection() as conn:
     cursor = conn.cursor()
   
     query = '''
@@ -135,7 +166,8 @@ def settings():
   theme = get_theme()
   
   print(f"Loading theme: {theme}")  # Debug statement
-  colors = load_colors_from_css(f'static/themes/{theme}.css')  # Load colors based on selected theme
+  colorPath = os.path.join(staticPath, 'themes', f'{theme}.css')
+  colors = load_colors_from_css(colorPath)  # Load colors based on selected theme
   config_path = 'config.yaml'
   
   if request.method == 'POST':
@@ -159,9 +191,13 @@ def settings():
   return render_template('settings.html', ai_settings=ai_settings, search_settings=search_settings, 
                output_settings=output_settings, misc_settings=misc_settings, colors=colors)
 
+###################
+## Actions 
+###################
+
 @app.route('/process/<string:arxiv_id>')
 def process_article(arxiv_id):
-  with db.get_connection() as conn:
+  with app.config['db'].get_connection() as conn:
     cursor = conn.cursor()
     cursor.execute('UPDATE article_tags SET processed = 1 WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
     conn.commit()
@@ -173,17 +209,18 @@ def link_article(arxiv_id):
   url = f'https://arxiv.org/abs/{arxiv_id}'
   return redirect(url)
 
-with open('config.yaml', 'r') as config_file:
-  config = yaml.safe_load(config_file)
-ARTICLES_DIR = config['output_directory']
-DEFAULT_THEME = config['default_theme']
-# db = setup_database(ARTICLES_DIR)
+
+
 
 
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
+  
+  ARTICLES_DIR = Directories.directory_mdfiles
+  DEFAULT_THEME = "default_theme" 
+
   if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
     db = setup_database(ARTICLES_DIR)
     # db.display_table_heads()

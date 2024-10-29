@@ -1,7 +1,14 @@
+
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import sys, time, datetime, re
+import sys, time, datetime, re, os
+import logging
+# Access the environment variable
+LOG_LEVEL = 'DEBUG'  # You can set this to any desired log level
+LOG_FILE = 'app.log'  # You can set this to any desired log file
+os.environ['LOG_LEVEL'] = LOG_LEVEL  # You can set this to any desired log level
+os.environ['LOG_FILE'] = LOG_FILE  # You can set this to any desired log file
 
 from headers import Directories
 from headers import FileNames
@@ -15,6 +22,7 @@ from scripts import search_arxiv as SearchArxiv
 from scripts import score_article as ScoreArticle
 from scripts import fetch_from_arxiv as FetchFromArxiv
 from scripts import download_articles as DownloadArticles
+from scripts import launch_webapp as WebApp
 
 
 ## ###############################################################
@@ -120,12 +128,27 @@ class ArxivScraper():
     DownloadArticles.downloadPDFs(list_article_dicts)
 
   def launchWebApp(self):
+    logging.info("Launching webapp...")
     ## check database against md-files
     ## 1. database exists + no disagreement -> launch webserver
     ## 2. database exists + some disagreement -> update misalignments + add new entries -> launch webserver
     ## 3. no database -> create a database -> launch webserver
     ## manual button to save to md-file (webserver tracks which entries have been edited)
     ## when the webserver is closed -> unsaved database entries are saved to md-files
+
+    # This 'WERKZEUG_RUN_MAIN' environment variable is set to 'true' when the reloader is 
+    # running the main process. That means that the server will only reinitialize the database 
+    # when the reloader is running the main process. This is to prevent the database from
+    # being reinitialized every time the server reloads.
+    # TL;DR: Without this check, the database would be reinitialized every time the server reloads. 
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+      logging.debug(f"MAIN.py:ArxivScraper.launchWebApp: Setting up db from {Directories.directory_mdfiles}")
+      db = WebApp.setup_database(Directories.directory_mdfiles)
+      logging.info("Database setup complete.")
+      # Set the db object in the Flask app context
+      WebApp.app.config['db'] = db  # Store db in app config
+
+    WebApp.app.run(debug=True)
     pass
 
 
@@ -162,6 +185,10 @@ def main():
 ## PROGRAM ENTRY POINT
 ## ###############################################################
 if __name__ == "__main__":
+  
+  
+  logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL, filemode='w')
+
   main()
   sys.exit(0)
 
