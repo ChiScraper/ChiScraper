@@ -10,11 +10,11 @@ const directory_mdfiles = "mdfiles/";
 const task_status = "u";
 const config_tag = "";
 
-// Collect a complete list of papers meeting the task_status and config_tag condition
+// Collect a complete list of papers meeting the specified task-status and config-tag condition
 let pages = dv.pages().filter(
     p => p.file.path.startsWith(directory_mdfiles)
 ).filter(
-    p => (task_status && p.file.tasks.filter(t => t.task_status === task_status).length > 0) || (!task_status)
+    p => (task_status && p.file.tasks.filter(t => t.status === task_status).length > 0) || (!task_status)
 ).filter(
     p => (config_tag && p?.config_tags?.contains(config_tag)) || (!config_tag)
 ).sort(
@@ -59,7 +59,5 @@ const output = formattedPages.map(p => p.content).join("\n");
 output;
 ```
 %%
-
-
 
 %% DATAVIEW_PUBLISHER: end %%
