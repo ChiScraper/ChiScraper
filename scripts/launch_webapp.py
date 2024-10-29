@@ -168,7 +168,7 @@ def settings():
   print(f"Loading theme: {theme}")  # Debug statement
   colorPath = os.path.join(staticPath, 'themes', f'{theme}.css')
   colors = load_colors_from_css(colorPath)  # Load colors based on selected theme
-  config_path = 'config.yaml'
+  config_path = os.path.join(Directories.directory_config, FileNames.filename_yaml)
   
   if request.method == 'POST':
     # Save the settings
