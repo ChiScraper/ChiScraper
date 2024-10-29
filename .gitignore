@@ -4,6 +4,8 @@ __pycache__
 */__pycache__
 
 .venv
+.obsidian/workspace.json
+*.code-workspace
 *.db
 
 mdfiles/*
