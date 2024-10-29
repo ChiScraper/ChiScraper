@@ -11,10 +11,10 @@ from ChiScraper.headers import WWDates
 from ChiScraper.headers import WWArgParse
 from ChiScraper.headers import WWArticles
 
-from scripts import search_arxiv as SearchArxiv
-from scripts import score_article as ScoreArticle
-from scripts import fetch_from_arxiv as FetchFromArxiv
-from scripts import download_articles as DownloadArticles
+from ChiScraper.scripts import search_arxiv as SearchArxiv
+from ChiScraper.scripts import score_article as ScoreArticle
+from ChiScraper.scripts import fetch_from_arxiv as FetchFromArxiv
+from ChiScraper.scripts import download_articles as DownloadArticles
 
 
 ## ###############################################################
