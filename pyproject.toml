@@ -16,3 +16,7 @@ packages = ["ChiScraper"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
+
+# This defines the command-line scripts
+[project.scripts]
+chiscraper = "ChiScraper.main:main"  # Creates a 'chiscraper' command
