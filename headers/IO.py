@@ -52,23 +52,6 @@ def readSearchCriteria2Dict(directory, filename):
     raise Exception("Error: Config file is missing search keys")
   return dict_config
 
-def readParameterFile(directory):
-  filepath_yaml = f"{directory}/{FileNames.filename_yaml}"
-  dict_yaml_params = readYamlFile(filepath_yaml)
-  list_missing_keys = [
-    key
-    for key in [
-      "config_name",
-      "lookback_days",
-      "search_title",
-      "search_abstract",
-      "search_authors",
-    ]
-    if key not in dict_yaml_params
-  ]
-  if len(list_missing_keys) > 0: raise ValueError(f"Missing yaml-parameter(s): " + ", ".join(list_missing_keys))
-  return dict_yaml_params
-
 
 ## ###############################################################
 ## PRINT DICTIONARY CONTENTS
