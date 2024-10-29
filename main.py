@@ -45,11 +45,12 @@ class ArxivScraper():
     prompt_criteria = IO.readTextFile(f"{Directories.directory_config}/{FileNames.filename_ai_criteria}")
     for article_index, dict_article in enumerate(list_article_dicts):
       print(f"({article_index+1}/{num_articles})")
-      ScoreArticle.getAIScore(
+      bool_scored = ScoreArticle.getAIScore(
         dict_article    = dict_article,
         prompt_rules    = prompt_rules,
         prompt_criteria = prompt_criteria,
       )
+      if bool_scored: WWArticles.saveArticle2Markdown(dict_article)
       print(" ")
 
   def printArticles(self, list_article_dicts):

@@ -41,7 +41,7 @@ def fetchFromArxiv(arxiv_id):
     dict_arxiv          = dict_arxiv,
     dict_config_results = dict_config_results
   )
-  WWArticles.saveArticle2Markdown(dict_article, bool_verbose=True)
+  WWArticles.saveArticle2Markdown(dict_article)
   return dict_article
 
 
