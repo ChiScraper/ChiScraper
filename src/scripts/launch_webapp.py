@@ -12,10 +12,10 @@ logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
 from datetime import datetime
 
-from headers import Directories
-from headers import FileNames
-from headers import WWDatabase
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import FileNames
+from src.headers import WWDatabase
+from src.headers import WWArticles
 
 
 ## ###############################################################
