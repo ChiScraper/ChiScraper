@@ -7,7 +7,7 @@
 
 (Breaks core functionality, but possible workarounds)
 
-- [ ] Running `python ./main -s -r -w` gets stuck in a loop
+- [x] Running `python ./main -s -r -w` gets stuck in a loop
     - **Cause**
         - Flask apps restart the entire script when the server needs to refresh (for some reason). This causes the *search* and *rank* operations to fire every time the user interacts with teh web app
     - **Work Around**

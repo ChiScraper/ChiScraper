@@ -136,21 +136,15 @@ class ArxivScraper():
     ## manual button to save to md-file (webserver tracks which entries have been edited)
     ## when the webserver is closed -> unsaved database entries are saved to md-files
 
-    # This 'WERKZEUG_RUN_MAIN' environment variable is set to 'true' when the reloader is 
-    # running the main process. That means that the server will only reinitialize the database 
-    # when the reloader is running the main process. This is to prevent the database from
-    # being reinitialized every time the server reloads.
-    # TL;DR: Without this check, the database would be reinitialized every time the server reloads. 
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-      logging.debug(f"MAIN.py:ArxivScraper.launchWebApp: Setting up db from {Directories.directory_mdfiles}")
-      db = WebApp.setup_database(Directories.directory_mdfiles)
-      logging.info("Database setup complete.")
-      # Set the db object in the Flask app context
-      WebApp.app.config['db'] = db  # Store db in app config
+    logging.debug(f"MAIN.py:ArxivScraper.launchWebApp: Setting up db from {Directories.directory_mdfiles}")
+    db = WebApp.setup_database(Directories.directory_mdfiles)
+    logging.info("Database setup complete.")
+    # Set the db object in the Flask app context
+    WebApp.app.config['db'] = db  # Store db in app config
       
     Port = 5001
     print(f"Running on http://127.0.0.1:{Port}")  # Print the IP address and port
-    WebApp.app.run(debug=True, port=Port)
+    WebApp.app.run(debug=True, port=Port, use_reloader=False)  # Run the app
     pass
 
 

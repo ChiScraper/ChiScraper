@@ -1314,3 +1314,101 @@ INFO:root:Loading theme: default_theme
 INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 15:24:12] "GET / HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 15:24:12] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
 INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 15:24:12] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Launching webapp...
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:33] "[35m[1mGET / HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:34] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:34] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:34] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=XpM6BCgk5TxgM5Ecjgqd HTTP/1.1" 200 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:44] "[35m[1mGET / HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:44] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:44] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:45] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png&s=XpM6BCgk5TxgM5Ecjgqd HTTP/1.1[0m" 304 -
+INFO:root:Launching webapp...
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:root:Launching webapp...
+INFO:root:Setting up database
+INFO:root:Creating database and tables
+INFO:root:Loading articles from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Finding modified articles
+INFO:root:detected 6 modified articles
+INFO:root:Checked all the articles. Now clean up any stale entries
+INFO:root:Database setup complete
+INFO:root:Database setup complete.
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 333-904-855
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:56] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:56] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:12:56] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Launching webapp...
+INFO:root:Setting up database
+INFO:root:Creating database and tables
+INFO:root:Loading articles from /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles
+INFO:root:Finding modified articles
+INFO:root:detected 0 modified articles
+INFO:root:Checked all the articles. Now clean up any stale entries
+INFO:root:Database setup complete
+INFO:root:Database setup complete.
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:24] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:24] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:24] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Processing article 2410.20009, Status: R
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.20009.md
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:29] "[32mGET /process/2410.20009?status=R HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:29] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:29] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:29] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:32] "GET /?sort_by=ai_rating&filter_tag=&show_processed=r&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:32] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:32] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:35] "GET /?sort_by=ai_rating&filter_tag=&show_processed=a&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:35] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:35] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Processing article 2410.22063, Status: r
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.22063.md
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:37] "[32mGET /process/2410.22063?status=r HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:37] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:37] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Processing article 2410.14192, Status: r
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14192.md
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:39] "[32mGET /process/2410.14192?status=r HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:39] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:39] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:39] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:40] "GET /?sort_by=ai_rating&filter_tag=&show_processed=r&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:40] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:40] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:45] "GET /?sort_by=ai_rating&filter_tag=&show_processed=a&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:45] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:45] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Processing article 2410.14192, Status: d
+INFO:root:Saving article: /home/cameron/Documents/projects/NonPhD/arXivScraper/mdfiles/2410.14192.md
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:48] "[32mGET /process/2410.14192?status=d HTTP/1.1[0m" 302 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:48] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:48] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:48] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -
+INFO:root:Loading theme: default_theme
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:50] "GET /?sort_by=ai_rating&filter_tag=&show_processed=d&theme=default_theme HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:51] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Oct/2024 16:13:51] "[36mGET /home/cameron/Documents/projects/NonPhD/arXivScraper/scripts/WebAppConfig/static/scripts.js HTTP/1.1[0m" 304 -

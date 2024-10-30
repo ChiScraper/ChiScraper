@@ -9,4 +9,4 @@ __pycache__
 mdfiles/*
 pdfs/*
 
-.log
+*.log
