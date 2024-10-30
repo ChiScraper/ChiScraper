@@ -1,80 +1,41 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import sys, time, datetime, re
+import sys, time, datetime
 
-from headers import Directories
-from headers import FileNames
-from headers import IO
-from headers import WWFnFs
-from headers import WWDates
-from headers import WWArgParse
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import FileNames
+from src.headers import IO
+from src.headers import WWFnFs
+from src.headers import WWDates
+from src.headers import WWArgParse
+from src.headers import WWArticles
 
-from scripts import search_arxiv as SearchArxiv
-from scripts import score_article as ScoreArticle
-from scripts import fetch_from_arxiv as FetchFromArxiv
-from scripts import download_articles as DownloadArticles
-
-
-## ###############################################################
-## GET USER INPUT
-## ###############################################################
-def getUserInputs():
-  dict_args = {
-    "default"  : False,
-    "required" : False,
-    "action"   : "store_true",
-    "help"     : "type: bool, default: %(default)s"
-  }
-  parser = WWArgParse.MyParser(description="Calculate kinetic and magnetic energy spectra.")
-  parse_args = parser.add_argument_group(description="Optional arguments:")
-  parse_args.add_argument("-s", "--search",   **dict_args)
-  parse_args.add_argument("-f", "--fetch",    **dict_args)
-  parse_args.add_argument("-r", "--rank",     **dict_args)
-  parse_args.add_argument("-p", "--print",    **dict_args)
-  parse_args.add_argument("-d", "--download", **dict_args)
-  parse_args.add_argument("-w", "--webapp",   **dict_args)
-  args = vars(parser.parse_args())
-  print(args)
-  # if all([
-  #     not(value)
-  #     for value, _ in parse_args
-  #   ]):
-  #   raise Exception("Error: At least one program flag/argument must be provided. Run `python main.py --help` (-h) for details.")
-  return args
+from src.scripts import search_arxiv as SearchArxiv
+from src.scripts import score_article as ScoreArticle
+from src.scripts import fetch_from_arxiv as FetchFromArxiv
+from src.scripts import download_articles as DownloadArticles
 
 
 ## ###############################################################
 ## OPERATOR CLASS
 ## ###############################################################
 class ArxivScraper():
-  def __init__(self, dict_yaml):
-    self.current_date         = WWDates.getDateToday()
-    ## TODO: do away with yaml file
-    self.lookback_date        = WWDates.getDateNDaysAgo(dict_yaml["lookback_days"]) # run time param.
-    self.bool_search_title    = dict_yaml["search_title"] # remove
-    self.bool_search_abstract = dict_yaml["search_abstract"] # remove
-    self.bool_search_authors  = dict_yaml["search_authors"] # remove
-    self.config_name          = dict_yaml["config_name"] # run time param.
+  def __init__(self, obj_user_inputs: WWArgParse.GetUserInputs):
+    self.obj_user_inputs = obj_user_inputs
 
   def searchArxiv(self):
+    dict_search_params = self.obj_user_inputs.getSearchInputs()
     obj_search_arxiv = SearchArxiv.SearchArxiv(
-      current_date         = self.current_date,
-      lookback_date        = self.lookback_date,
-      bool_search_title    = self.bool_search_title,
-      bool_search_abstract = self.bool_search_abstract,
-      bool_search_authors  = self.bool_search_authors,
-      config_name          = self.config_name,
+      current_date  = WWDates.getDateToday(),
+      lookback_date = WWDates.getDateNDaysAgo(dict_search_params["lookback_days"]),
+      config_name   = dict_search_params["config_name"],
     )
     obj_search_arxiv.search()
     return obj_search_arxiv.getSortedArticles()
 
   def fetchFromArxiv(self):
-    print("Which article do you want to fetch from the Arxiv?\n")
-    arxiv_id = input("Enter an arXiv ID: ")
-    re_pattern = r"^\d{4}\.\d{4,5}$"
-    if not re.match(re_pattern, arxiv_id): print(f"The ID you entered `{arxiv_id}` was invalid. Please enter it in the format `2310.17036`.")
+    arxiv_id = self.obj_user_inputs.getFetchInputs()
     article_dict = FetchFromArxiv.fetchFromArxiv(arxiv_id)
     return article_dict
 
@@ -84,11 +45,12 @@ class ArxivScraper():
     prompt_criteria = IO.readTextFile(f"{Directories.directory_config}/{FileNames.filename_ai_criteria}")
     for article_index, dict_article in enumerate(list_article_dicts):
       print(f"({article_index+1}/{num_articles})")
-      ScoreArticle.getAIScore(
+      bool_scored = ScoreArticle.getAIScore(
         dict_article    = dict_article,
         prompt_rules    = prompt_rules,
         prompt_criteria = prompt_criteria,
       )
+      if bool_scored: WWArticles.saveArticle2Markdown(dict_article)
       print(" ")
 
   def printArticles(self, list_article_dicts):
@@ -103,20 +65,14 @@ class ArxivScraper():
     WWFnFs.createDirectory(Directories.directory_mdfiles, bool_add_space=True)
     num_articles = len(list_article_dicts)
     for dict_article in list_article_dicts:
-      WWArticles.saveArticle2Markdown(
-        directory_output = Directories.directory_mdfiles,
-        dict_article     = dict_article
-      )
+      WWArticles.saveArticle2Markdown(dict_article, bool_verbose=False)
     print(f"Saved {num_articles} articles.")
     print(" ")
 
-  def downloadPDFs(
-      self,
-      list_article_dicts = [],
-      bool_download_from_markdown = False
-    ):
+  def downloadPDFs(self):
     WWFnFs.createDirectory(Directories.directory_pdfs, bool_add_space=True)
-    if bool_download_from_markdown: list_article_dicts = WWArticles.readAllMarkdownFiles()
+    list_article_dicts = WWArticles.readAllMarkdownFiles()
+    ## download markdown files (articles) that have been flaged `-d`
     DownloadArticles.downloadPDFs(list_article_dicts)
 
   def launchWebApp(self):
@@ -134,26 +90,27 @@ class ArxivScraper():
 ## ###############################################################
 def main():
   time_start = time.time()
-  print("Program started at {}\n".format(
+  print("Program started at {}".format(
     datetime.datetime.now().strftime("%H:%M:%S")
   ))
-  dict_user_args = getUserInputs()
-  dict_yaml = IO.readParameterFile(Directories.directory_config)
-  obj_arxiv_scraper = ArxivScraper(dict_yaml)
-  if dict_user_args["search"]:
+  obj_user_inputs = WWArgParse.GetUserInputs()
+  dict_program_flags = obj_user_inputs.getMainProgramInputs()
+  obj_arxiv_scraper = ArxivScraper(obj_user_inputs)
+  if dict_program_flags["search"]:
     list_article_dicts = obj_arxiv_scraper.searchArxiv()
-    if dict_user_args["rank"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
-    if dict_user_args["print"]: obj_arxiv_scraper.printArticles(list_article_dicts)
     obj_arxiv_scraper.saveArticles(list_article_dicts)
-  elif dict_user_args["rank"]:
+    if dict_program_flags["score"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
+    if dict_program_flags["print"]: obj_arxiv_scraper.printArticles(list_article_dicts)
+  elif dict_program_flags["score"]:
     list_article_dicts = WWArticles.readAllMarkdownFiles()
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
-    obj_arxiv_scraper.saveArticles(list_article_dicts)
-  elif dict_user_args["fetch"]:
-    article_dict = obj_arxiv_scraper.fetchFromArxiv()
-    if dict_user_args["download"]: obj_arxiv_scraper.downloadPDFs([ article_dict ]) # bug: does not download
-  elif dict_user_args["download"]: obj_arxiv_scraper.downloadPDFs(bool_download_from_markdown=True)
-  if dict_user_args["webapp"]: obj_arxiv_scraper.launchWebApp()
+  elif dict_program_flags["fetch"]:
+    dict_article = obj_arxiv_scraper.fetchFromArxiv()
+    if (dict_article is not None) and dict_program_flags["download"]:
+      DownloadArticles.downloadPDF(dict_article)
+    print(" ")
+  elif dict_program_flags["download"]: obj_arxiv_scraper.downloadPDFs()
+  if dict_program_flags["webapp"]: obj_arxiv_scraper.launchWebApp()
   time_elapsed = time.time() - time_start
   print(f"Elapsed time: {time_elapsed:.2f} seconds.")
 

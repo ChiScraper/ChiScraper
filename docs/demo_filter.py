@@ -1,6 +1,6 @@
 import sys
 
-from headers import WWLists
+from src.headers import WWLists
 
 
 ## ###############################################################
