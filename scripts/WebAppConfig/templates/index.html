@@ -2,6 +2,10 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArXiv Round Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         :root {
             {% for name, value in colors.items() %}
@@ -9,13 +13,9 @@
             {% endfor %}
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<script>
-    function applyFilters() {
-        document.getElementById('filter-form').submit();
-    }
-</script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
 </head>
 
 <body>
@@ -68,9 +68,18 @@
         <p><strong>Processed:</strong> {{ 'Yes' if article[-1] else 'No' }}</p>
         <a href="{{ article[3] }}" target="_blank" class="pdf-button">View PDF</a>
         <a href="{{ url_for('link_article', arxiv_id=article[2]) }}" class="link-button">Link</a>
-        {% if not article[13] %}
-        <a href="{{ url_for('process_article', arxiv_id=article[2]) }}" class="process-button">Process</a>
-        {% endif %}
+        
+
+        <!-- Drop Down Menu for processed -->
+        <select name="process_status" class="process-button" onchange="location.href='{{ url_for('process_article', arxiv_id=article[2], status='') }}' + this.value">
+            <option value="u" {% if not article[-1] %}selected{% endif %}>Unprocessed</option>
+            <option value="r" {% if article[-1] == 'To Read' %}selected{% endif %}>To Read</option>
+            <option value="R" {% if article[-1] == 'Read' %}selected{% endif %}>Read</option>
+            <option value="d" {% if article[-1] == 'To Download' %}selected{% endif %}>To Download</option>
+            <option value="D" {% if article[-1] == 'Download' %}selected{% endif %}>Download</option>
+            <option value="-" {% if article[-1] == 'Not Relevant' %}selected{% endif %}>Not Relevant</option>
+        </select>
+
     </div>
         <div class="article-abstract">
             <strong>Abstract:</strong> {{ article[9] if article[9] else 'N/A' }}

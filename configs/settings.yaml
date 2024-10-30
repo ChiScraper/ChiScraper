@@ -1,4 +1,4 @@
-config_name: QuantumOptics
+config_name: FSOC
 lookback_days: '14'
 search_abstract: 'True'
 search_title: 'True'

@@ -148,7 +148,7 @@ class ArxivScraper():
       # Set the db object in the Flask app context
       WebApp.app.config['db'] = db  # Store db in app config
       
-    Port = 5000
+    Port = 5001
     print(f"Running on http://127.0.0.1:{Port}")  # Print the IP address and port
     WebApp.app.run(debug=True, port=Port)
     pass

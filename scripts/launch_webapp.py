@@ -153,10 +153,14 @@ def settings():
 
 @app.route('/process/<string:arxiv_id>')
 def process_article(arxiv_id):
+  status = request.args.get('status')  # Get status from query parameters
+  logging.info(f"Processing article {arxiv_id}, Status: {status}")
+
+
   app.config['db'].update_article_processed_status(arxiv_id)
   articlePath = os.path.join(Directories.directory_mdfiles, f'{arxiv_id}.md')
   article = WWArticles.readMarkdownFile2Dict(articlePath)
-  article['task_status'] = 'r' # TODO:  Add multiple types of tagging
+  article['task_status'] = status 
   WWArticles.saveArticle2Markdown(Directories.directory_mdfiles, article)
   return redirect(url_for('index'))
 
