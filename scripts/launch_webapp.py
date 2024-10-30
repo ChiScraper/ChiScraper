@@ -89,7 +89,7 @@ def index():
   ## Filtering and Sorting Variables
   sort_by = request.args.get('sort_by', 'ai_rating')
   filter_tag = request.args.get('filter_tag', '')
-  show_processed = request.args.get('show_processed', 'unprocessed')
+  show_processed = request.args.get('show_processed', 'u')
 
   # Access the database to get the articles
   articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by)
@@ -156,12 +156,31 @@ def process_article(arxiv_id):
   status = request.args.get('status')  # Get status from query parameters
   logging.info(f"Processing article {arxiv_id}, Status: {status}")
 
+  # Step 1, lets load it into the database. 
+  # 1.1: Convert the status into an integer
+  statusDict = {'u':0,
+                'r':1,
+                'R':2,
+                'd':3,
+                'D':4,
+                '-':5
+                }
+  # This determines how to save the status into the database
+  statusInt = statusDict[status]
+  # 1.2: Update the database
+  app.config['db'].update_article_processed_status(arxiv_id,statusInt)
 
-  app.config['db'].update_article_processed_status(arxiv_id)
+  # Step 2, lets update the markdown file
+  # 2.1: Find the article path
   articlePath = os.path.join(Directories.directory_mdfiles, f'{arxiv_id}.md')
+  # 2.2: Load the article into a dictionary
   article = WWArticles.readMarkdownFile2Dict(articlePath)
+  # 2.3: Update the status
   article['task_status'] = status 
+  # 2.4: Save the article back to the markdown file
   WWArticles.saveArticle2Markdown(Directories.directory_mdfiles, article)
+  
+  # Now we can exit, and refresh the page
   return redirect(url_for('index'))
 
 @app.route('/link/<string:arxiv_id>')

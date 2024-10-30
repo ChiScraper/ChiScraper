@@ -149,11 +149,14 @@ class ArticleDatabase:
     conn.commit()
     conn.close()
   
-  def update_article_processed_status(self, arxiv_id):
-      with self.get_connection() as conn:
-          cursor = conn.cursor()
-          cursor.execute('UPDATE article_tags SET processed = 1 WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
-          conn.commit()
+  def update_article_processed_status(self, arxiv_id, status=1):
+    # First, lets check status is an integer.
+    if not isinstance(status, int):
+      raise ValueError("Status must be an integer")
+    with self.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(f'UPDATE article_tags SET processed = {status} WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
+        conn.commit()
 
   def list_table_columns(self):
     conn = sqlite3.connect(self.db_name)
@@ -320,10 +323,19 @@ class ArticleDatabase:
           params.append(filter_tag)
 
       # If show_processed is set, filter by processed status
-      if show_processed == 'processed':
-          query += ' AND at.processed = 1'
-      elif show_processed == 'unprocessed':
-          query += ' AND at.processed = 0'
+      statusDict = {'u':0,
+                    'r':1,
+                    'R':2,
+                    'd':3,
+                    'D':4,
+                    '-':5,
+                    'a':None
+                    }
+      processStatus = statusDict[show_processed]
+
+      if processStatus is not None:
+          query += f' AND at.processed = {processStatus} '
+
 
       # Finish the query by grouping by article id and ordering by the selected column
       query += f'''
