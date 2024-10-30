@@ -3,17 +3,11 @@
 ## ###############################################################
 import os, re, yaml, unidecode
 
-from headers import Directories
-from headers import WWFnFs
-from headers import WWLists
-from headers import IO
-from headers import WWDates
-
-
-import logging
-LOG_LEVEL = os.getenv('LOG_LEVVEL', 'INFO')  # Default to INFO if not set
-LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
-logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
+from src.headers import Directories
+from src.headers import WWFnFs
+from src.headers import WWLists
+from src.headers import IO
+from src.headers import WWDates
 
 
 ## ###############################################################
@@ -35,7 +29,7 @@ def formatText(text):
 ## ###############################################################
 ## PRINT ARTICLE CONTENTS
 ## ###############################################################
-def printArticle(dict_article, num_pad_chars=17):
+def printArticle(dict_article, num_pad_chars=13):
   ## helper function
   def _printLine(category, content):
     if isinstance(content, list): content = ", ".join(content)
@@ -43,10 +37,10 @@ def printArticle(dict_article, num_pad_chars=17):
     print(f"{category}: {content}")
   ## print article information
   ## debug: printDict(dict_article)
-  _printLine("Title",         dict_article["title"])
-  _printLine("PDF URL",       dict_article["url_pdf"])
-  _printLine("Date Updated",  WWDates.castDate2String(dict_article["date_updated"]))
-  _printLine("Author(s)",     dict_article["authors"])
+  _printLine("Title",        dict_article["title"])
+  _printLine("PDF URL",      dict_article["url_pdf"])
+  _printLine("Date Updated", WWDates.castDate2String(dict_article["date_updated"]))
+  _printLine("Author(s)",    dict_article["authors"])
   return
 
 
@@ -95,24 +89,22 @@ def writeArticleContent2File(filepointer, dict_article):
   filepointer.write(f" - [{task_status}] #task status\n")
   return
 
-
-def saveArticle2Markdown(directory_output, dict_article, bool_verbose=False):
-  
+def saveArticle2Markdown(dict_article, bool_verbose=True):
   filename = dict_article["arxiv_id"] + ".md"
-  filepath_file = os.path.join(directory_output, filename)
-
-  logging.info(f"Saving article: {filepath_file}")
-
+  filepath_file = f"{Directories.directory_mdfiles}/{filename}"
   if WWFnFs.fileExists(filepath_file):
     _dict_article = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article["task_status"]
     ## if the article has already been assessed, don't overwrite it
-    if _task_status in [ "D", "-" ]: return
-
-    # NOTE: I commented this out because I want to overwrite status sometimes. CJ
+    if _task_status in [ "D", "-" ]:
+      if _task_status == "D": print("The following article has already been downloaded:")
+      if _task_status == "-": print("The following article has already been ignored:")
+      printArticle(dict_article)
+      input_save = input("Do you want to save it again? (y/n): ")
+      print(" ")
+      if input_save[0].lower() != "y": return
     ## retain the task status
-    # dict_article["task_status"] = _task_status
-
+    dict_article["task_status"] = _task_status
     ## merge `config_tags`: only add unique tags from `_dict_article`
     if "config_tags" in _dict_article:
       dict_article["config_tags"] = list(
@@ -131,7 +123,7 @@ def saveArticle2Markdown(directory_output, dict_article, bool_verbose=False):
   ## overwrite the file if it exists, but retain the Obsidian task status and search category tags
   with open(filepath_file, "w") as filepointer:
     writeArticleContent2File(filepointer, dict_article)
-  if bool_verbose: print(f"Saved: {filepath_file}\n")
+  if bool_verbose: print(f"Saved: {filepath_file}")
   return
 
 
@@ -184,11 +176,11 @@ def readMarkdownFile2Dict(md_file):
     frontmatter_content = match.group(1)
     body = match.group(2)
   else: raise ValueError("Missing frontmatter section in the Markdown file.")
-  # Parse the YAML frontmatter
+  ## parse the YAML frontmatter
   try:
     metadata = yaml.safe_load(frontmatter_content)
   except yaml.YAMLError as e: raise ValueError(f"Error parsing YAML frontmatter: {e}")
-  # Ensure all required keys are present in the metadata
+  ## ensure all required keys are present in the metadata
   missing_keys = [
     key
     for key in [
@@ -206,9 +198,13 @@ def readMarkdownFile2Dict(md_file):
     if key not in metadata
   ]
   if missing_keys: raise ValueError("Missing required keys in frontmatter:", ", ".join(missing_keys))
-  # Extract all config_reason_* keys
-  config_reasons = {k: v for k, v in metadata.items() if k.startswith("config_reason_")}
-  # Find the character inside the brackets [] on the same line as `#task`
+  ## extract all config_reason_* keys
+  config_reasons = {
+    k: v
+    for k, v in metadata.items()
+    if k.startswith("config_reason_")
+  }
+  ## find the character inside the brackets [] on the same line as `#task`
   task_status = "u"
   task_match = re.search(r"^\s*-\s+\[([^\]]+)\].*#task", body, re.MULTILINE)
   if task_match: task_status = task_match.group(1)

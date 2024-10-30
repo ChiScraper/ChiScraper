@@ -1,13 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime
-
-import logging
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
-LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
-logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
-
-from headers import WWArticles
+from src.headers import HelperFuncs
 
 class ArticleDatabase:
   def __init__(self, db_name='articles.db', overwrite_duplicates=False, start_fresh=False):
@@ -29,7 +23,6 @@ class ArticleDatabase:
     #     print(f"Database '{self.db_name}' already exists.")
   
   def create_database(self):
-    logging.info("Creating database and tables")
     conn = sqlite3.connect(self.db_name)
     cursor = conn.cursor()
 
@@ -148,15 +141,6 @@ class ArticleDatabase:
                     (1 << tag_id, article_id))
     conn.commit()
     conn.close()
-  
-  def update_article_processed_status(self, arxiv_id, status=1):
-    # First, lets check status is an integer.
-    if not isinstance(status, int):
-      raise ValueError("Status must be an integer")
-    with self.get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(f'UPDATE article_tags SET processed = {status} WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
-        conn.commit()
 
   def list_table_columns(self):
     conn = sqlite3.connect(self.db_name)
@@ -292,63 +276,6 @@ class ArticleDatabase:
 
   def get_connection(self):
     return sqlite3.connect(self.db_name)
-  
-  def get_all_unique_tags(self):
-      with self.get_connection() as conn:
-          cursor = conn.cursor()
-          cursor.execute('SELECT DISTINCT tag FROM tag_labels')
-          return [row[0] for row in cursor.fetchall()]
-  
-
-  def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating'):
-      query = '''
-          SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, at.processed
-          FROM article_metadata am
-          LEFT JOIN article_tags at ON am.id = at.article_id
-          LEFT JOIN tag_labels tl ON (at.tags & (1 << tl.tag_id)) != 0
-          LEFT JOIN article_ratings ar ON am.id = ar.article_id
-          WHERE 1=1
-      '''
-      params = []
-
-      # If a tag is selected, filter by that tag
-      if filter_tag:
-          query += '''
-          AND EXISTS (
-              SELECT 1 FROM tag_labels tl2
-              WHERE (at.tags & (1 << tl2.tag_id)) != 0
-              AND tl2.tag = ?
-          )
-          '''
-          params.append(filter_tag)
-
-      # If show_processed is set, filter by processed status
-      statusDict = {'u':0,
-                    'r':1,
-                    'R':2,
-                    'd':3,
-                    'D':4,
-                    '-':5,
-                    'a':None
-                    }
-      processStatus = statusDict[show_processed]
-
-      if processStatus is not None:
-          query += f' AND at.processed = {processStatus} '
-
-
-      # Finish the query by grouping by article id and ordering by the selected column
-      query += f'''
-      GROUP BY am.id
-      ORDER BY {sort_by} DESC
-      '''
-      
-      with self.get_connection() as conn:
-          cursor = conn.cursor()
-          cursor.execute(query, params)
-          return cursor.fetchall()
-
-
 
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
@@ -467,7 +394,7 @@ class ArticleDatabase:
   
   def add_article_from_MD(self, filepath):
     try:
-      article_dict = WWArticles.readMarkdownFile2Dict(filepath)
+      article_dict = HelperFuncs.readMarkdownFile2Dict(filepath)
       # Add article metadata
       article_id = self.add_article_metadata(
         title=article_dict["title"],
@@ -490,9 +417,9 @@ class ArticleDatabase:
         )
       # Add file modified time
       self.add_file_modified_time(filepath)
-      logging.debug(f"Successfully loaded article: {article_dict['title']}")
+      print(f"Successfully loaded article: {article_dict['title']}")
     except Exception as e:
-      logging.error(f"Failed to load article {filepath}: {e}")
+      print(f"Failed to load article {filepath}: {e}")
   
   def add_articles_from_directory(self, directory):
     list_filenames = [
@@ -508,34 +435,24 @@ class ArticleDatabase:
   def check_modified(self, filepath):
     try:
       arxiv_id = os.path.splitext(os.path.basename(filepath))[0]
-      logging.debug(f"Checking modification for {arxiv_id}")
-      try:
-        article_id = self.get_article_index_by_id(arxiv_id)
-      except ValueError:
-        logging.debug(f"Article ID not found for {arxiv_id}")
-        return True
-      logging.debug(f"Article ID: {article_id}")
+      article_id = self.get_article_index_by_id(arxiv_id)
       
       # Get the last modified time of the file
       file_modified_time = datetime.fromtimestamp(os.path.getmtime(filepath))
-      logging.debug(f"File modified time: {file_modified_time}")
       
       conn = sqlite3.connect(self.db_name)
-      logging.debug("Connected to database")
       cursor = conn.cursor()
       cursor.execute('SELECT last_updated FROM file_metadata WHERE article_id = ?', (article_id,))
       result = cursor.fetchone()
-      logging.debug(f"Result: {result}")
       conn.close()
       
       if result:
         db_last_updated = datetime.fromisoformat(result[0])
         return file_modified_time > db_last_updated
       else:
-        logging.debug("No record found")
         return True  # If no record exists, consider it as modified
     except Exception as e:
-      logging.error(f"Failed to check modification for {filepath}: {e}")
+      print(f"Failed to check modification for {filepath}: {e}")
       return False
 
   def add_file_modified_time(self, filepaths):
@@ -563,7 +480,6 @@ class ArticleDatabase:
         print(f"Failed to add file modified time for {filepath}: {e}")
 
   def find_modified_articles(self, directory):
-    logging.info("Finding modified articles")
     modified_articles = []
     list_filenames = [
       filename
@@ -573,7 +489,6 @@ class ArticleDatabase:
 
     for filename in list_filenames:
       filepath = os.path.join(directory, filename)
-      logging.debug(f"Checking file: {filepath}")
       if self.check_modified(filepath):
         modified_articles.append(filepath)
     
@@ -603,7 +518,7 @@ class ArticleDatabase:
           cursor.execute('DELETE FROM article_ratings WHERE article_id = ?', (article_id,))
           # Delete from tags
           cursor.execute('DELETE FROM article_tags WHERE article_id = ?', (article_id,))
-          logging.info(f"Removed stale entries for article ID {article_id} from all tables")
+          print(f"Removed stale entries for article ID {article_id} from all tables")
     
     conn.commit()
     conn.close()
@@ -629,3 +544,64 @@ if __name__ == "__main__":
 
   #  Clean up file metadata
   db.clean_up_file_metadata("articles")
+  
+
+
+  # db.create_database()
+
+  # Adding a full article
+  # metadata = {
+  #     'title': "Example Article",
+  #     'arxiv_id': "1234.56789",
+  #     'url_pdf': "https://example.com/article.pdf",
+  #     'date_published': datetime.now().date(),
+  #     'date_updated': datetime.now().date(),
+  #     'category_primary': "Computer Science",
+  #     'category_others': "Artificial Intelligence",
+  #     'authors': ["John Doe", "Jane Smith"],
+  #     'abstract': "This is an example abstract."
+  # }
+  # ratings = {
+  #     'ai_rating': 4.5,
+  #     'ai_reason': "Well-structured and innovative",
+  #     'user_rating': 5
+  # }
+  # tags = [
+  #     ("machine learning", "config_tag"),
+  #     ("neural networks", "config_tag"),
+  #     ("novel approach", "config_reason_FSOC"),
+  #     ("significant results", "config_reason_FSOC")
+  # ]
+
+  # db.add_full_article(metadata, ratings, tags)
+
+  # Adding partial data
+  # partial_metadata = {
+  #     'title': "Partial Article",
+  #     'arxiv_id': "9876.54321",
+  #     'category_primary': "Physics"
+  # }
+  # partial_article_id = db.add_article_metadata(**partial_metadata)
+  # db.add_article_rating(partial_article_id, ai_rating=3.8)
+  # db.add_article_tag(partial_article_id, "quantum computing", "config_tag")
+  # print("Partial article data added successfully")
+
+  # print("\nDisplaying the head of each table:")
+  # db.display_table_heads()
+
+  # print("\nListing column titles for each table:")
+  # table_columns = db.list_table_columns()
+  # print(table_columns)
+
+  # Get article metadata by index
+  # article_index = 4
+  # article_metadata = db.get_article_metadata_by_index(article_index)
+  # print(f"\nArticle Metadata by Index {article_index}:")
+  # for key, value in article_metadata.items():
+  #     print(f"{key}: {value}")
+  # # Get article tags
+  # article_tags = db.get_article_tags(article_index)
+  # print(f"\nArticle Tags for Article ID {article_index}:")
+  # for tag in article_tags:
+  #     print(tag)
+

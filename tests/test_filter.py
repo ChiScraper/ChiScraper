@@ -3,7 +3,7 @@
 ## ###############################################################
 import sys, unittest
 
-from headers import WWLists
+from src.headers import WWLists
 
 
 ## ###############################################################

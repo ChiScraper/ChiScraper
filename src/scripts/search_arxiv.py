@@ -3,33 +3,25 @@
 ## ###############################################################
 import sys, arxiv, numpy, unidecode
 
-from headers import Directories
-from headers import IO
-from headers import WWFnFs
-from headers import WWDates
-from headers import WWLists
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import IO
+from src.headers import WWFnFs
+from src.headers import WWDates
+from src.headers import WWLists
+from src.headers import WWArgParse
+from src.headers import WWArticles
 
 
 ## ###############################################################
 ## OPPERATOR CLASS
 ## ###############################################################
 class SearchArxiv:
-  def __init__(
-      self,
-      lookback_date, current_date, config_name,
-      bool_search_title    = True,
-      bool_search_abstract = True,
-      bool_search_authors  = True,
-    ):
-    self.lookback_date        = lookback_date
-    self.current_date         = current_date
-    self.bool_search_title    = bool_search_title
-    self.bool_search_abstract = bool_search_abstract
-    self.bool_search_authors  = bool_search_authors
-    self.config_name          = config_name
+  def __init__(self, lookback_date, current_date, config_name):
+    self.lookback_date = lookback_date
+    self.current_date  = current_date
+    self.config_name   = config_name
     ## initialise results
-    self.list_article_dicts   = []
+    self.list_article_dicts = []
 
   def search(self):
     self._readSearchCriteria()
@@ -51,7 +43,7 @@ class SearchArxiv:
         if self._isDuplicate(arxiv_id): continue
         bool_relevant, list_bool_reasons = self._checkConfigConditions(dict_arxiv)
         if bool_relevant:
-          dict_config_results = { self.dict_search_criteria["config_tag"] : list_bool_reasons }
+          dict_config_results = { self.config_name : list_bool_reasons }
           dict_article = WWArticles.getArticleSummaryDict(
             dict_arxiv          = dict_arxiv,
             dict_config_results = dict_config_results
@@ -69,26 +61,16 @@ class SearchArxiv:
 
   def _readSearchCriteria(self):
     self.dict_search_criteria = IO.readSearchCriteria2Dict(
-      directory = Directories.directory_config,
-      filename  = self.config_name,
+      directory   = Directories.directory_config,
+      config_name = self.config_name,
     )
-    config_tag = self.dict_search_criteria["config_tag"]
     print(f"Searching for articles:")
     print("> from: {}".format(WWDates.castDate2String(self.lookback_date)))
     print("> to:   {}".format(WWDates.castDate2String(self.current_date)))
     print(" ")
-    print(f"> using the `#{config_tag}` config file")
-    if self.bool_search_title:    print("> searching titles.")
-    if self.bool_search_abstract: print("> searching abstracts.")
-    if self.bool_search_authors:  print("> searching authors.")
-    if all([
-        not(self.bool_search_title),
-        not(self.bool_search_abstract),
-        not(self.bool_search_authors)
-      ]):
-      raise Exception("Error: you have not specified where to apply search criteria (i.e., title, abstract, authors).")
+    print(f"> using the `#{self.config_name}` config file")
     print(" ")
-    WWLists.printSearchCriteria(self.dict_search_criteria, self.bool_search_authors)
+    WWLists.printSearchCriteria(self.dict_search_criteria)
 
   def _createSearchQuery(self, category):
     return arxiv.Search(
@@ -108,24 +90,22 @@ class SearchArxiv:
     ])
 
   def _checkConfigConditions(self, dict_arxiv):
-    bool_satisfied_title    = False
-    bool_satisfied_abstract = False
-    bool_satisfied_authors  = False
-    if self.bool_search_title:
-      if WWLists.meetsSearchCriteria(dict_arxiv.title.lower(), self.dict_search_criteria["list_keywords_exclude"]): return False, None
-      bool_satisfied_title = WWLists.meetsSearchCriteria(dict_arxiv.title.lower(), self.dict_search_criteria["list_keywords_include"])
-    if self.bool_search_abstract:
-      if WWLists.meetsSearchCriteria(dict_arxiv.summary.lower(), self.dict_search_criteria["list_keywords_exclude"]): return False, None
-      bool_satisfied_abstract = WWLists.meetsSearchCriteria(dict_arxiv.summary.lower(), self.dict_search_criteria["list_keywords_include"])
-    if self.bool_search_authors:
-      list_author_lastnames = [
-        unidecode.unidecode(str(author).lower().split(" ")[-1])
-        for author in dict_arxiv.authors
-      ]
-      bool_satisfied_authors = any(
-        author.lower() in list_author_lastnames
-        for author in self.dict_search_criteria["list_authors"]
-      )
+    ## search title
+    if WWLists.meetsSearchCriteria(dict_arxiv.title.lower(), self.dict_search_criteria["list_keywords_exclude"]): return False, None
+    bool_satisfied_title = WWLists.meetsSearchCriteria(dict_arxiv.title.lower(), self.dict_search_criteria["list_keywords_include"])
+    ## search abstract
+    if WWLists.meetsSearchCriteria(dict_arxiv.summary.lower(), self.dict_search_criteria["list_keywords_exclude"]): return False, None
+    bool_satisfied_abstract = WWLists.meetsSearchCriteria(dict_arxiv.summary.lower(), self.dict_search_criteria["list_keywords_include"])
+    ## search author names
+    list_author_lastnames = [
+      unidecode.unidecode(str(author).lower().split(" ")[-1])
+      for author in dict_arxiv.authors
+    ]
+    bool_satisfied_authors = any(
+      author.lower() in list_author_lastnames
+      for author in self.dict_search_criteria["list_authors"]
+    )
+    ## check if any conditions were met
     list_bool_reasons = [
       bool_satisfied_title,
       bool_satisfied_abstract,
@@ -144,23 +124,18 @@ class SearchArxiv:
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
-  dict_yaml = IO.readParameterFile(Directories.directory_config)
+  obj_user_inputs = WWArgParse.GetUserInputs()
+  dict_search_params = obj_user_inputs.getSearchInputs()
   obj_search_arxiv = SearchArxiv(
-    current_date         = WWDates.getDateToday(),
-    lookback_date        = WWDates.getDateNDaysAgo(dict_yaml["lookback_days"]),
-    bool_search_title    = dict_yaml["search_title"],
-    bool_search_abstract = dict_yaml["search_abstract"],
-    bool_search_authors  = dict_yaml["search_authors"],
-    config_name          = dict_yaml["config_name"],
+    current_date  = WWDates.getDateToday(),
+    lookback_date = WWDates.getDateNDaysAgo(dict_search_params["lookback_days"]),
+    config_name   = dict_search_params["config_name"],
   )
   obj_search_arxiv.search()
   list_article_dicts = obj_search_arxiv.getSortedArticles()
   WWFnFs.createDirectory(Directories.directory_mdfiles, bool_add_space=True)
   for dict_article in list_article_dicts:
-    WWArticles.saveArticle2Markdown(
-      directory_output = Directories.directory_mdfiles,
-      dict_article     = dict_article
-    )
+    WWArticles.saveArticle2Markdown(dict_article, bool_verbose=False)
   print(f"Saved {len(list_article_dicts)} articles.")
   print(" ")
 

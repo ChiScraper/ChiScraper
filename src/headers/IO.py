@@ -3,8 +3,6 @@
 ## ###############################################################
 import json, yaml
 
-from headers import FileNames
-
 
 ## ###############################################################
 ## READING FILES
@@ -35,11 +33,10 @@ def readMarkdownFile(filepath):
 def readYamlFile(filepath):
   return readFile(filepath, expected_file_extension=".yaml")
 
-def readSearchCriteria2Dict(directory, filename):
-  dict_config = readFile(f"{directory}/{filename}.json", ".json")
+def readSearchCriteria2Dict(directory, config_name):
+  dict_config = readFile(f"{directory}/{config_name}.json", ".json")
   list_missing_keys = []
   for key in [
-      "config_tag",
       "list_authors",
       "list_categories",
       "list_keywords_exclude",
@@ -51,23 +48,6 @@ def readSearchCriteria2Dict(directory, filename):
     print("\t", ", ".join(list_missing_keys), "\n")
     raise Exception("Error: Config file is missing search keys")
   return dict_config
-
-def readParameterFile(directory):
-  filepath_yaml = f"{directory}/{FileNames.filename_yaml}"
-  dict_yaml_params = readYamlFile(filepath_yaml)
-  list_missing_keys = [
-    key
-    for key in [
-      "config_name",
-      "lookback_days",
-      "search_title",
-      "search_abstract",
-      "search_authors",
-    ]
-    if key not in dict_yaml_params
-  ]
-  if len(list_missing_keys) > 0: raise ValueError(f"Missing yaml-parameter(s): " + ", ".join(list_missing_keys))
-  return dict_yaml_params
 
 
 ## ###############################################################

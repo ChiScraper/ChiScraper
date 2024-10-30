@@ -75,6 +75,7 @@ def lolsToSetNotation(list_elems, set_level=0):
 def printSearchCriteria(dict_search, bool_search_authors=False):
   list_keywords_include = dict_search["list_keywords_include"]
   list_keywords_exclude = dict_search["list_keywords_exclude"]
+  list_authors          = dict_search["list_authors"]
   print("> including articles with phrases:")
   print(lolsToSetNotation(list_keywords_include))
   print(" ")
@@ -82,8 +83,7 @@ def printSearchCriteria(dict_search, bool_search_authors=False):
     print("> excluding articles with phrases:")
     print(lolsToSetNotation(list_keywords_exclude))
     print(" ")
-  if bool_search_authors:
-    list_authors = dict_search["list_authors"]
+  if len(list_authors) > 0:
     print("> including articles with authors:", end="")
     print(joinList(list_authors, str_sep="\n\t- ", bool_pre=True))
     print(" ")
