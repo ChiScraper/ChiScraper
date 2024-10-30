@@ -97,16 +97,19 @@ def index():
   all_tags = app.config['db'].get_all_unique_tags()
   
   formatted_articles = []
-  for article in articles:
+  for index, article in enumerate(articles):
     # For each article returned by the query, format it into a list
     formatted_article = list(article)
-    # These indexes correspong to the columns of the SQL Tables. 
+    # These indexes correspond to the columns of the SQL Tables. 
     # TODO: Document the schema of the tables
     # Format date_published (index 4) and date_updated (index 5)
     if formatted_article[4]:
       formatted_article[4] = datetime.fromisoformat(formatted_article[4]).strftime('%d-%m-%Y')
     if formatted_article[5]:
       formatted_article[5] = datetime.fromisoformat(formatted_article[5]).strftime('%d-%m-%Y')
+    # Insert the index of the article at position 0
+    formatted_article.insert(0, index+1)
+
 
     formatted_articles.append(formatted_article)
 
@@ -178,7 +181,7 @@ def process_article(arxiv_id):
   # 2.3: Update the status
   article['task_status'] = status 
   # 2.4: Save the article back to the markdown file
-  WWArticles.saveArticle2Markdown(Directories.directory_mdfiles, article)
+  WWArticles.saveArticle2Markdown(article, bool_overwrite=True)
   
   # Now we can exit, and refresh the page
   return redirect(url_for('index'))

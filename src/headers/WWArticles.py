@@ -9,6 +9,10 @@ from src.headers import WWLists
 from src.headers import IO
 from src.headers import WWDates
 
+import logging
+LOG_LEVEL = os.getenv('LOG_LEVVEL', 'INFO')  # Default to INFO if not set
+LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
+logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
 ## ###############################################################
 ## HELPER FUNCTION
@@ -89,10 +93,15 @@ def writeArticleContent2File(filepointer, dict_article):
   filepointer.write(f" - [{task_status}] #task status\n")
   return
 
-def saveArticle2Markdown(dict_article, bool_verbose=True):
+def saveArticle2Markdown(dict_article, bool_verbose=True, bool_overwrite=False):
+  # Verify that dict_article is a dictionary
+  if not isinstance(dict_article, dict):
+    raise ValueError(f'The input must be a dictionary. The input is of type {type(dict_article)}')
+  directory_output = Directories.directory_mdfiles
   filename = dict_article["arxiv_id"] + ".md"
-  filepath_file = f"{Directories.directory_mdfiles}/{filename}"
-  if WWFnFs.fileExists(filepath_file):
+  filepath_file = os.path.join(directory_output, filename)
+  logging.info(f"Saving article: {filepath_file}")
+  if WWFnFs.fileExists(filepath_file) and not bool_overwrite:
     _dict_article = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article["task_status"]
     ## if the article has already been assessed, don't overwrite it
