@@ -3,8 +3,8 @@
 ## ###############################################################
 import sys, re, argparse
 
-from headers import Directories
-from headers import WWFnFs
+from src.headers import Directories
+from src.headers import WWFnFs
 
 ## ###############################################################
 ## FORMAT HELPFUL DETAILS ABOUT USER INPUT
@@ -52,7 +52,7 @@ class GetUserInputs:
     parse_flags = self.parser.add_argument_group(description="Main program flags:")
     parse_flags.add_argument("-s", "--search",   **dict_args)
     parse_flags.add_argument("-f", "--fetch",    **dict_args)
-    parse_flags.add_argument("-s", "--score",     **dict_args)
+    parse_flags.add_argument("-r", "--score",     **dict_args)
     parse_flags.add_argument("-p", "--print",    **dict_args)
     parse_flags.add_argument("-d", "--download", **dict_args)
     parse_flags.add_argument("-w", "--webapp",   **dict_args)

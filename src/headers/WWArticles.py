@@ -3,11 +3,11 @@
 ## ###############################################################
 import os, re, yaml, unidecode
 
-from headers import Directories
-from headers import WWFnFs
-from headers import WWLists
-from headers import IO
-from headers import WWDates
+from src.headers import Directories
+from src.headers import WWFnFs
+from src.headers import WWLists
+from src.headers import IO
+from src.headers import WWDates
 
 
 ## ###############################################################
@@ -37,10 +37,10 @@ def printArticle(dict_article, num_pad_chars=13):
     print(f"{category}: {content}")
   ## print article information
   ## debug: printDict(dict_article)
-  _printLine("Title",         dict_article["title"])
-  _printLine("PDF URL",       dict_article["url_pdf"])
-  _printLine("Date Updated",  WWDates.castDate2String(dict_article["date_updated"]))
-  _printLine("Author(s)",     dict_article["authors"])
+  _printLine("Title",        dict_article["title"])
+  _printLine("PDF URL",      dict_article["url_pdf"])
+  _printLine("Date Updated", WWDates.castDate2String(dict_article["date_updated"]))
+  _printLine("Author(s)",    dict_article["authors"])
   return
 
 

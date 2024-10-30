@@ -3,10 +3,10 @@
 ## ###############################################################
 import sys, arxiv
 
-from headers import Directories
-from headers import WWFnFs
-from headers import WWArgParse
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import WWFnFs
+from src.headers import WWArgParse
+from src.headers import WWArticles
 
 
 ## ###############################################################

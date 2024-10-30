@@ -3,10 +3,10 @@
 ## ###############################################################
 import os, sys, re, time, openai
 
-from headers import Directories
-from headers import FileNames
-from headers import IO
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import FileNames
+from src.headers import IO
+from src.headers import WWArticles
 
 
 ## ###############################################################
@@ -82,7 +82,7 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
 ## ###############################################################
 def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_score_all=False):
   if not(bool_score_all) and not(dict_article.get("ai_rating") is None):
-    print("Skipping because the article has already been rated.")
+    print("Skipping because the article has already been scored.")
     return False
   time_start = time.time()
   dict_ai_score = getAIResponse(
@@ -96,7 +96,8 @@ def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_score_all=False
     if "ai_message" in dict_ai_score.keys():
       print("LLM response:")
       print(dict_ai_score["ai_message"])
-    raise Exception("Error: something went wrong with resquesting a LLM score.")
+    print("Error: something went wrong with resquesting a LLM score.")
+    return False
   print("arXiv-id:", dict_article["arxiv_id"])
   print("Title:", dict_article["title"])
   print("Rating:", dict_ai_score['ai_rating'])
@@ -116,13 +117,13 @@ def main():
   num_articles       = len(list_article_dicts)
   for article_index, dict_article in enumerate(list_article_dicts):
     print(f"({article_index+1}/{num_articles})")
-    getAIScore(
+    bool_scored = getAIScore(
       dict_article    = dict_article,
       prompt_rules    = prompt_rules,
       prompt_criteria = prompt_criteria,
       bool_score_all  = True,
     )
-    WWArticles.saveArticle2Markdown(dict_article)
+    if bool_scored: WWArticles.saveArticle2Markdown(dict_article)
     print(" ")
 
 

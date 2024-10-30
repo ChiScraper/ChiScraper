@@ -3,13 +3,13 @@
 ## ###############################################################
 import sys, arxiv, numpy, unidecode
 
-from headers import Directories
-from headers import IO
-from headers import WWFnFs
-from headers import WWDates
-from headers import WWLists
-from headers import WWArgParse
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import IO
+from src.headers import WWFnFs
+from src.headers import WWDates
+from src.headers import WWLists
+from src.headers import WWArgParse
+from src.headers import WWArticles
 
 
 ## ###############################################################

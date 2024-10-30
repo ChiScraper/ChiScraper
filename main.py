@@ -1,20 +1,20 @@
 ## ###############################################################
 ## LOAD MODULES
 ## ###############################################################
-import sys, time, datetime, re
+import sys, time, datetime
 
-from headers import Directories
-from headers import FileNames
-from headers import IO
-from headers import WWFnFs
-from headers import WWDates
-from headers import WWArgParse
-from headers import WWArticles
+from src.headers import Directories
+from src.headers import FileNames
+from src.headers import IO
+from src.headers import WWFnFs
+from src.headers import WWDates
+from src.headers import WWArgParse
+from src.headers import WWArticles
 
-from scripts import search_arxiv as SearchArxiv
-from scripts import score_article as ScoreArticle
-from scripts import fetch_from_arxiv as FetchFromArxiv
-from scripts import download_articles as DownloadArticles
+from src.scripts import search_arxiv as SearchArxiv
+from src.scripts import score_article as ScoreArticle
+from src.scripts import fetch_from_arxiv as FetchFromArxiv
+from src.scripts import download_articles as DownloadArticles
 
 
 ## ###############################################################
@@ -98,9 +98,9 @@ def main():
   obj_arxiv_scraper = ArxivScraper(obj_user_inputs)
   if dict_program_flags["search"]:
     list_article_dicts = obj_arxiv_scraper.searchArxiv()
+    obj_arxiv_scraper.saveArticles(list_article_dicts)
     if dict_program_flags["score"]: obj_arxiv_scraper.scoreArticles(list_article_dicts)
     if dict_program_flags["print"]: obj_arxiv_scraper.printArticles(list_article_dicts)
-    obj_arxiv_scraper.saveArticles(list_article_dicts)
   elif dict_program_flags["score"]:
     list_article_dicts = WWArticles.readAllMarkdownFiles()
     obj_arxiv_scraper.scoreArticles(list_article_dicts)
