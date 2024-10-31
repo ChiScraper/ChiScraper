@@ -89,10 +89,46 @@ def index():
   # List all theme files in the static/themes directory
   available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
 
+  sortByMap = {
+    0: 'ai_rating',
+    1: 'date_published',
+    2: 'date_updated',
+    None: 'ai_rating',
+  }
+  showProcessedMap = {
+    0: 'u',
+    1: 'r',
+    2: 'R',
+    3: 'd',
+    4: 'D',
+    5: '-',
+    None: 'a',
+  }
+  tags = app.config['db'].get_all_unique_tags()
+
+  filterAndSort = app.config['db'].get_filters_and_sort()
+  filter_tag_default = filterAndSort[0]
+  if filter_tag_default is not None:
+    filter_tag_default = tags[filter_tag_default]
+  show_processed_default = showProcessedMap[filterAndSort[1]]
+  sort_by_default = sortByMap[filterAndSort[2]]
+  
+
+
   ## Filtering and Sorting Variables
-  sort_by = request.args.get('sort_by', 'ai_rating')
-  filter_tag = request.args.get('filter_tag', '')
-  show_processed = request.args.get('show_processed', 'u')
+  sort_by = request.args.get('sort_by', sort_by_default)
+  filter_tag = request.args.get('filter_tag', filter_tag_default)
+  show_processed = request.args.get('show_processed', show_processed_default)
+
+  # Coerce them back into integers to load into the database
+  if filter_tag == '':
+    filter_tag_indx = None
+  else:
+    filter_tag_indx = tags.index(filter_tag)
+  show_processed_indx = [k for k, v in showProcessedMap.items() if v == show_processed][0]
+  sort_by_indx = [k for k, v in sortByMap.items() if v == sort_by][0]
+
+  app.config['db'].set_filters_and_sort(filter_tag_indx, show_processed_indx, sort_by_indx)
 
   # Access the database to get the articles
   articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by)

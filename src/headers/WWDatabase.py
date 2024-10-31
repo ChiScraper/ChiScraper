@@ -380,6 +380,17 @@ class ArticleDatabase:
       logging.error(f"Failed to fetch theme: {e}")
       return None
 
+  def get_filters_and_sort(self):
+    try:
+      with self.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT filter_process, filter_tag, sort_by FROM settings')
+        result = cursor.fetchone()
+        return result if result else None
+    except Exception as e:
+      logging.error(f"Failed to fetch filters: {e}")
+      return None
+
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
     cursor = conn.cursor()
@@ -533,6 +544,12 @@ class ArticleDatabase:
     for filename in list_filenames:
       filepath = os.path.join(directory, filename)
       self.add_article_from_MD(filepath)
+
+  def set_filters_and_sort(self, filter_process=None, filter_tag=None, sort_by=None):
+    with self.get_connection() as conn:
+      cursor = conn.cursor()
+      cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?', (filter_process, filter_tag, sort_by))
+      conn.commit()
 
   def check_modified(self, filepath):
     try:
