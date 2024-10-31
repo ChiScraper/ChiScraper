@@ -154,8 +154,6 @@ class ArticleDatabase:
     if type(status) != int:
       raise ValueError("Status must be an integer")
 
-
-      
     with self.get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(f'UPDATE article_tags SET processed = {status} WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
@@ -301,7 +299,6 @@ class ArticleDatabase:
           cursor = conn.cursor()
           cursor.execute('SELECT DISTINCT tag FROM tag_labels')
           return [row[0] for row in cursor.fetchall()]
-  
 
   def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating'):
       query = '''
@@ -324,25 +321,35 @@ class ArticleDatabase:
           )
           '''
           params.append(filter_tag)
+      
+      showProcessedMap = {
+        'a': None,
+        'u': 0,
+        'r': 1,
+        'R': 2,
+        'd': 3,
+        'D': 4,
+        '-': 5,
+      }
 
       # If show_processed is set, filter by processed status
-      if show_processed == 'processed':
-          query += ' AND at.processed = 1'
-      elif show_processed == 'unprocessed':
-          query += ' AND at.processed = 0'
+      if showProcessedMap[show_processed] is not None:
+        query += f'AND at.processed = {showProcessedMap[show_processed]}'
 
       # Finish the query by grouping by article id and ordering by the selected column
       query += f'''
       GROUP BY am.id
       ORDER BY {sort_by} DESC
       '''
-      
-      with self.get_connection() as conn:
-          cursor = conn.cursor()
-          cursor.execute(query, params)
-          return cursor.fetchall()
-
-
+      try:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            return cursor.fetchall()
+      except Exception as e:
+        logging.error(f"Failed to fetch articles: {e}")
+        logging.error(f"Query: {query}")
+        return []
 
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
@@ -416,7 +423,6 @@ class ArticleDatabase:
 
   def get_connection(self):
     return sqlite3.connect(self.db_name)
-
 
   def add_tag(self, tag):
     conn = sqlite3.connect(self.db_name)
