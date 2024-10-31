@@ -38,12 +38,15 @@ def setup_database(article_dir):
   
   logging.info(f"Checked all the articles. Now clean up any stale entries")
   db.clean_up_file_metadata(article_dir)
+
   logging.info(f"Database setup complete")
   return db
 
 def get_theme():
-  THEME = 'default_theme'
+  # THEME = 'default_theme'
+  THEME = app.config['db'].get_theme() if app.config['db'].get_theme() else 'default_theme'
   theme = request.args.get('theme', THEME)  # Get selected theme
+  app.config['db'].update_theme(theme)
   return theme
 
 def load_colors_from_css(file_path):
@@ -127,19 +130,24 @@ def settings():
   logging.info(f"Loading theme: {theme}")  # Debug statement
   colorPath = os.path.join(staticPath, 'themes', f'{theme}.css')
   colors = load_colors_from_css(colorPath)  # Load colors based on selected theme
-  config_path = os.path.join(Directories.directory_config, FileNames.filename_yaml)
+
+  # NOTE: Remove the YAML File Handling
+  # NOTE: This will be replaced with a database in the future
+  # NOTE: At the moment it is a place holder
+  # config_path = os.path.join(Directories.directory_config, FileNames.filename_yaml)
+  # if request.method == 'POST':
+  #   # Save the settings
+  #   new_config = request.form.to_dict()
+  #   with open(config_path, 'w') as config_file:
+  #     yaml.safe_dump(new_config, config_file)
+  #   success_message = 'Settings saved successfully!'
+  #   return redirect(url_for('settings'))
   
-  if request.method == 'POST':
-    # Save the settings
-    new_config = request.form.to_dict()
-    with open(config_path, 'w') as config_file:
-      yaml.safe_dump(new_config, config_file)
-    success_message = 'Settings saved successfully!'
-    return redirect(url_for('settings'))
-  
-  # Load the settings
-  with open(config_path, 'r') as config_file:
-    config = yaml.safe_load(config_file)
+  # # Load the settings
+  # with open(config_path, 'r') as config_file:
+  #   config = yaml.safe_load(config_file)
+
+  config = {}
   
   # Categorize settings
   ai_settings = {k: v for k, v in config.items() if k.startswith('ai_') or k.startswith('Run_AI') or k == 'host'}

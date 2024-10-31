@@ -62,14 +62,15 @@ class ArticleDatabase:
     )
     ''')
 
-
+    # Create tag_labels table, this is JUST known tags, 
+    # no article information is stored here
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS tag_labels (
       tag_id INTEGER PRIMARY KEY,
       tag TEXT NOT NULL UNIQUE
     )
     ''')
-
+    # Create article_tags table. 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS article_tags (
       article_id INTEGER PRIMARY KEY,
@@ -85,6 +86,17 @@ class ArticleDatabase:
       article_id INTEGER PRIMARY KEY,
       last_updated DATETIME,
       FOREIGN KEY (article_id) REFERENCES article_metadata (id)
+    )
+    ''')
+
+    # Create settings table, to internally store state and settings
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      theme TEXT,
+      filter_process INTEGER,
+      filter_tag INTEGER,
+      sort_by INTEGER
     )
     ''')
 
@@ -158,6 +170,12 @@ class ArticleDatabase:
         cursor = conn.cursor()
         cursor.execute(f'UPDATE article_tags SET processed = {status} WHERE article_id = (SELECT id FROM article_metadata WHERE arxiv_id = ?)', (arxiv_id,))
         conn.commit()
+
+  def update_theme(self, theme_path):
+    with self.get_connection() as conn:
+      cursor = conn.cursor()
+      cursor.execute('UPDATE settings SET theme = ?', (theme_path,))
+      conn.commit()
 
   def list_table_columns(self):
     conn = sqlite3.connect(self.db_name)
@@ -350,6 +368,17 @@ class ArticleDatabase:
         logging.error(f"Failed to fetch articles: {e}")
         logging.error(f"Query: {query}")
         return []
+
+  def get_theme(self):
+    try:
+      with self.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT theme FROM settings')
+        result = cursor.fetchone()
+        return result[0] if result else None
+    except Exception as e:
+      logging.error(f"Failed to fetch theme: {e}")
+      return None
 
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
