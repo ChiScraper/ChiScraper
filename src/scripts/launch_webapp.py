@@ -39,6 +39,18 @@ def setup_database(article_dir):
   logging.info(f"Checked all the articles. Now clean up any stale entries")
   db.clean_up_file_metadata(article_dir)
 
+  logging.info(f"Set Up the Settings")
+  # Check if the settings exists, if not, create them
+  theme = db.get_theme()
+  if theme is None:
+    logging.info(f"NO THEME FOUND, SETTING DEFAULT THEME")
+    db.update_theme('default_theme')
+  filterAndSort = db.get_filters_and_sort()
+  logging.info(f"Filter and Sort: {filterAndSort}")
+  if filterAndSort is None:
+    logging.debug(f"NO FILTERS FOUND, SETTING DEFAULT FILTERS")
+    db.set_filters_and_sort(None, None, None)
+
   logging.info(f"Database setup complete")
   return db
 
@@ -107,9 +119,14 @@ def index():
   tags = app.config['db'].get_all_unique_tags()
 
   filterAndSort = app.config['db'].get_filters_and_sort()
+  if filterAndSort is None:
+    filterAndSort = (None, None, None)
   filter_tag_default = filterAndSort[0]
   if filter_tag_default is not None:
     filter_tag_default = tags[filter_tag_default]
+  else:
+    filter_tag_default = ''
+
   show_processed_default = showProcessedMap[filterAndSort[1]]
   sort_by_default = sortByMap[filterAndSort[2]]
   

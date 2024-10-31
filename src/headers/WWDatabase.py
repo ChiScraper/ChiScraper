@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from src.headers import WWArticles
 import logging
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
@@ -173,8 +173,13 @@ class ArticleDatabase:
 
   def update_theme(self, theme_path):
     with self.get_connection() as conn:
+      logging.info(f"Updating theme to {theme_path}")
       cursor = conn.cursor()
-      cursor.execute('UPDATE settings SET theme = ?', (theme_path,))
+      cursor.execute('SELECT * FROM settings')
+      if cursor.fetchone():
+        cursor.execute('UPDATE settings SET theme = ?', (theme_path,))
+      else:
+        cursor.execute('INSERT INTO settings (theme, key) VALUES (?, ?)', (theme_path, 0))
       conn.commit()
 
   def list_table_columns(self):
@@ -546,10 +551,17 @@ class ArticleDatabase:
       self.add_article_from_MD(filepath)
 
   def set_filters_and_sort(self, filter_process=None, filter_tag=None, sort_by=None):
+    logging.info("Setting filters and sort")
     with self.get_connection() as conn:
       cursor = conn.cursor()
-      cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?', (filter_process, filter_tag, sort_by))
+      cursor.execute('SELECT * FROM settings')
+      result = cursor.fetchone()
+      if result:
+        cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?', (filter_process, filter_tag, sort_by))
+      else:
+        cursor.execute('INSERT INTO settings (filter_process, filter_tag, sort_by) VALUES (?, ?, ?)', (filter_process, filter_tag, sort_by))
       conn.commit()
+      logging.info("Filters and sort set successfully")
 
   def check_modified(self, filepath):
     try:
