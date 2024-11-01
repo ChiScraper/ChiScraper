@@ -51,12 +51,6 @@
             <option value="-" {% if show_processed == '-' %}selected{% endif %}>Not Relevant only</option>
         </select>
 
-        <label for="theme">Select Theme:</label>
-        <select name="theme" id="theme" onchange="this.form.submit()">
-            {% for theme in available_themes %}
-                <option value="{{ theme }}" {% if current_theme == theme %}selected{% endif %}>{{ theme }}</option>
-            {% endfor %}
-        </select>
     </form>
 
     <!-- Settings Button -->

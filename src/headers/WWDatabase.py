@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from src.headers import WWArticles
 import logging
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')  # Default to INFO if not set
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
@@ -559,7 +559,7 @@ class ArticleDatabase:
       if result:
         cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?', (filter_process, filter_tag, sort_by))
       else:
-        cursor.execute('INSERT INTO settings (filter_process, filter_tag, sort_by) VALUES (?, ?, ?)', (filter_process, filter_tag, sort_by))
+        cursor.execute('INSERT INTO settings (filter_process, filter_tag, sort_by, key) VALUES (?, ?, ?)', (filter_process, filter_tag, sort_by, 0))
       conn.commit()
       logging.info("Filters and sort set successfully")
 

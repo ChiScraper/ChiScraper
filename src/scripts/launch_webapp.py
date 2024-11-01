@@ -56,8 +56,11 @@ def setup_database(article_dir):
 
 def get_theme():
   # THEME = 'default_theme'
+  logging.info(f"Getting theme")
   THEME = app.config['db'].get_theme() if app.config['db'].get_theme() else 'default_theme'
+  logging.info(f"Theme: {THEME}")
   theme = request.args.get('theme', THEME)  # Get selected theme
+  logging.info(f"Selected Theme: {theme}")
   app.config['db'].update_theme(theme)
   return theme
 
@@ -129,9 +132,6 @@ def index():
 
   show_processed_default = showProcessedMap[filterAndSort[1]]
   sort_by_default = sortByMap[filterAndSort[2]]
-  
-
-
   ## Filtering and Sorting Variables
   sort_by = request.args.get('sort_by', sort_by_default)
   filter_tag = request.args.get('filter_tag', filter_tag_default)
@@ -180,36 +180,22 @@ def index():
 def settings():
   # This is the settings page, where the user can change the settings of the webapp
   theme = get_theme()
-  logging.info(f"Loading theme: {theme}")  # Debug statement
-  colorPath = os.path.join(staticPath, 'themes', f'{theme}.css')
-  colors = load_colors_from_css(colorPath)  # Load colors based on selected theme
+  logging.info(f"Loading theme: {theme}")  
+  theme_dir = os.path.join(staticPath, 'themes')
 
-  # NOTE: Remove the YAML File Handling
-  # NOTE: This will be replaced with a database in the future
-  # NOTE: At the moment it is a place holder
-  # config_path = os.path.join(Directories.directory_config, FileNames.filename_yaml)
-  # if request.method == 'POST':
-  #   # Save the settings
-  #   new_config = request.form.to_dict()
-  #   with open(config_path, 'w') as config_file:
-  #     yaml.safe_dump(new_config, config_file)
-  #   success_message = 'Settings saved successfully!'
-  #   return redirect(url_for('settings'))
-  
-  # # Load the settings
-  # with open(config_path, 'r') as config_file:
-  #   config = yaml.safe_load(config_file)
+  # Variables Accessed in the HTML
+
+  ## Colour Variables
+  colors = load_colors_from_css(os.path.join(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
+  # List all theme files in the static/themes directory
+  available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
 
   config = {}
   
-  # Categorize settings
-  ai_settings = {k: v for k, v in config.items() if k.startswith('ai_') or k.startswith('Run_AI') or k == 'host'}
-  search_settings = {k: v for k, v in config.items() if k.startswith('search_') or k in ['config_name', 'lookback_date']}
-  output_settings = {k: v for k, v in config.items() if k.startswith('output_')}
-  misc_settings = {k: v for k, v in config.items() if k not in ai_settings and k not in search_settings and k not in output_settings}
-  
-  return render_template('settings.html', ai_settings=ai_settings, search_settings=search_settings, 
-               output_settings=output_settings, misc_settings=misc_settings, colors=colors)
+  return render_template('settings.html', colors=colors, 
+                         available_themes=available_themes, 
+                         current_theme=theme, config=config)
+                         
 
 ###################
 ## Actions 
