@@ -8,7 +8,6 @@ from src.headers import WWFnFs
 from src.headers import WWLists
 from src.headers import IO
 from src.headers import WWDates
-
 import logging
 LOG_LEVEL = os.getenv('LOG_LEVVEL', 'INFO')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
@@ -99,7 +98,7 @@ def saveArticle2Markdown(dict_article, bool_verbose=True, bool_overwrite=False, 
     raise ValueError(f'The input must be a dictionary. The input is of type {type(dict_article)}')
   directory_output = Directories.directory_mdfiles
   filename = dict_article["arxiv_id"] + ".md"
-  filepath_file = os.path.join(directory_output, filename)
+  filepath_file = WWFnFs.contstructPath(directory_output, filename)
   logging.info(f"Saving article: {filepath_file}")
   if WWFnFs.fileExists(filepath_file) and not bool_overwrite:
     _dict_article = readMarkdownFile2Dict(filepath_file)

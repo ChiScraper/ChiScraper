@@ -2,6 +2,7 @@ import sqlite3
 import os
 from datetime import datetime
 from src.headers import WWArticles
+from src.headers import WWFnFs
 import logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
@@ -547,7 +548,7 @@ class ArticleDatabase:
     ]
 
     for filename in list_filenames:
-      filepath = os.path.join(directory, filename)
+      filepath = WWFnFs.contstructPath(directory, filename)
       self.add_article_from_MD(filepath)
 
   def set_filters_and_sort(self, filter_process=None, filter_tag=None, sort_by=None):
@@ -631,7 +632,7 @@ class ArticleDatabase:
     ]
 
     for filename in list_filenames:
-      filepath = os.path.join(directory, filename)
+      filepath = WWFnFs.contstructPath(directory, filename)
       logging.debug(f"Checking file: {filepath}")
 
       if self.check_modified(filepath):
@@ -653,7 +654,7 @@ class ArticleDatabase:
       result = cursor.fetchone()
       if result:
         arxiv_id = result[0]
-        filepath = os.path.join(directory, f"{arxiv_id}.md")
+        filepath = WWFnFs.contstructPath(directory, f"{arxiv_id}.md")
         if not os.path.exists(filepath):
           # Delete from file_metadata
           cursor.execute('DELETE FROM file_metadata WHERE article_id = ?', (article_id,))

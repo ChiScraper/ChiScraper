@@ -16,6 +16,7 @@ from src.headers import Directories
 from src.headers import FileNames
 from src.headers import WWDatabase
 from src.headers import WWArticles
+from src.headers import WWFnFs
 
 
 ## ###############################################################
@@ -79,8 +80,8 @@ def load_colors_from_css(file_path):
 ## ###############################################################
 
 # Setup the paths for the css and html files
-templatesPath = os.path.join(Directories.directory_webApp, 'templates')
-staticPath = os.path.join(Directories.directory_webApp, 'static')
+templatesPath = WWFnFs.contstructPath(Directories.directory_webApp, 'templates')
+staticPath = WWFnFs.contstructPath(Directories.directory_webApp, 'static')
 # Create the Flask app
 app = Flask(__name__,
              static_url_path=staticPath,static_folder=staticPath,
@@ -95,12 +96,12 @@ def index():
 
   theme = get_theme()
   logging.info(f"Loading theme: {theme}")  
-  theme_dir = os.path.join(staticPath, 'themes')
+  theme_dir = WWFnFs.contstructPath(staticPath, 'themes')
 
   # Variables Accessed in the HTML
 
   ## Colour Variables
-  colors = load_colors_from_css(os.path.join(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
+  colors = load_colors_from_css(WWFnFs.contstructPath(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
   # List all theme files in the static/themes directory
   available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
 
@@ -181,12 +182,12 @@ def settings():
   # This is the settings page, where the user can change the settings of the webapp
   theme = get_theme()
   logging.info(f"Loading theme: {theme}")  
-  theme_dir = os.path.join(staticPath, 'themes')
+  theme_dir = WWFnFs.contstructPath(staticPath, 'themes')
 
   # Variables Accessed in the HTML
 
   ## Colour Variables
-  colors = load_colors_from_css(os.path.join(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
+  colors = load_colors_from_css(WWFnFs.contstructPath(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
   # List all theme files in the static/themes directory
   available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
 
@@ -222,7 +223,7 @@ def process_article(arxiv_id):
 
   # Step 2, lets update the markdown file
   # 2.1: Find the article path
-  articlePath = os.path.join(Directories.directory_mdfiles, f'{arxiv_id}.md')
+  articlePath = WWFnFs.contstructPath(Directories.directory_mdfiles, f'{arxiv_id}.md')
   # 2.2: Load the article into a dictionary
   article = WWArticles.readMarkdownFile2Dict(articlePath)
   # 2.3: Update the status

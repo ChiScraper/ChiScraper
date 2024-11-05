@@ -21,5 +21,7 @@ def createDirectory(filepath, bool_add_space=True):
     if bool_add_space: print(" ")
   return
 
+def contstructPath(*args):
+  return os.path.join(*args)
 
 ## END OF HEADER FILE
