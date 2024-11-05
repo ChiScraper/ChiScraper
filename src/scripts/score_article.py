@@ -9,9 +9,6 @@ from src.headers import IO
 from src.headers import WWArticles
 from src.headers import RankingParams
 
-print(f"URL: {RankingParams.source_url}")
-print(f"Model: {RankingParams.model}")
-
 
 ## ###############################################################
 ## GLOBAL PARAMETERS
