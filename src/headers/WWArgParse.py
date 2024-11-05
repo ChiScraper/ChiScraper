@@ -56,6 +56,8 @@ class GetUserInputs:
     parse_flags.add_argument("-p", "--print",    **dict_args)
     parse_flags.add_argument("-d", "--download", **dict_args)
     parse_flags.add_argument("-w", "--webapp",   **dict_args)
+    parse_flags.add_argument("-sk", "--bool_skip_overwrite_message", action="store_true", help="Skip prompts to overwrite files, and default to NOT overwriting")
+
 
   def _addSearchArguments(self):
     """Sets up search-specific arguments."""
@@ -120,6 +122,10 @@ class GetUserInputs:
     re_pattern = r"^\d{4}\.\d{4,5}$"
     if not re.match(re_pattern, arxiv_id): raise Exception(f"The ID you entered `{arxiv_id}` was invalid. Please enter it in the format `2310.17036`.")
     return arxiv_id
+
+  def getSkipOverwriteMessage(self):
+    """Returns the value of the skip overwrite message flag."""
+    return self.args.get("bool_skip_overwrite_message")
 
 
 ## END OF HEADER FILE

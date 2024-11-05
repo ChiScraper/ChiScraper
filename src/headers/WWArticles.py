@@ -93,7 +93,7 @@ def writeArticleContent2File(filepointer, dict_article):
   filepointer.write(f" - [{task_status}] #task status\n")
   return
 
-def saveArticle2Markdown(dict_article, bool_verbose=True, bool_overwrite=False):
+def saveArticle2Markdown(dict_article, bool_verbose=True, bool_overwrite=False, bool_skip_overwrite_message=False):
   # Verify that dict_article is a dictionary
   if not isinstance(dict_article, dict):
     raise ValueError(f'The input must be a dictionary. The input is of type {type(dict_article)}')
@@ -105,7 +105,7 @@ def saveArticle2Markdown(dict_article, bool_verbose=True, bool_overwrite=False):
     _dict_article = readMarkdownFile2Dict(filepath_file)
     _task_status = _dict_article["task_status"]
     ## if the article has already been assessed, don't overwrite it
-    if _task_status in [ "D", "-" ]:
+    if _task_status in [ "D", "-" ] and not bool_skip_overwrite_message:
       if _task_status == "D": print("The following article has already been downloaded:")
       if _task_status == "-": print("The following article has already been ignored:")
       printArticle(dict_article)

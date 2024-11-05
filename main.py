@@ -72,8 +72,9 @@ class ArxivScraper():
   def saveArticles(self, list_article_dicts):
     WWFnFs.createDirectory(Directories.directory_mdfiles, bool_add_space=True)
     num_articles = len(list_article_dicts)
+    skip_overwrite_message = self.obj_user_inputs.getSkipOverwriteMessage()
     for dict_article in list_article_dicts:
-      WWArticles.saveArticle2Markdown(dict_article, bool_verbose=False)
+      WWArticles.saveArticle2Markdown(dict_article, bool_verbose=False, bool_skip_overwrite_message=skip_overwrite_message)
     print(f"Saved {num_articles} articles.")
     print(" ")
 
