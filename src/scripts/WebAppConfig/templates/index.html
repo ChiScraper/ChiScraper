@@ -40,15 +40,15 @@
             {% endfor %}
         </select>
 
-        <label for="show_processed">Show:</label>
+        <label for="show_processed">Show Only:</label>
         <select name="show_processed" id="show_processed" onchange="applyFilters()">
             <option value="a" {% if show_processed == 'a' %}selected{% endif %}>All articles</option>
-            <option value="u" {% if show_processed == 'u' %}selected{% endif %}>Unprocessed only</option>
-            <option value="r" {% if show_processed == 'r' %}selected{% endif %}>To Read only</option>
-            <option value="R" {% if show_processed == 'R' %}selected{% endif %}>Read only</option>
-            <option value="d" {% if show_processed == 'd' %}selected{% endif %}>To Download only</option>
-            <option value="D" {% if show_processed == 'D' %}selected{% endif %}>Downloaded only</option>
-            <option value="-" {% if show_processed == '-' %}selected{% endif %}>Not Relevant only</option>
+            <option value="u" {% if show_processed == 'u' %}selected{% endif %}>Unprocessed</option>
+            <option value="r" {% if show_processed == 'r' %}selected{% endif %}>To Read</option>
+            <option value="R" {% if show_processed == 'R' %}selected{% endif %}>Read</option>
+            <option value="d" {% if show_processed == 'd' %}selected{% endif %}>To Download</option>
+            <option value="D" {% if show_processed == 'D' %}selected{% endif %}>Downloaded</option>
+            <option value="-" {% if show_processed == '-' %}selected{% endif %}>Not Relevant</option>
         </select>
 
     </form>
