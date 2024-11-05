@@ -7,12 +7,15 @@ from src.headers import Directories
 from src.headers import FileNames
 from src.headers import IO
 from src.headers import WWArticles
+from src.headers import RankingParams
+
+print(f"URL: {RankingParams.source_url}")
+print(f"Model: {RankingParams.model}")
 
 
 ## ###############################################################
 ## GLOBAL PARAMETERS
 ## ###############################################################
-openai.OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 
 ## ###############################################################
@@ -35,9 +38,13 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
     }
   prompt_input = f"{prompt_criteria} \n\nTITLE: {article_title}\n\nABSTRACT: {article_abstract}"
   try:
-    client = openai.OpenAI()
+    client = openai.OpenAI(
+      base_url=RankingParams.source_url,
+      api_key=RankingParams.API_KEY
+      
+    )
     response = client.chat.completions.create(
-      model    = "gpt-4o-mini",
+      model    = RankingParams.model,
       messages = [
         { "role": "system", "content": prompt_rules },
         { "role": "user",   "content": prompt_input },
