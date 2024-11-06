@@ -1,3 +1,4 @@
-filename_ai_criteria = "user_profile.txt"
-filename_ai_rules    = "ai_guidelines.txt"
-filename_database    = "articles.db"
+filename_ai_criteria    = "user_profile.txt"
+filename_ai_rules       = "ai_guidelines.txt"
+filename_database       = "articles.db"
+filename_ranking_config = "RankingParams.json"

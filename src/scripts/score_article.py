@@ -7,7 +7,6 @@ from src.headers import Directories
 from src.headers import FileNames
 from src.headers import IO
 from src.headers import WWArticles
-from src.headers import RankingParams
 
 
 ## ###############################################################
@@ -18,7 +17,7 @@ from src.headers import RankingParams
 ## ###############################################################
 ## REQUEST GPT TO SCORE ARTICLE
 ## ###############################################################
-def getAIResponse(dict_article, prompt_rules, prompt_criteria):
+def getAIResponse(dict_article, prompt_rules, prompt_criteria, ranking_config):
   article_title    = dict_article.get("title", "")
   article_abstract = dict_article.get("abstract", "")
   if (article_title == ""):
@@ -36,12 +35,12 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
   prompt_input = f"{prompt_criteria} \n\nTITLE: {article_title}\n\nABSTRACT: {article_abstract}"
   try:
     client = openai.OpenAI(
-      base_url=RankingParams.source_url,
-      api_key=RankingParams.API_KEY
+      base_url = ranking_config['source_url'],
+      api_key  = ranking_config['API_KEY']
       
     )
     response = client.chat.completions.create(
-      model    = RankingParams.model,
+      model    = ranking_config['model'],
       messages = [
         { "role": "system", "content": prompt_rules },
         { "role": "user",   "content": prompt_input },
@@ -84,7 +83,7 @@ def getAIResponse(dict_article, prompt_rules, prompt_criteria):
 ## ###############################################################
 ## FUNCTION TO INTERPRET AI RESPONSE
 ## ###############################################################
-def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_score_all=False):
+def getAIScore(dict_article, prompt_rules, prompt_criteria,ranking_config, bool_score_all=False):
   if not(bool_score_all) and not(dict_article.get("ai_rating") is None):
     print("Skipping because the article has already been scored.")
     return False
@@ -93,6 +92,7 @@ def getAIScore(dict_article, prompt_rules, prompt_criteria, bool_score_all=False
     dict_article    = dict_article,
     prompt_rules    = prompt_rules,
     prompt_criteria = prompt_criteria,
+    ranking_config  = ranking_config, 
   )
   time_elapsed = time.time() - time_start
   if not("success" == dict_ai_score["status"].lower()):

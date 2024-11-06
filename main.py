@@ -49,14 +49,20 @@ class ArxivScraper():
 
   def scoreArticles(self, list_article_dicts):
     num_articles    = len(list_article_dicts)
-    prompt_rules    = IO.readTextFile(f"{Directories.directory_config}/{FileNames.filename_ai_rules}")
-    prompt_criteria = IO.readTextFile(f"{Directories.directory_config}/{FileNames.filename_ai_criteria}")
+    prompt_rules_path    = WWFnFs.contstructPath(Directories.directory_config, FileNames.filename_ai_rules)
+    prompt_rules    = IO.readTextFile(prompt_rules_path)
+    prompt_criteria_path = WWFnFs.contstructPath(Directories.directory_config, FileNames.filename_ai_criteria)
+    prompt_criteria = IO.readTextFile(prompt_criteria_path)
+    ranking_config_path  = WWFnFs.contstructPath(Directories.directory_config, FileNames.filename_ranking_config)
+    ranking_config = IO.readRankingConfig2Dict(ranking_config_path)
+
     for article_index, dict_article in enumerate(list_article_dicts):
       print(f"({article_index+1}/{num_articles})")
       bool_scored = ScoreArticle.getAIScore(
         dict_article    = dict_article,
         prompt_rules    = prompt_rules,
         prompt_criteria = prompt_criteria,
+        ranking_config  = ranking_config,
       )
       if bool_scored: WWArticles.saveArticle2Markdown(dict_article)
       print(" ")

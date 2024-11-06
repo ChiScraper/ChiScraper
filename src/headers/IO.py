@@ -2,6 +2,7 @@
 ## LOAD MODULES
 ## ###############################################################
 import json, yaml
+import os
 
 
 ## ###############################################################
@@ -49,6 +50,15 @@ def readSearchCriteria2Dict(directory, config_name):
     raise Exception("Error: Config file is missing search keys")
   return dict_config
 
+def readRankingConfig2Dict(path_config):
+  dict_config = readFile(path_config, ".json")
+  # If API_SYS_ENV is set, use the environment variable
+  # If API_KEY set, use that directly
+  # If neither are set, do not raise an error, let a downstream function handle it
+  if "API_SYS_ENV" in dict_config:
+    dict_config["API_KEY"] = os.getenv(dict_config["API_SYS_ENV"])
+  return dict_config
+  
 
 ## ###############################################################
 ## PRINT DICTIONARY CONTENTS
