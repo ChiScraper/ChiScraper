@@ -38,6 +38,7 @@ body {
     padding: 10px;
     border-left: 3px solid var(--color-primary);
 }
+
 .sort-container {
     margin-bottom: 20px;
 }
@@ -178,6 +179,34 @@ body {
 .page-frontmatter h1 {
     color: var(--color-primary);
 }
+
+/* Add styles for the toggle button */
+.toggle-justification {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.toggle-justification:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Optional: Add styles for the AI Justification section */
+.ai-justification {
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--color-text-light);
+    background-color: var(--color-background-light); /* Optional: adjust background color */
+    padding: 10px;
+}
+
+
 #filter-form label {
     color: var(--color-text);
 }

@@ -84,18 +84,19 @@
 
         <!-- TO DO: Make Abstract and AI Justification Collapsable again -->
         </div> 
-            <div class="article-abstract">
-                <strong>Abstract:</strong> {{ article[10] if article[10] else 'N/A' }}
-            </div>
-            <div class="article-ai">
-                <p><strong>AI Confidence:</strong> {{ "%.0f%%"|format(article[12]*10) if article[12] is not none else 'N/A' }}</p>
-                <div class="confidence-bar">
-                    <div class="confidence-level" style="width: {{ article[12]*10 if article[12] is not none else 0 }}%">
-                    </div>
-                </div>
-                <p><strong>AI Justification:</strong> {{ article[13] if article[13] is not none else 'N/A' }}</p>
-            </div>
+        <div class="article-abstract">
+            <strong>Abstract:</strong> {{ article[10] if article[10] else 'N/A' }}
         </div>
+        <div class="article-ai">
+            <p><strong>AI Confidence:</strong> {{ "%.0f%%"|format(article[12]*10) if article[12] is not none else 'N/A' }}</p>
+            <div class="confidence-bar">
+                <div class="confidence-level" style="width: {{ article[12]*10 if article[12] is not none else 0 }}%">
+                </div>
+            </div>
+            <button class="toggle-justification" onclick="toggleJustification(this)">AI Justification</button>
+            <p class="ai-justification" style="display: none;"><strong>AI Justification:</strong> {{ article[13] if article[13] is not none else 'N/A' }}</p>
+        </div>
+    </div>
         {% endfor %}
             </tbody>
         </table>
