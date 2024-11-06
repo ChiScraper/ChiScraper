@@ -60,15 +60,14 @@
     <!-- List of Articles -->
     {% for article in articles %}
     <div class="article-section">
-        <p><strong>{{article[0]}}.</strong></p>
-        <div class="article-arxiv-id">{{ article[3] }}</div>
-        <div class="article-title">{{ article[2] }}</div>
+        <div class="article-index" style="display: inline;">{{ article[0] }}.</div>
+        <div class="article-arxiv-id" style="display: inline;">{{ article[3] }}</div>
+        <div class="article-title"style="display: inline;">{{ article[2] }}</div>
         <div class="article-meta">
             <p><strong>Authors:</strong> {{ article[9] }}</p>
             <p><strong>Published Date:</strong> {{ article[5] if article[5] else 'N/A' }}</p>
             <p><strong>Category:</strong> {{ article[7] }}</p>
             <p><strong>Tags:</strong> {{ article[11] }}</p>
-            <p><strong>Processed:</strong> {{ article[-1] }}</p>
             <a href="{{ article[4] }}" target="_blank" class="pdf-button">View PDF</a>
             <a href="{{ url_for('link_article', arxiv_id=article[3]) }}" class="link-button">Link</a>
             
