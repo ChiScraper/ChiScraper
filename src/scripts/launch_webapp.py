@@ -45,7 +45,7 @@ def setup_database(article_dir):
   theme = db.get_theme()
   if theme is None:
     logging.info(f"NO THEME FOUND, SETTING DEFAULT THEME")
-    db.update_theme('default_theme')
+    db.update_theme('light')
   filterAndSort = db.get_filters_and_sort()
   logging.info(f"Filter and Sort: {filterAndSort}")
   if filterAndSort is None:
@@ -58,7 +58,7 @@ def setup_database(article_dir):
 def get_theme():
   # THEME = 'default_theme'
   logging.info(f"Getting theme")
-  THEME = app.config['db'].get_theme() if app.config['db'].get_theme() else 'default_theme'
+  THEME = app.config['db'].get_theme() if app.config['db'].get_theme() else "light"
   logging.info(f"Theme: {THEME}")
   theme = request.args.get('theme', THEME)  # Get selected theme
   logging.info(f"Selected Theme: {theme}")
@@ -250,7 +250,7 @@ def link_article(arxiv_id):
 def main():
   
   ARTICLES_DIR = Directories.directory_mdfiles
-  DEFAULT_THEME = "default_theme" 
+  DEFAULT_THEME = "light" 
 
   if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
     db = setup_database(ARTICLES_DIR)

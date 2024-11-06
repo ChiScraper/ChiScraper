@@ -5,6 +5,18 @@ body {
     margin: 0 auto;
     padding: 20px;
     background-color: var(--color-background-darker);
+
+}
+
+.page-frontmatter {
+    margin-bottom: 40px;
+    background-color: var(--color-background);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px var(--color-shadow);
+}
+.page-frontmatter h1 {
+    color: var(--color-text); /* Change color to color-text */
 }
 
 .article-section {
@@ -115,21 +127,6 @@ body {
     line-height: 20px;
     color: white;
 }
-.page-frontmatter {
-    margin-bottom: 40px;
-    background-color: var(--color-background);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px var(--color-shadow);
-}
-.page-frontmatter {
-    margin-bottom: 40px;
-    background-color: var(--color-background);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px var(--color-shadow);
-}
-
 #filter-form {
     display: flex;
     flex-wrap: wrap;
@@ -171,14 +168,12 @@ body {
     color: white;
 }
 .article-arxiv-id {
-    color: var(--color-text);
+    color: var(--color-primary-light);
 }
 .confidence-level {
     color: white;
 }
-.page-frontmatter h1 {
-    color: var(--color-primary);
-}
+
 
 /* Add styles for the toggle button */
 .toggle-justification {

@@ -1,0 +1,17 @@
+:root {
+  --color-background: #0D1117;
+  --color-background-darker: #010409; /* Darker Mocha Background */
+  --color-abstract-background: #0d1117;
+  --color-shadow: #151B23;
+  --color-text: #b4bac0;
+  --color-text-light: #8C939C;
+  --color-primary: #3572A5;
+  --color-primary-hover: #1C7CD6;
+  --color-primary-light: #e6f3ff;
+  --color-secondary: #238636;
+  --color-secondary-hover: #45a049;
+  --color-tertiary: #3572A5;
+  --color-tertiary-hover: #007B9A;
+  --color-border: #ddd;
+  --color-confidence-bar: #b4bac0;
+}
