@@ -1,0 +1,9 @@
+{
+    "config_tag": "QuantumOptics",
+    "list_authors" : [],
+    "list_categories" : ["astro-ph.IM","physics.optics","eess.SP"],
+    "list_keywords_exclude" : [],
+    "list_keywords_include" : [
+            [ [ ["photonic","cyrstal"], ["hollow","core"] ] ,["fiber","fibre"] ]       
+    ]
+}
