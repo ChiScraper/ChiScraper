@@ -75,6 +75,3 @@ Local LLM Support: see details in `./docs/bla.pdf`
 
 Contributions are welcome! Please submit issues and pull requests on GitHub.
 
-## License
-
-This project is licensed under the MIT License.
