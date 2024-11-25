@@ -85,12 +85,22 @@ staticPath = WWFnFs.contstructPath(Directories.directory_webApp, 'static')
 
 if os.name == 'nt':  # Check if the system is Windows
     logging.info("Windows Detected - Hardcoding Paths")
-    templatesPath = "/src/scripts/WebAppConfig/templates"
-    staticPath = "/src/scripts/WebAppConfig/static"
-    
+    staticURLPath = "/src/scripts/WebAppConfig/static"
+    # templatesPath = "/src/scripts/WebAppConfig/templates"
+    # staticPath =    "/src/scripts/WebAppConfig/static"
+
+# # Construct paths using os.path.join
+# base_dir = os.path.dirname(os.path.abspath(__file__))
+# templatesPath = os.path.join(base_dir, 'src', 'scripts', 'WebAppConfig', 'templates')
+# staticPath = os.path.join(base_dir, 'src', 'scripts', 'WebAppConfig', 'static')
+
+
 # Create the Flask app
+print(f"Templates Path: {templatesPath}")
+print(f"Static Path: {staticPath}")
+print(f"static_url_path: {staticURLPath}")
 app = Flask(__name__,
-             static_url_path=staticPath,
+             static_url_path=staticURLPath,
              static_folder=staticPath,
              template_folder=templatesPath
              )
@@ -103,12 +113,18 @@ def index():
 
   theme = get_theme()
   logging.info(f"Loading theme: {theme}")  
-  theme_dir = WWFnFs.contstructPath(staticPath, 'themes')
+  if os.name == 'nt':  # Check if the system is Windows
+    theme_dir = f"src/scripts/WebAppConfig/static/themes" # Hardcoded path for Windows
+  else:
+    theme_dir = WWFnFs.contstructPath(staticPath, 'themes')
 
   # Variables Accessed in the HTML
 
   ## Colour Variables
-  colors = load_colors_from_css(WWFnFs.contstructPath(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
+  if os.name == 'nt':  # Check if the system is Windows
+    colors = load_colors_from_css(f"src/scripts/WebAppConfig/static/themes/{theme}.css")  # Load colors based on selected theme
+  else:
+    colors = load_colors_from_css(WWFnFs.contstructPath(theme_dir, f'{theme}.css'))  # Load colors based on selected theme
   # List all theme files in the static/themes directory
   available_themes = [f[:-4] for f in os.listdir(theme_dir) if f.endswith('.css')]  
 
