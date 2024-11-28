@@ -50,6 +50,16 @@
             <option value="D" {% if show_processed == 'D' %}selected{% endif %}>Downloaded</option>
             <option value="-" {% if show_processed == '-' %}selected{% endif %}>Not Relevant</option>
         </select>
+    <button type="button" id="advanced-search-toggle" onclick="toggleAdvancedSearch()">Advanced Search</button>
+
+    <!-- Advanced Search Fields -->
+    <div id="advanced-search-fields" style="display: none;">
+        <label for="published_after">Published After:</label>
+        <input type="date" name="published_after" id="published_after">
+
+        <label for="published_before">Published Before:</label>
+        <input type="date" name="published_before" id="published_before">
+    </div>
 
     </form>
 

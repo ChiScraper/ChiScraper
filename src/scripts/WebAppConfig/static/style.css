@@ -8,6 +8,40 @@ body {
 
 }
 
+#advanced-search-toggle {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+#advanced-search-toggle:hover {
+    background-color: var(--color-primary-hover);
+}
+
+#advanced-search-fields {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#advanced-search-fields label {
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+#advanced-search-fields input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--color-border);
+}
+
 .page-frontmatter {
     margin-bottom: 40px;
     background-color: var(--color-background);

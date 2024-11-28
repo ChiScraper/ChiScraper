@@ -13,6 +13,11 @@ function toggleJustification(button) {
     }
 }
 
+function toggleAdvancedSearch() {
+    const fields = document.getElementById('advanced-search-fields');
+    fields.style.display = fields.style.display === 'none' ? 'block' : 'none';
+}
+
 // Store the scroll position before unload
 window.addEventListener('beforeunload', function() {
     localStorage.setItem('scrollPosition', window.scrollY);
