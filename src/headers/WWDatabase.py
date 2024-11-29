@@ -4,7 +4,7 @@ from datetime import datetime
 from src.headers import WWArticles
 from src.headers import WWFnFs
 import logging
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')  # Default to INFO if not set
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')  # Default to INFO if not set
 LOG_FILE = os.getenv('LOG_FILE', 'app.log')  # Default to app.log if not set
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
 
@@ -324,7 +324,7 @@ class ArticleDatabase:
           cursor.execute('SELECT DISTINCT tag FROM tag_labels')
           return [row[0] for row in cursor.fetchall()]
 
-  def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating'):
+  def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating', show_date_between=(None,None)):
       query = '''
           SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, at.processed
           FROM article_metadata am
@@ -358,13 +358,27 @@ class ArticleDatabase:
 
       # If show_processed is set, filter by processed status
       if showProcessedMap[show_processed] is not None:
-        query += f'AND at.processed = {showProcessedMap[show_processed]}'
+        query += 'AND at.processed = ?'
+        params.append(showProcessedMap[show_processed])
+      
+      # Conditionally add date filters
+      if show_date_between[0] is not None and show_date_between[0] != '':
+          query += 'AND am.date_published >= ?'
+          params.append(show_date_between[0])
+
+      if show_date_between[1] is not None and show_date_between[1] != '':
+          query += 'AND am.date_published <= ?'
+          params.append(show_date_between[1])
+          
+
 
       # Finish the query by grouping by article id and ordering by the selected column
       query += f'''
       GROUP BY am.id
       ORDER BY {sort_by} DESC
       '''
+    
+      logging.info(f"Query: \n {query}")
       try:
         with self.get_connection() as conn:
             cursor = conn.cursor()

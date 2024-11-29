@@ -119,6 +119,16 @@ def index():
     theme_dir = WWFnFs.contstructPath(staticPath, 'themes')
 
   # Variables Accessed in the HTML
+  # Initialize date filters to None
+  published_after = None
+  published_before = None
+
+  # Get the published_after and published_before parameters from the request
+  if 'published_after' in request.args:
+      published_after = request.args.get('published_after')
+  if 'published_before' in request.args:
+      published_before = request.args.get('published_before')
+
 
   ## Colour Variables
   if os.name == 'nt':  # Check if the system is Windows
@@ -172,7 +182,7 @@ def index():
   app.config['db'].set_filters_and_sort(filter_tag_indx, show_processed_indx, sort_by_indx)
 
   # Access the database to get the articles
-  articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by)
+  articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by,(published_after, published_before))
   # ... and the tags
   all_tags = app.config['db'].get_all_unique_tags()
   
