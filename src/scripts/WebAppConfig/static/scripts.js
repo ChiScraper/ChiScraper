@@ -30,3 +30,10 @@ window.addEventListener('load', function() {
         localStorage.removeItem('scrollPosition'); // Optional: Clear the stored position
     }
 });
+
+window.addEventListener('load', function() {
+    if (document.getElementById('published_after').value || 
+        document.getElementById('published_before').value) {
+        document.getElementById('advanced-search-fields').style.display = 'block';
+    }
+});

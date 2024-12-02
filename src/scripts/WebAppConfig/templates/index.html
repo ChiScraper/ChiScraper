@@ -55,10 +55,14 @@
     <!-- Advanced Search Fields -->
     <div id="advanced-search-fields" style="display: none;">
         <label for="published_after">Published Between:</label>
-        <input type="date" name="published_after" id="published_after" onchange="applyFilters()">
+        <input type="date" name="published_after" id="published_after" 
+               value="{{ request.args.get('published_after', '') }}" 
+               onchange="applyFilters()">
 
         <label for="published_before"> And: </label>
-        <input type="date" name="published_before" id="published_before" onchange="applyFilters()">
+        <input type="date" name="published_before" id="published_before" 
+               value="{{ request.args.get('published_before', '') }}" 
+               onchange="applyFilters()">
     </div>
 
     </form>

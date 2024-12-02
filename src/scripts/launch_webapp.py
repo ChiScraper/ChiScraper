@@ -82,7 +82,7 @@ def load_colors_from_css(file_path):
 # Setup the paths for the css and html files
 templatesPath = WWFnFs.contstructPath(Directories.directory_webApp, 'templates')
 staticPath = WWFnFs.contstructPath(Directories.directory_webApp, 'static')
-
+staticURLPath = staticPath
 if os.name == 'nt':  # Check if the system is Windows
     logging.info("Windows Detected - Hardcoding Paths")
     staticURLPath = "/src/scripts/WebAppConfig/static"
@@ -96,9 +96,6 @@ if os.name == 'nt':  # Check if the system is Windows
 
 
 # Create the Flask app
-print(f"Templates Path: {templatesPath}")
-print(f"Static Path: {staticPath}")
-print(f"static_url_path: {staticURLPath}")
 app = Flask(__name__,
              static_url_path=staticURLPath,
              static_folder=staticPath,
