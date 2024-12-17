@@ -60,9 +60,17 @@
                onchange="applyFilters()">
 
         <label for="published_before"> And: </label>
-        <input type="date" name="published_before" id="published_before" 
-               value="{{ request.args.get('published_before', '') }}" 
-               onchange="applyFilters()">
+            <input type="date" name="published_before" id="published_before" 
+                value="{{ request.args.get('published_before', '') }}" 
+                onchange="applyFilters()">
+
+        <label for="rating_filter">Rating Filter:</label>
+        <select name="rating_filter" id="rating_filter" onchange="applyFilters()">
+            <option value="all" {% if rating_filter == 'all' %}selected{% endif %}>All Ratings</option>
+            <option value="liked" {% if rating_filter == 'liked' %}selected{% endif %}>Liked Only</option>
+            <option value="disliked" {% if rating_filter == 'disliked' %}selected{% endif %}>Disliked Only</option>
+            <option value="unrated" {% if rating_filter == 'unrated' %}selected{% endif %}>Unrated Only</option>
+        </select>
     </div>
 
     </form>
@@ -96,6 +104,19 @@
                 <option value="-" {% if article[-1] == 5 %}selected{% endif %}>Not Relevant</option>
             </select>
 
+        <div class="rating-buttons">
+            <a href="{{ url_for('rate_article', arxiv_id=article[3], rating=1) }}" 
+            class="rating-button like {% if article[-2] == 1 %}active{% endif %}"
+            title="Like">
+                👍
+            </a>
+            <a href="{{ url_for('rate_article', arxiv_id=article[3], rating=-1) }}" 
+            class="rating-button dislike {% if article[-2] == -1 %}active{% endif %}"
+            title="Dislike">
+                👎
+            </a>
+        </div>
+
         <!-- TO DO: Make Abstract and AI Justification Collapsable again -->
         </div> 
         <div class="article-abstract">
@@ -110,6 +131,8 @@
             <button class="toggle-justification" onclick="toggleJustification(this)">AI Justification</button>
             <p class="ai-justification" style="display: none;"><strong>AI Justification:</strong> {{ article[13] if article[13] is not none else 'N/A' }}</p>
         </div>
+
+
     </div>
         {% endfor %}
             </tbody>

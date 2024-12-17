@@ -50,7 +50,7 @@ def setup_database(article_dir):
   logging.info(f"Filter and Sort: {filterAndSort}")
   if filterAndSort is None:
     logging.debug(f"NO FILTERS FOUND, SETTING DEFAULT FILTERS")
-    db.set_filters_and_sort(None, None, None)
+    db.set_filters_and_sort(None, None, None,None)
 
   logging.info(f"Database setup complete")
   return db
@@ -150,11 +150,20 @@ def index():
     5: '-',
     None: 'a',
   }
+  # Add rating filter map alongside other maps
+  ratingFilterMap = {
+        0: 'all',
+        1: 'liked',
+        2: 'disliked',
+        3: 'unrated',
+        None: 'all',
+    }
+
   tags = app.config['db'].get_all_unique_tags()
 
   filterAndSort = app.config['db'].get_filters_and_sort()
   if filterAndSort is None:
-    filterAndSort = (None, None, None)
+    filterAndSort = (None, None, None,None)
   filter_tag_default = filterAndSort[0]
   if filter_tag_default is not None:
     filter_tag_default = tags[filter_tag_default]
@@ -163,6 +172,13 @@ def index():
 
   show_processed_default = showProcessedMap[filterAndSort[1]]
   sort_by_default = sortByMap[filterAndSort[2]]
+  rating_filter_default = ratingFilterMap[filterAndSort[3]]  # Get default rating filter
+
+  # Get current rating filter from request args or use default
+  rating_filter = request.args.get('rating_filter', rating_filter_default)
+  # Convert rating filter back to integer for database
+  rating_filter_indx = [k for k, v in ratingFilterMap.items() if v == rating_filter][0]
+
   ## Filtering and Sorting Variables
   sort_by = request.args.get('sort_by', sort_by_default)
   filter_tag = request.args.get('filter_tag', filter_tag_default)
@@ -176,10 +192,21 @@ def index():
   show_processed_indx = [k for k, v in showProcessedMap.items() if v == show_processed][0]
   sort_by_indx = [k for k, v in sortByMap.items() if v == sort_by][0]
 
-  app.config['db'].set_filters_and_sort(filter_tag_indx, show_processed_indx, sort_by_indx)
+  app.config['db'].set_filters_and_sort(
+      filter_tag_indx, 
+      show_processed_indx, 
+      sort_by_indx,
+      rating_filter_indx
+  )
 
-  # Access the database to get the articles
-  articles = app.config['db'].get_articles_list(filter_tag, show_processed, sort_by,(published_after, published_before))
+  # Pass rating filter to get_articles_list
+  articles = app.config['db'].get_articles_list(
+      filter_tag, 
+      show_processed, 
+      sort_by,
+      (published_after, published_before),
+      rating_filter
+  )
   # ... and the tags
   all_tags = app.config['db'].get_all_unique_tags()
   
@@ -201,11 +228,31 @@ def index():
     formatted_articles.append(formatted_article)
 
   # Now all the variables are ready, we can render the page using the `index.html` template
-  return render_template('index.html', articles=formatted_articles, all_tags=all_tags, 
-               current_sort=sort_by, current_filter=filter_tag, 
-               show_processed=show_processed, colors=colors, current_theme=theme,
-               available_themes=available_themes)
+  return render_template('index.html', 
+      articles=formatted_articles, 
+      all_tags=all_tags, 
+      current_sort=sort_by, 
+      current_filter=filter_tag, 
+      show_processed=show_processed, 
+      colors=colors, 
+      current_theme=theme,
+      available_themes=available_themes,
+      rating_filter=rating_filter  # Add this line
+  )
 
+@app.route('/rate/<string:arxiv_id>/<string:rating>')
+def rate_article(arxiv_id, rating):
+    """Handle article rating (1 for like, -1 for dislike)"""
+    try:
+        rating_value = int(rating)
+        if rating_value not in [-1, 1]:  # Only allow -1 or 1
+            return redirect(url_for('index'))
+            
+        app.config['db'].update_user_rating(arxiv_id, rating_value)
+    except ValueError:
+        logging.error(f"Invalid rating value: {rating}")
+    
+    return redirect(url_for('index'))
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
