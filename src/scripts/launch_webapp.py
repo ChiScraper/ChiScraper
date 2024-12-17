@@ -212,20 +212,25 @@ def index():
   
   formatted_articles = []
   for index, article in enumerate(articles):
-    # For each article returned by the query, format it into a list
-    formatted_article = list(article)
-    # These indexes correspond to the columns of the SQL Tables. 
-    # TODO: Document the schema of the tables
-    # Format date_published (index 4) and date_updated (index 5)
-    if formatted_article[4]:
-      formatted_article[4] = datetime.fromisoformat(formatted_article[4]).strftime('%d-%m-%Y')
-    if formatted_article[5]:
-      formatted_article[5] = datetime.fromisoformat(formatted_article[5]).strftime('%d-%m-%Y')
-    # Insert the index of the article at position 0
-    formatted_article.insert(0, index+1)
+      # For each article returned by the query, format it into a dictionary
+      formatted_article = {
+          'index': index + 1,  # Insert the index of the article
+          'arxiv_id': article['arxiv_id'],
+          'title': article['title'],
+          'authors': article['authors'],
+          'date_published': datetime.fromisoformat(article['date_published']).strftime('%d-%m-%Y') if article['date_published'] else 'N/A',
+          'date_updated': datetime.fromisoformat(article['date_updated']).strftime('%d-%m-%Y') if article['date_updated'] else 'N/A',
+          'category_primary': article['category_primary'],
+          'tags': article['tags'],
+          'url_pdf': article['url_pdf'],
+          'ai_rating': article['ai_rating'],
+          'ai_reason': article['ai_reason'],
+          'user_rating': article['user_rating'],
+          'processed': article['processed'],
+          'abstract': article['abstract'],
+      }
 
-
-    formatted_articles.append(formatted_article)
+      formatted_articles.append(formatted_article)
 
   # Now all the variables are ready, we can render the page using the `index.html` template
   return render_template('index.html', 

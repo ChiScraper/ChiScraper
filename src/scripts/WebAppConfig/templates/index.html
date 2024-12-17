@@ -82,36 +82,37 @@
     <!-- List of Articles -->
     {% for article in articles %}
     <div class="article-section">
-        <div class="article-index" style="display: inline;">{{ article[0] }}.</div>
-        <div class="article-arxiv-id" style="display: inline;">{{ article[3] }}</div>
-        <div class="article-title"style="display: inline;">{{ article[2] }}</div>
+        <div class="article-index" style="display: inline;">{{ loop.index }}.</div>
+        <div class="article-arxiv-id" style="display: inline;">{{ article.arxiv_id }}</div>
+        <div class="article-title" style="display: inline;">{{ article.title }}</div>
         <div class="article-meta">
-            <p><strong>Authors:</strong> {{ article[9] }}</p>
-            <p><strong>Published Date:</strong> {{ article[5] if article[5] else 'N/A' }}</p>
-            <p><strong>Category:</strong> {{ article[7] }}</p>
-            <p><strong>Tags:</strong> {{ article[11] }}</p>
-            <a href="{{ article[4] }}" target="_blank" class="pdf-button">View PDF</a>
-            <a href="{{ url_for('link_article', arxiv_id=article[3]) }}" class="link-button">Link</a>
+            <p><strong>Authors:</strong> {{ article.authors }}</p>
+            <p><strong>Published Date:</strong> {{ article.date_published if article.date_published else 'N/A' }}</p>
+            <p><strong>Category:</strong> {{ article.category_primary }}</p>
+            <p><strong>Tags:</strong> {{ article.tags }}</p>
+            <a href="{{ article.url_pdf }}" target="_blank" class="pdf-button">View PDF</a>
+            <a href="{{ url_for('link_article', arxiv_id=article.arxiv_id) }}" class="link-button">Link</a>
+
             
 
             <!-- Drop Down Menu for processed -->
-            <select name="process_status" class="process-button" onchange="location.href='{{ url_for('process_article', arxiv_id=article[3], status='') }}' + this.value">
-                <option value="u" {% if article[-1] == 0 %}selected{% endif %}>Unprocessed</option>
-                <option value="r" {% if article[-1] == 1 %}selected{% endif %}>To Read</option>
-                <option value="R" {% if article[-1] == 2 %}selected{% endif %}>Read</option>
-                <option value="d" {% if article[-1] == 3 %}selected{% endif %}>To Download</option>
-                <option value="D" {% if article[-1] == 4 %}selected{% endif %}>Download</option>
-                <option value="-" {% if article[-1] == 5 %}selected{% endif %}>Not Relevant</option>
+            <select name="process_status" class="process-button" onchange="location.href='{{ url_for('process_article', arxiv_id=article.arxiv_id, status='') }}' + this.value">
+                <option value="u" {% if article.processed == 0 %}selected{% endif %}>Unprocessed</option>
+                <option value="r" {% if article.processed == 1 %}selected{% endif %}>To Read</option>
+                <option value="R" {% if article.processed == 2 %}selected{% endif %}>Read</option>
+                <option value="d" {% if article.processed == 3 %}selected{% endif %}>To Download</option>
+                <option value="D" {% if article.processed == 4 %}selected{% endif %}>Download</option>
+                <option value="-" {% if article.processed == 5 %}selected{% endif %}>Not Relevant</option>
             </select>
 
         <div class="rating-buttons">
-            <a href="{{ url_for('rate_article', arxiv_id=article[3], rating=1) }}" 
-            class="rating-button like {% if article[-2] == 1 %}active{% endif %}"
+            <a href="{{ url_for('rate_article', arxiv_id=article.arxiv_id, rating=1) }}" 
+            class="rating-button like {% if article.user_rating == 1 %}active{% endif %}"
             title="Like">
                 👍
             </a>
-            <a href="{{ url_for('rate_article', arxiv_id=article[3], rating=-1) }}" 
-            class="rating-button dislike {% if article[-2] == -1 %}active{% endif %}"
+            <a href="{{ url_for('rate_article', arxiv_id=article.arxiv_id, rating=-1) }}" 
+            class="rating-button dislike {% if article.user_rating == -1 %}active{% endif %}"
             title="Dislike">
                 👎
             </a>
@@ -120,16 +121,16 @@
         <!-- TO DO: Make Abstract and AI Justification Collapsable again -->
         </div> 
         <div class="article-abstract">
-            <strong>Abstract:</strong> {{ article[10] if article[10] else 'N/A' }}
+            <strong>Abstract:</strong> {{ article.abstract if article.abstract else 'N/A' }}
         </div>
         <div class="article-ai">
-            <p><strong>AI Confidence:</strong> {{ "%.0f%%"|format(article[12]*10) if article[12] is not none else 'N/A' }}</p>
+            <p><strong>AI Confidence:</strong> {{ "%.0f%%"|format(article.ai_rating * 10) if article.ai_rating is not none else 'N/A' }}</p>
             <div class="confidence-bar">
-                <div class="confidence-level" style="width: {{ article[12]*10 if article[12] is not none else 0 }}%">
+                <div class="confidence-level" style="width: {{ article.ai_rating * 10 if article.ai_rating is not none else 0 }}%">
                 </div>
             </div>
             <button class="toggle-justification" onclick="toggleJustification(this)">AI Justification</button>
-            <p class="ai-justification" style="display: none;"><strong>AI Justification:</strong> {{ article[13] if article[13] is not none else 'N/A' }}</p>
+            <p class="ai-justification" style="display: none;"><strong>AI Justification:</strong> {{ article.ai_reason if article.ai_reason is not none else 'N/A' }}</p>
         </div>
 
 

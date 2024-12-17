@@ -418,10 +418,14 @@ class ArticleDatabase:
     
       logging.info(f"Query: \n {query}")
       try:
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            return cursor.fetchall()
+          with self.get_connection() as conn:
+              cursor = conn.cursor()
+              cursor.execute(query, params)
+              results = cursor.fetchall()
+              logging.info(f"Fetched articles: {results}")  # Log the results
+              columns = [column[0] for column in cursor.description]  # Get column names
+              return [dict(zip(columns, row)) for row in results]  # Return list of dictionaries
+
       except Exception as e:
         logging.error(f"Failed to fetch articles: {e}")
         logging.error(f"Query: {query}")
