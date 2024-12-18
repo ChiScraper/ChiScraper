@@ -239,3 +239,51 @@ body {
 #filter-form label {
     color: var(--color-text);
 }
+
+.rating-buttons {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.rating-button {
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 3px;
+    margin-right: 5px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    background-color: var(--color-background-light);
+}
+
+.rating-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Style for active (selected) buttons */
+.rating-button.active {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.like.active {
+    background-color: var(--color-success);
+    box-shadow: 0 0 5px var(--color-success);
+}
+
+.dislike.active {
+    background-color: var(--color-danger);
+    box-shadow: 0 0 5px var(--color-danger);
+}
+
+/* Hover effects */
+.like:hover {
+    background-color: var(--color-success);
+    box-shadow: 0 0 5px var(--color-success);
+}
+
+.dislike:hover {
+    background-color: var(--color-danger);
+    box-shadow: 0 0 5px var(--color-danger);
+}

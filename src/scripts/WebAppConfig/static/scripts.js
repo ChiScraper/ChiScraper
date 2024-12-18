@@ -16,6 +16,7 @@ function toggleJustification(button) {
 function toggleAdvancedSearch() {
     const fields = document.getElementById('advanced-search-fields');
     fields.style.display = fields.style.display === 'none' ? 'block' : 'none';
+    localStorage.setItem('advancedSearchOpen', fields.style.display === 'block');
 }
 
 // Store the scroll position before unload
@@ -33,7 +34,9 @@ window.addEventListener('load', function() {
 
 window.addEventListener('load', function() {
     if (document.getElementById('published_after').value || 
-        document.getElementById('published_before').value) {
+        document.getElementById('published_before').value ||
+        document.getElementById('rating_filter').value !== 'all' ||
+        localStorage.getItem('advancedSearchOpen') === 'true') {
         document.getElementById('advanced-search-fields').style.display = 'block';
     }
 });

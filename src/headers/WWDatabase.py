@@ -97,9 +97,21 @@ class ArticleDatabase:
       theme TEXT,
       filter_process INTEGER,
       filter_tag INTEGER,
-      sort_by INTEGER
+      sort_by INTEGER,
+      rating_filter INTEGER
     )
     ''')
+
+    # Add rating_filter column if it doesn't exist
+    try:
+        cursor.execute('ALTER TABLE settings ADD COLUMN rating_filter INTEGER')
+        logging.info("Added rating_filter column to settings table")
+    except sqlite3.OperationalError as e:
+        if "duplicate column name" in str(e):
+            logging.info("rating_filter column already exists")
+        else:
+            logging.error(f"Error adding rating_filter column: {e}")
+
 
     conn.commit()
     conn.close()
@@ -182,6 +194,26 @@ class ArticleDatabase:
       else:
         cursor.execute('INSERT INTO settings (theme, key) VALUES (?, ?)', (theme_path, 0))
       conn.commit()
+
+
+  def update_user_rating(self, arxiv_id, rating):
+      """Update the user rating for an article (-1, 0, or 1)"""
+      try:
+          with self.get_connection() as conn:
+              cursor = conn.cursor()
+              cursor.execute('''
+                  UPDATE article_ratings 
+                  SET user_rating = ? 
+                  WHERE article_id = (
+                      SELECT id FROM article_metadata WHERE arxiv_id = ?
+                  )
+              ''', (rating, arxiv_id))
+              conn.commit()
+              logging.info(f"Updated user rating for {arxiv_id} to {rating}")
+              return True
+      except Exception as e:
+          logging.error(f"Failed to update user rating for {arxiv_id}: {e}")
+          return False
 
   def list_table_columns(self):
     conn = sqlite3.connect(self.db_name)
@@ -324,9 +356,9 @@ class ArticleDatabase:
           cursor.execute('SELECT DISTINCT tag FROM tag_labels')
           return [row[0] for row in cursor.fetchall()]
 
-  def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating', show_date_between=(None,None)):
+  def get_articles_list(self, filter_tag=None, show_processed=None, sort_by='ai_rating', show_date_between=(None,None), rating_filter='all'):
       query = '''
-          SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, at.processed
+          SELECT am.*, GROUP_CONCAT(tl.tag) as tags, ar.ai_rating, ar.ai_reason, ar.user_rating, at.processed
           FROM article_metadata am
           LEFT JOIN article_tags at ON am.id = at.article_id
           LEFT JOIN tag_labels tl ON (at.tags & (1 << tl.tag_id)) != 0
@@ -369,8 +401,14 @@ class ArticleDatabase:
       if show_date_between[1] is not None and show_date_between[1] != '':
           query += 'AND am.date_published <= ?'
           params.append(show_date_between[1])
-          
 
+      # Add rating filter
+      if rating_filter == 'liked':
+          query += ' AND ar.user_rating = 1'
+      elif rating_filter == 'disliked':
+          query += ' AND ar.user_rating = -1'
+      elif rating_filter == 'unrated':
+          query += ' AND (ar.user_rating IS NULL OR ar.user_rating = 0)'
 
       # Finish the query by grouping by article id and ordering by the selected column
       query += f'''
@@ -380,10 +418,14 @@ class ArticleDatabase:
     
       logging.info(f"Query: \n {query}")
       try:
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            return cursor.fetchall()
+          with self.get_connection() as conn:
+              cursor = conn.cursor()
+              cursor.execute(query, params)
+              results = cursor.fetchall()
+              logging.info(f"Fetched articles: {results}")  # Log the results
+              columns = [column[0] for column in cursor.description]  # Get column names
+              return [dict(zip(columns, row)) for row in results]  # Return list of dictionaries
+
       except Exception as e:
         logging.error(f"Failed to fetch articles: {e}")
         logging.error(f"Query: {query}")
@@ -404,12 +446,48 @@ class ArticleDatabase:
     try:
       with self.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT filter_process, filter_tag, sort_by FROM settings')
+        # cursor.execute('SELECT filter_process, filter_tag, sort_by FROM settings')
+        cursor.execute('SELECT filter_process, filter_tag, sort_by, rating_filter FROM settings')
+        #
         result = cursor.fetchone()
         return result if result else None
     except Exception as e:
       logging.error(f"Failed to fetch filters: {e}")
       return None
+    
+  def get_articles_by_rating_status(self, status=1):
+    """
+    Get articles based on their rating status.
+    Args:
+        status (int): 1 for liked, -1 for disliked, 0 for unranked. Defaults to 1.
+    Returns:
+        list: List of article IDs matching the rating status
+    """
+    try:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            if status == 0:
+                # For unranked, get articles that don't have a user_rating
+                cursor.execute('''
+                    SELECT am.id 
+                    FROM article_metadata am
+                    LEFT JOIN article_ratings ar ON am.id = ar.article_id
+                    WHERE ar.user_rating IS NULL OR ar.user_rating = 0
+                ''')
+            else:
+                # For liked/disliked, get articles with matching user_rating
+                cursor.execute('''
+                    SELECT am.id 
+                    FROM article_metadata am
+                    JOIN article_ratings ar ON am.id = ar.article_id
+                    WHERE ar.user_rating = ?
+                ''', (status,))
+            
+            return [row[0] for row in cursor.fetchall()]
+    except Exception as e:
+        logging.error(f"Failed to fetch articles by rating status: {e}")
+        return []
+
 
   def add_article_metadata(self, overwrite_duplicates=None, **kwargs):
     conn = sqlite3.connect(self.db_name)
@@ -565,18 +643,20 @@ class ArticleDatabase:
       filepath = WWFnFs.contstructPath(directory, filename)
       self.add_article_from_MD(filepath)
 
-  def set_filters_and_sort(self, filter_process=None, filter_tag=None, sort_by=None):
-    logging.info("Setting filters and sort")
-    with self.get_connection() as conn:
-      cursor = conn.cursor()
-      cursor.execute('SELECT * FROM settings')
-      result = cursor.fetchone()
-      if result:
-        cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?', (filter_process, filter_tag, sort_by))
-      else:
-        cursor.execute('INSERT INTO settings (filter_process, filter_tag, sort_by, key) VALUES (?, ?, ?)', (filter_process, filter_tag, sort_by, 0))
-      conn.commit()
-      logging.info("Filters and sort set successfully")
+  def set_filters_and_sort(self, filter_process=None, filter_tag=None, sort_by=None, rating_filter=None):
+      logging.info("Setting filters and sort")
+      with self.get_connection() as conn:
+          cursor = conn.cursor()
+          cursor.execute('SELECT * FROM settings')
+          result = cursor.fetchone()
+          if result:
+              cursor.execute('UPDATE settings SET filter_process = ?, filter_tag = ?, sort_by = ?, rating_filter = ?', 
+                          (filter_process, filter_tag, sort_by, rating_filter))
+          else:
+              cursor.execute('INSERT INTO settings (filter_process, filter_tag, sort_by, rating_filter, key) VALUES (?, ?, ?, ?, ?)', 
+                          (filter_process, filter_tag, sort_by, rating_filter, 0))
+          conn.commit()
+          logging.info("Filters and sort set successfully")
 
   def check_modified(self, filepath):
     try:
